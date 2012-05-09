@@ -1,0 +1,192 @@
+/*
+    Document   : sphinxsearch
+    Created on : Apr 6, 2012, 1:39:40 AM
+    Author     : mcuhq
+    Description:
+        Sphinx Search Plugin .
+*/
+
+/*Jquery UI overwrites*/
+.ui-widget {
+    font-size: 11px !important;
+}
+#SearchPageNumber,
+#slider-vertical{
+    float: left;
+}
+#SearchNumReplies,
+#SearchNumViews {
+    width: 10px;
+}
+#slider-range-min-replies,
+#slider-range-min-views{
+    width: 250px;
+    margin-top: 6px;
+}
+#SearchMenu .ui-menu a{
+}
+
+#SearchInputNumReplies,
+#SearchInputNumViews{ /*hidden input */
+    display: none;
+}
+
+#SearchTop{
+    margin-top: 8px;
+}
+.SearchHelp a{
+    color: #00ACFF;
+}
+.SearchHelp{
+    padding: 0px 5px;
+}
+
+.FilterMenu{
+    vertical-align: middle;
+}
+.SearchCheckbox{
+    border-right: 1px solid grey;
+}
+#SearchInput{
+    width: 300px;
+    padding: 3px;
+}
+#SearchMenu{
+    margin: 10px auto;
+    width: 700px;
+}
+#SearchDropdown option{
+    width: 200px;
+}
+
+#SearchMenu input.InputBox {
+    padding: 0px;
+    background: none repeat scroll 0 0 #333333;
+    border-radius: 5px 5px 5px 5px;
+    color: #A1A1A1;
+}
+/** style sheet override from turing input boxes white **/
+#SearchMenu input.SmallInput:focus,
+#SearchMenu input.InputBox:focus,
+#SearchMenu  textarea:focus {
+    background: none repeat scroll 0 0 #333333;
+    border: 1px solid #0070A6
+}
+
+
+#SearchMatchDropdown{
+    position: absolute;
+    left: 50%;
+    margin-left: -275px;
+    margin-top: -5px;
+}
+#SearchMenu dt{
+    float: left;
+    width: 195px; /* Careful with IE */
+    text-align: right;
+    margin-right: 10px;
+}
+#SearchMenu dd{
+    float: left;
+    width: 300px;
+}
+#SearchMenu d1{
+    clear: both;
+    display: block;
+    height: 0;
+    position: relative;
+    margin: 10px auto;
+    padding-top: 10px;
+}
+#SearchMenu .Slider{
+    height: 25px; /* IE Fix */
+}
+#SearchMenu dd li{
+    padding-top: 5px;
+}
+#SearchMenu table{
+    width: 100%;
+}
+
+h3{
+    color: white;
+}
+
+/* Help Box */
+.SearchHelp{
+    font-size: 12px;
+}
+.SearchHelp ul{
+    list-style:circle;
+}
+.SearchExamples{
+    font-family: monospace;
+}
+
+
+/* End Help Box */
+
+
+
+
+
+/* Formatting 3 columns */
+/* column container */
+.colmask {
+    position:relative;		/* This fixes the IE7 overflow hidden bug and stops the layout jumping out of place */
+    clear:both;
+    float:left;
+    width:100%;				/* width of whole page */
+    overflow:hidden;		/* This chops off any overhanging divs */
+}
+/* holy grail 3 column settings */
+.holygrail {
+    background:#111111;    	/* Right column background colour */
+}
+.holygrail .colmid {
+    float:left;
+    width:200%;
+    margin-left:-200px; 	/* Width of right column */
+    position:relative;
+    right:100%;
+    background:#000;    	/* Centre column background colour */
+}
+.holygrail .colleft {
+    float:left;
+    width:100%;
+    margin-left:-50%;
+    position:relative;
+    left:400px;         	/* Left column width + right column width */
+    background:#111111;    	/* Left column background colour */
+}
+.holygrail .col1wrap {
+    float:left;
+    width:50%;
+    position:relative;
+    right:200px;        	/* Width of left column */
+    padding-bottom:1em; 	/* Centre column bottom padding. Leave it out if it's zero */
+}
+.holygrail .col1 {
+    margin:0 215px;     	/* Centre column side padding:
+                            Left padding = left column width + centre column left padding width
+                            Right padding = right column width + centre column right padding width */
+    position:relative;
+    left:200%;
+    overflow:hidden;
+}
+.holygrail .col2 {
+    float:left;
+    float:right;			/* This overrides the float:left above */
+    width:170px;        	/* Width of left column content (left column width minus left and right padding) */
+    position:relative;
+    right:15px;         	/* Width of the left-had side padding on the left column */
+}
+.holygrail .col3 {
+    float:left;
+    float:right;			/* This overrides the float:left above */
+    width:182px;        	/* Width of right column content (right column width minus left and right padding) */
+    margin-right:25px;  	/* Width of right column right-hand padding + left column left and right padding */
+    position:relative;
+    left:50%;
+}
+/* End Formatting 3 columns */

@@ -1,0 +1,29 @@
+/*
+    Document   : searchdropdown
+    Created on : Apr 12, 2012, 9:06:42 PM
+    Author     : mcuhq
+
+*/
+
+
+
+/** Dropdown search config **/
+.SecondaryControls{
+    position: absolute;
+    right: 8px;
+    top: 110px;
+    z-index: 999;
+
+}
+.ControlsWrapper{
+    background-color: #333333;
+    width: 304px;
+    border-radius: 0px 0px 5px 5px;
+    padding: 5px 5px 5px 5px;
+}
+.SecondaryControls input.InputBox {
+    padding: 0px !important;
+    margin: 0px !important;
+}
+
+/** */
