@@ -30,7 +30,10 @@ class SphinxSettings {
         SaveToConfig('Plugin.SphinxSearch.Installed',FALSE); //either found existing binaries or succesfull install
 
 
-
+        //Status variables
+        SaveToConfig('InsideDir',FALSE);
+        SaveToConfig('InsidePath',FALSE);
+        SaveToConfig('Task','Configure');
 
         //Install parameters
         SaveToConfig('Plugin.SphinxSearch.Host', 'localhost');
@@ -39,12 +42,16 @@ class SphinxSettings {
         SaveToConfig('Plugin.SphinxSearch.IndexerPath', 'Not Detected'); //path to indexer - use this for config purposes!
         SaveToConfig('Plugin.SphinxSearch.SearchdPath', 'Not Detected'); //path to searchd - use this for config purposes!
         SaveToConfig('Plugin.SphinxSearch.ConfPath', 'Not Detected'); //path to searchd - use this for config purposes!
-        SaveToConfig('Plugin.SphinxSearch.ManuallIndexerPath', ''); //manual path to indexer
-        SaveToConfig('Plugin.SphinxSearch.ManuallSearchdPath', ''); //manual path to searchd
-        SaveToConfig('Plugin.SphinxSearch.ManuallConfPath', ''); //manual path to sphinx.conf
+        SaveToConfig('Plugin.SphinxSearch.ManualIndexerPath', ''); //manual path to indexer
+        SaveToConfig('Plugin.SphinxSearch.ManualSearchdPath', ''); //manual path to searchd
+        SaveToConfig('Plugin.SphinxSearch.ManualConfPath', ''); //manual path to sphinx.conf
+
+
 
         //general search parameters
         SaveToConfig('Plugin.SphinxSearch.MinWordIndexLen', 3); //minimum characters to index a word
+        SaveToConfig('Plugin.SphinxSearch.Prefix','vss_');
+
 
         //debug parameters
         SaveToConfig('Plugin.SphinxSearch.Timeout', 3312); //units of ms

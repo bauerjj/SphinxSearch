@@ -4,24 +4,24 @@ if (!defined('APPLICATION'))
     exit();
 /*
  * This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
 $PluginInfo['SphinxSearch'] = array(
     'Name' => 'Sphinx Search',
     'Description' => 'A much improved search experience based on the Sphinx Search Engine',
-    'Version' => 'A20120420',
+    'Version' => '20120420',
     'RequiredApplications' => array('Vanilla' => '2.0'),
     'RequiredTheme' => FALSE,
     'RequiredPlugins' => FALSE,
@@ -79,12 +79,11 @@ class SphinxSearchPlugin extends Gdn_Plugin {
         $this->SphinxSettings = new SphinxSettings();
         include_once(PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'sphinxconstants.php');
         include_once(PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'class.sphinxsearchgeneral.php');
-
     }
 
     public function Base_Render_Before($Sender) {
 
-        $Sender->AddCssFile('/plugins/SphinxSearch/design/searchdropdown.css'); //dropdown menu add-on
+        //$Sender->AddCssFile('/plugins/SphinxSearch/design/searchdropdown.css'); //dropdown menu add-on
         $Sender->AddJsFile('jquery.searchdropdown.js', 'plugins/SphinxSearch/');
     }
 
@@ -95,6 +94,75 @@ class SphinxSearchPlugin extends Gdn_Plugin {
         $Sender->Form = new Gdn_Form();
 
         $this->Dispatch($Sender, $Sender->RequestArgs);
+    }
+
+    var $Started = FALSE;
+    var $Handle = '';
+
+    /**
+     * Entry point to request status on any commands running in the background
+     *
+     * This is used
+     */
+    public function Controller_test() {
+        $Return = array();
+        $Output = file_get_contents(PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'install' . DS . 'output.txt');
+        $Return['Terminal'] = nl2br($Output);
+        $Error = file_get_contents(PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'install' . DS . 'error.txt');
+        $Return['Terminal'] .= nl2br('<span class="TermWarning">' . $Error) . '</span>';
+        $PID = explode("\n", trim(file_get_contents(PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'install' . DS . 'pid.txt')));
+
+        $PID = $PID[0]; //get only the first PID
+        if (!SphinxSearchGeneral::isRunning($PID)) { //check if finished
+            //yes it is finished
+            $Task = C('Task');
+            $InstallPath = C('InstallPath');
+            $Dir = C('InsideDir');
+            if ($Task == FALSE || !file_exists($InstallPath) || !is_dir($Dir)) //check if paths are OK
+                $Return['Terminal'] .= '<span class="TermWarning">Error locating install folders </span>';
+            else {
+                $Wizard = new SphinxSearchInstall();
+                switch ($Task) {
+                    case 'Start':
+                        if ($Error != ''){
+                            $Return['Terminal'] .= '<span class="TermWarning">Unable to Proceed due to the following errors:</span> <br/>';
+                            break;
+                        }
+                        $Wizard->InstallConfigure($InstallPath, $Dir);
+                        SaveToConfig('Task', 'Configure');
+                        break;
+                    case 'Configure':
+                        if ($Error != ''){
+                            $Return['Terminal'] .= '<span class="TermWarning">Unable to Proceed due to the above errors</span> <br/>';
+                            break;
+                        }
+                        $Wizard->InstallMake($Dir);
+                        SaveToConfig('Task', 'Make');
+                        break;
+                    case 'Make':
+                        $Wizard->InstallMakeInstall($Dir);
+                        SaveToConfig('Task', 'Make Install');
+                        break;
+                    case 'Make Install':
+                        if(!$Wizard->CheckIndexer($InstallPath)){
+                            $Return['Terminal'] .= '<span class="TermWarning">Unable to Find instance of Indexer</span> <br/>';
+                            break;
+                        }
+                        if(!$Wizard->CheckSearchd($InstallPath)){
+                            $Return['Terminal'] .= '<span class="TermWarning">Unable to Find instance of Searchd</span> <br/>';
+                            break;
+                        }
+                        SaveToConfig('Task', 'Finish');
+                        break;
+                }
+                if (C('Task') == 'Finish')
+                    $Return['Status'] = '<span style="color: green"> Finished Installing libraries for Sphinx!</span>';
+            }
+        } else {
+            $Return['Status'] = 'Please Wait For: ' . '<b>' . C('Task') . '</b><br/>' . C('Plugin.SphinxSearch.PIDBackgroundWorker');
+        }
+
+        echo json_encode($Return);
     }
 
     public function Controller_Index($Sender) {
@@ -109,6 +177,7 @@ class SphinxSearchPlugin extends Gdn_Plugin {
         $ConfigurationModel->SetField(array(
             'Plugin.SphinxSearch.MaxQueryTime' => 2000,
         ));
+        $Sender->AddJsFile('jquery.searchdropdown.js', 'plugins/SphinxSearch/');
 
         // Set the model on the form.
         $Sender->Form->SetModel($ConfigurationModel);
@@ -124,15 +193,43 @@ class SphinxSearchPlugin extends Gdn_Plugin {
                 $Sender->StatusMessage = T("Your changes have been saved.");
             }
         }
+
+//        chdir('/srv/http/mcuhq/vanilla/plugins/SphinxSearch/install/sphinx-2.0.4-release');
+//        $cmd = 'make install /srv/http/mcuhq/vanilla/plugins/SphinxSearch/install/sphinx-2.0.4-release';
+//        exec(sprintf("%s > %s 2>&1 & echo $! >> %s", 'find / -name *.*php', dirname(__FILE__) . '/output.txt', dirname(__FILE__) . '/pid.txt'));
+        //$Install = new SphinxSearchInstall();
+        //$Install->CheckPort(C('Database.Host','localhost'),9312);
+
         $Sender->Render($this->GetView('index.php'));
     }
 
-    public  function Controller_SphinxFAQ($Sender){
+    public function Controller_SphinxFAQ($Sender) {
         // Prevent non-admins from accessing this page
         $Sender->Permission('Vanilla.Settings.Manage');
 
         $Sender->SetData('PluginDescription', $this->GetPluginKey('Description'));
-         $Sender->Render($this->GetView('faq.php'));
+        $Sender->Render($this->GetView('faq.php'));
+    }
+
+    /**
+     * main entry point to poll the status of sphinx such
+     * as reindexing/start/stop/rotate/etc
+     *
+     * @param object $Sender
+     */
+    public function Controller_Service($Sender) {
+        $Sender->Permission('Vanilla.Settings.Manage');
+
+        $Sender->SetData('PluginDescription', $this->GetPluginKey('Description'));
+        $Sender->SetData('PluginVersion', $this->GetPluginKey('Version'));
+
+        $SphinxService = new SphinxSearchService($Sender, $this->GetView('index.php'));
+        if ($Error = $SphinxService->ReIndexAll())
+            $Sender->Form->AddError($Error);
+        // if ($Error = $SphinxService->Start())
+        //     $Sender->Form->AddError($Error);
+        //  else
+        $Sender->Render($this->GetView('index.php'));
     }
 
     /**
@@ -146,7 +243,6 @@ class SphinxSearchPlugin extends Gdn_Plugin {
         $Wizard = new SphinxSearchInstallWizard($Sender, $this->GetView('wizard.php'));
         $Wizard->Index();
     }
-
 
     public function SearchController_Render_Before($Sender) {
         //In order for the default search engine not to run, we will kill PHP from processing
@@ -603,13 +699,6 @@ class SphinxSearchPlugin extends Gdn_Plugin {
             }
         }
         return $Return . '</select>';
-    }
-
-    public function test(){
-        $SphinxService = new SphinxSearchService($this->Sender, $this->View);
-                $SphinxService->ReIndexAll();
-                if($Error = $SphinxService->Start())
-                    $this->Sender->Form->AddError($Error);
     }
 
     public function Setup() {

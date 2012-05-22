@@ -1,13 +1,19 @@
 <?php
 
+/*
+ *  install debug logs
+ */
+define ('OUTPUT_FILE', PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'install' . DS . 'output.txt');
+define ('PID_FILE', PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'install' . DS . 'pid.txt');
+define ('ERROR_FILE', PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'install' . DS . 'error.txt');
+
 /**
  * sphinx install directory
  */
 
-
 define ('SPHINX_SEARCH_INSTALL_DIR', dirname(__FILE__).'/install'); //make sure this is inside of ../plugins/SphinxSearch
 
-define('SPHINX_SEARCH_DELTA_INDEX', 'delta'); //there is still a prefix 
+define('SPHINX_SEARCH_DELTA_INDEX', 'delta'); //there is still a prefix
 define('SPHINX_SEARCH_MAIN_INDEX', 'main');
 define('SPHINX_SEARCH_STATS_INDEX', 'stats');
 

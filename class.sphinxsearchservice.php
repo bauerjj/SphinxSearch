@@ -41,7 +41,7 @@ class SphinxSearchService {
     function Stop() {
         if (1) {
             $Command = C('Plugin.SphinxSearch.SearchdPath') . ' --config ' . C('Plugin.SphinxSearch.ConfPath') . ' --stop';
-            if ($Error = SphinxSearchGeneral::RunCommand($Command, '/', 'Stopping searchd')) {
+            if ($Error = SphinxSearchGeneral::RunCommand($Command, '/', 'Stopping searchd', $Background = FALSE)) {
                 return $Error;
             }
             else
@@ -76,7 +76,6 @@ class SphinxSearchService {
     }
 
     private function ReIndex($IndexName) {
-
         if ($Error = SphinxSearchGeneral::ValidateInstall())
             return $Error;
 
@@ -101,25 +100,29 @@ class SphinxSearchService {
         $Rotate = '--rotate';
 
         $Command = C('Plugin.SphinxSearch.IndexerPath') . " $IndexName  $Rotate  --config " . C('Plugin.SphinxSearch.ConfPath');
-        if ($Error = SphinxSearchGeneral::RunCommand($Command, '/', 'Problem with Indexing'))
+        if ($Error = SphinxSearchGeneral::RunCommand($Command, '/', 'Indexing '.$IndexName, $Background= TRUE)) //run this in the background
             return $Error;
-        die;
+        return FALSE; //success
     }
 
     public function ReIndexDelta() {
-        $this->ReIndex(SPHINX_SEARCH_DELTA_INDEX);
+        if($Error = $this->ReIndex(SPHINX_SEARCH_DELTA_INDEX))
+            return $Error;
     }
 
     public function ReIndexMain() {
-        $this->ReIndex(SPHINX_SEARCH_MAIN_INDEX);
+        if($Error =$this->ReIndex(SPHINX_SEARCH_MAIN_INDEX))
+            return $Error;
     }
 
     public function ReIndexStats() {
-        $this->ReIndex(SPHINX_SEARCH_STATS_INDEX);
+        if($Error =$this->ReIndex(SPHINX_SEARCH_STATS_INDEX))
+            return $Error;
     }
 
     public function ReIndexAll() {
-        $this->ReIndex('all');
+       if($Error = $this->ReIndex('all'))
+           return $Error;
     }
 
 }

@@ -5,6 +5,10 @@ class SphinxSearchInstallWizard {
     var $PostPrefix = 'Configuration/'; //not sure why this is inside of the $_POST.....
 
     public function __construct($Sender, $View) {
+        //First clear all temp install files
+        SphinxSearchGeneral::ClearLogFiles();
+
+
         $this->Sender = $Sender;
         $this->View = $View;
     }
@@ -76,13 +80,13 @@ class SphinxSearchInstallWizard {
             SaveToConfig('Plugin.SphinxSearch.IndexerPath', $DetectSystemIndexer);
         }
         //check if prepackaged sphinx is installed
-        if ($this->_ManualDetectProgram(C('Plugin.SphinxSearch.InstallPath', '') . DS.'sphinx'.DS.'bin'.DS.'indexer', C('Plugin.SphinxSearch.InstallPath', '') . DS.'sphinx'.DS.'bin'.DS.'searchd', $ShowError = FALSE)) {
-            SaveToConfig('Plugin.SphinxSearch.SearchdPath', C('Plugin.SphinxSearch.InstallPath', '') . DS.'bin'.DS.'searchd');
-            SaveToConfig('Plugin.SphinxSearch.IndexerPath', C('Plugin.SphinxSearch.InstallPath', '') . DS.'bin'.DS.'indexer');
+        if ($this->_ManualDetectProgram(C('Plugin.SphinxSearch.InstallPath', '') . DS . 'sphinx' . DS . 'bin' . DS . 'indexer', C('Plugin.SphinxSearch.InstallPath', '') . DS . 'sphinx' . DS . 'bin' . DS . 'searchd', $ShowError = FALSE)) {
+            SaveToConfig('Plugin.SphinxSearch.SearchdPath', C('Plugin.SphinxSearch.InstallPath', '') . DS . 'bin' . DS . 'searchd');
+            SaveToConfig('Plugin.SphinxSearch.IndexerPath', C('Plugin.SphinxSearch.InstallPath', '') . DS . 'bin' . DS . 'indexer');
             $DefaultInstall = TRUE;
+        } else {
+
         }
-        else
-            $DefaultInstall = FALSE;
 
         //check if sphinx installed at manual paths
         if ($this->_ManualDetectProgram(C('Plugin.SphinxSearch.ManualIndexerPath', ''), C('Plugin.SphinxSearch.ManualSearchdPath', ''), $ShowError = FALSE)) {
@@ -96,8 +100,11 @@ class SphinxSearchInstallWizard {
 
         if ((($DetectSystemSearchd && $DetectSystemIndexer) || $DefaultInstall || $ManualInstall) == TRUE)
             SaveToConfig('Plugin.SphinxSearch.Detected', TRUE); //already exists..no install required
-        else
+        else {
+            SaveToConfig('Plugin.SphinxSearch.SearchdPath', 'Not Detected');
+            SaveToConfig('Plugin.SphinxSearch.IndexerPath', 'Not Detected');
             SaveToConfig('Plugin.SphinxSearch.Detected', FALSE); //not installed
+        }
     }
 
     private function _VerifyDetection($InstallAction) {
@@ -188,7 +195,7 @@ class SphinxSearchInstallWizard {
     }
 
     private function _ConnectionAction() {
-        $this->ConfigurationModel->Validation->ApplyRule('Plugin.SphinxSearch.Host', 'Required');
+        $this->ConfigurationModel->Validation->ApplyRule('Plugin.SphinxSearch.Prefix', 'Required');
         $this->ConfigurationModel->Validation->ApplyRule('Plugin.SphinxSearch.Port', 'Required');
         $this->ConfigurationModel->Validation->ApplyRule('Plugin.SphinxSearch.Port', 'Integer');
         if ($this->_SaveSettings()) {
@@ -210,15 +217,14 @@ class SphinxSearchInstallWizard {
         } else if ($InstallAction == 'NotDetected') { //perform the installation
             include_once(PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'class.sphinxsearchinstall.php');
             $SphinxInstall = new SphinxSearchInstall(); //install program
-            if (!$Error = $SphinxInstall->Install()){
+            if (!$Error = $SphinxInstall->InstallExtract()) {
                 //complete by saving settings
-                SaveToConfig('Plugin.SphinxSearch.IndexerPath',C('Plugin.SphinxSearch.InstallPath') . DS.'sphinx'.DS.'bin'.DS.'indexer');
-                SaveToConfig('Plugin.SphinxSearch.SearchdPath',C('Plugin.SphinxSearch.InstallPath') . DS.'sphinx'.DS.'bin'.DS.'searchd');
-                SaveToConfig('Plugin.SphinxSearch.ConfPath',C('Plugin.SphinxSearch.InstallPath') . DS.'sphinx'.DS.'etc'.DS.'sphinx.conf');
+                SaveToConfig('Plugin.SphinxSearch.IndexerPath', C('Plugin.SphinxSearch.InstallPath') . DS . 'sphinx' . DS . 'bin' . DS . 'indexer');
+                SaveToConfig('Plugin.SphinxSearch.SearchdPath', C('Plugin.SphinxSearch.InstallPath') . DS . 'sphinx' . DS . 'bin' . DS . 'searchd');
+                SaveToConfig('Plugin.SphinxSearch.ConfPath', C('Plugin.SphinxSearch.InstallPath') . DS . 'sphinx' . DS . 'etc' . DS . 'sphinx.conf');
 
                 $this->Sender->SetData('NextAction', 'Finish'); //success
-            }
-            else{
+            } else {
                 $this->Sender->Form->AddError($Error);
                 $this->Sender->SetData('NextAction', 'Install'); //failed
             }
@@ -240,6 +246,9 @@ class SphinxSearchInstallWizard {
     }
 
     private function _NextAction() {
+        //echo $Task = C('InstallPath'); die;
+           //$InstallPath = C('InstallPath');
+          // $Dir = C('InsideDir');
         if (isset($_GET['action']))
             $this->_ToggleWizard();             //stop/start wizard
         else if (isset($_POST[$this->PostPrefix . 'NextAction'])) {
@@ -250,10 +259,11 @@ class SphinxSearchInstallWizard {
                     $this->_ConnectionAction();   //verify inputs
                     break;
                 case 'Install':              //Install Sphinx
+                    case 'Finish':
                     $this->Sender->SetData('NextAction', 'Install');
                     $InstallAction = GetValue($this->PostPrefix . 'Plugin-dot-SphinxSearch-dot-Detected', $_POST);
-                    if($this->_VerifyDetection($InstallAction)){
-                        if($this->_InstallAction($InstallAction)) //install
+                    if ($this->_VerifyDetection($InstallAction)) {
+                        if ($this->_InstallAction($InstallAction)) //install
                             $this->Sender->SetData('NextAction', 'Detection');
                     }
                     break;
