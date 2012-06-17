@@ -1,11 +1,31 @@
 <?php
 
-/*
+/**
  *  install debug logs
  */
 define ('OUTPUT_FILE', PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'install' . DS . 'output.txt');
 define ('PID_FILE', PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'install' . DS . 'pid.txt');
 define ('ERROR_FILE', PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'install' . DS . 'error.txt');
+
+
+/**
+ *  General error handling
+ *
+ */
+define ('SPHINX_ERROR', 1);
+define ('SPHINX_SUCCESS', 2);
+define ('SPHINX_WARNING', 3);
+define ('SPHINX_FATAL_ERROR', 4);
+
+
+define ('SPHINX_PREFIX', 'Plugin.SphinxSearch.');
+
+/**
+ * observer constants
+ */
+define ('SPHINX_STATUS_NAME', 'Name');
+
+
 
 /**
  * sphinx install directory
@@ -23,15 +43,15 @@ define('SPHINX_SEARCH_STATS_INDEX', 'stats');
  *
  */
 //individual index names - rotate these by themselves
-define ('SPHINX_INDEX_MAIN','main');
-define ('SPHINX_INDEX_DELTA','delta');
+define ('SPHINX_INDEX_MAIN',C('Plugin.SphinxSearch.Prefix', 'vss_').'main');
+define ('SPHINX_INDEX_DELTA',C('Plugin.SphinxSearch.Prefix', 'vss_').'delta');
 
 //distributed index - search against this, but don't update this on itself
 define ('SPHINX_INDEX_DIST','vanilla');
 
 //These are both indexed and stored
 define ('SPHINX_FIELD_STR_COMMENTBODY','commentbody');
-define ('SPHINX_FIELD_STR_DISCUSSIONNAME','discussionname');
+define ('SPHINX_FIELD_STR_DISCUSSIONNAME','discussionname');//don't use this, use the attr_str version - sphinx.conf uses this for other purposes
 define ('SPHINX_FIELD_STR_USERNAME','username');
 
 //these are only stored
@@ -52,3 +72,9 @@ define ('SPHINX_ATTR_UINT_TABLEID','tableid');
 
 define ('SPHINX_ATTR_UINT_CATID','catid');
 define ('SPHINX_ATTR_UINT_USERID','userid');
+
+//latest comment in discussion (the comments will return 0 for these)
+define ('SPHINX_ATTR_STR_LASTCOMMENTUSERNAME','lastcommentusername');
+define ('SPHINX_ATTR_UINT_LASTCOMMENTUSERID','lastcommentuserid');
+define ('SPHINX_ATTR_UINT_DISCUSSIONLASTCOMMENTID','discussionlastcommentid');
+define ('SPHINX_ATTR_STAMP_DATELASTCOMMENT','datelastcomment');

@@ -3,6 +3,9 @@ if (!defined('APPLICATION'))
     exit();
 ?>
 <script type="text/javascript" charset="utf-8">
+
+    var once = false;
+
     function addmsg(type, msg){
         $("#messages").html(
         "<div class='msg Inner "+ type +"'>"+ msg +"</div>"
@@ -15,19 +18,44 @@ if (!defined('APPLICATION'))
     );
     }
 
+    $('#ToggleWizard').click(function(){
+        once = false; //restart wizard toggle bit
+    });
+
     function waitForMsg(){
         var WebRoot = $("#WebRoot").val();
         $.ajax({
             dataType: "json",
             type: "GET",
-            url: WebRoot+"/plugin/sphinxsearch/test",
+            url: WebRoot+"/plugin/sphinxsearch/InstallPoll",
 
             async: true, /* If set to non-async, browser shows page as "Loading.."*/
             cache: false,
             timeout:50000, /* Timeout in ms */
 
             success: function(data){ /* called when request to barge.php completes */
-                addmsg("new", data.Terminal); /* Add response to a .msg div (with the "new" class)*/
+                if(data.Terminal == 'reload' && once != true){
+                    once = true; //don't enter here again
+                    window.setTimeout(function(){addmsg("new", 'Advancing in 5')},0);
+                    window.setTimeout(function(){addmsg("new", 'Advancing in 4')},2000);
+                    window.setTimeout(function(){addmsg("new", 'Advancing in 3')},4000);
+                    window.setTimeout(function(){addmsg("new", 'Advancing in 2')},6000);
+                    window.setTimeout(function(){addmsg("new", 'Advancing in 1')},8000);
+                    window.setTimeout(function(){
+                        $.ajax({
+                            type: 'POST',
+                            dataType: 'html',
+                            url: WebRoot + "/plugin/sphinxsearch/installwizard",
+                            data: "NextAction="+"test"
+                            //success: function(msg){alert(msg);}
+                        });
+                    }, 8000);
+                    window.setTimeout(function(){window.location.replace(WebRoot + "/plugin/sphinxsearch/installwizard")},9000);
+
+
+                }
+                else if(once != true)
+                    addmsg("new", data.Terminal); /* Add response to a .msg div (with the "new" class)*/
                 updatestatus(data.Status);
                 setTimeout(
                 'waitForMsg()', /* Request next message */
@@ -63,7 +91,7 @@ if (!defined('APPLICATION'))
         margin-left: 320px; /*Set left margin to LeftColumnWidth*/
     }
     #messages{
-                color: #00FF00;
+        color: #00FF00;
         background-color: black;
         border: 2px solid silver;
     }
@@ -106,9 +134,9 @@ echo $this->Form->Errors();
     <br/>
     <br/>
     <?php
-    echo $this->Data['NextAction'];
     $ToggleName = C('Plugin.SphinxSearch.StartWizard') == TRUE ? T('Close Wizard') : T('Start Wizard');
-    echo "<div>" . Wrap(Anchor($ToggleName, 'plugin/sphinxsearch/installwizard/' . Gdn::Session()->TransientKey() . '?action=ToggleWizard', 'SmallButton')) . "</div>";
+    echo '<div id="ToggleWizard">' . Wrap(Anchor($ToggleName, 'plugin/sphinxsearch/installwizard/' . Gdn::Session()->TransientKey() . '?action=ToggleWizard', 'SmallButton')) . "</div>";
+    echo '<br/>Current Action: <b>' . $this->Data['NextAction'] . '</b>';
     ?>
 </div>
 <?php if (C('Plugin.SphinxSearch.StartWizard', FALSE)) : ?>
@@ -136,11 +164,11 @@ echo $this->Form->Errors();
             <div id="Right">
                 <div id="Status">
                 </div>
-                    <div id="messages">
-                        <div class="msg">
-                            Command Line Output
-                        </div>
+                <div id="messages">
+                    <div class="msg">
+                        Command Line Output
                     </div>
+                </div>
             </div>
         </div>
 
@@ -148,7 +176,7 @@ echo $this->Form->Errors();
             <div class="Inner">
                 <ul>
                     <?php
-                    echo $this->Form->RadioList('Plugin.SphinxSearch.Detected', array('Detected' => '<span style="color: ' . $InstallColor . '">Install using Existing System Binaries</span>'), $DisabledExisting);
+                    echo $this->Form->RadioList('Plugin.SphinxSearch.Detected', array('Detected' => '<span style="color: ' . $InstallColor . '">Install using Existing System Binaries</span>'), array_merge($DisabledExisting, $Disabled));
                     ?>
                     <li><?php
                 echo $this->Form->Label('Detected Indexer Path:', 'Plugin.SphinxSearch.IndexerPath');
@@ -161,11 +189,11 @@ echo $this->Form->Errors();
                     <li><?php
                     echo $this->Form->Label('Detected Conf Path', 'Plugin.SphinxSearch.ConfPath');
                     echo $this->Form->Textbox('Plugin.SphinxSearch.ConfPath', array_merge($Disabled, array(), array('value' => C('Plugin.SphinxSearch.ConfPath'))));
-                        ?></li>
+                    ?></li>
 
                     <li><br/>
                         <?php
-                        echo $this->Form->RadioList('Plugin.SphinxSearch.Detected', array('Manual' => '* Manually locate paths'), array('Default' => 'NotDetected'));
+                        echo $this->Form->RadioList('Plugin.SphinxSearch.Detected', array('Manual' => '* Manually locate paths'), array_merge($Disabled, array('Default' => 'NotDetected')));
                         ?>
                     </li>
                     <li>
@@ -189,7 +217,7 @@ echo $this->Form->Errors();
                     </li>
 
                     <?php
-                    echo $this->Form->RadioList('Plugin.SphinxSearch.Detected', array('NotDetected' => '<span style="color: green">** Install Prepackaged Sphinx</span>'), array('Default' => 'NotDetected'));
+                    echo $this->Form->RadioList('Plugin.SphinxSearch.Detected', array('NotDetected' => '<span style="color: green">** Install Prepackaged Sphinx</span>'), array_merge($Disabled, array('Default' => 'NotDetected')));
                     ?>
 
                     <li><?php
@@ -205,27 +233,48 @@ echo $this->Form->Errors();
 
             <?php endif ?>
             <br/>
-            <?php if (C('Plugin.SphinxSearch.Installed')) : ?>
-                <h3>FINISH</h3>
-                <div class="Data">
-                    <br/>
-                    <span class="Finish"><?php echo T('Congraduations  Sphinx has been installed successfully!') ?></span>
-                    <br/>
-                    <br/>
-                </div>
-            <?php endif ?>
-
-            <?php if (C('Plugin.SphinxSearch.StartWizard', FALSE)) : //don't put this in if wizard not started' ?>
+            <?php if (C('Plugin.SphinxSearch.StartWizard') && !C('Plugin.SphinxSearch.Config')) : //don't put this in if wizard not started' ?>
                 <input type="hidden" id="Form_NextAction" name="Configuration/NextAction" value="<?php echo $this->Data['NextAction'] ?>" />
                 <?php
-                if (!C('Plugin.SphinxSearch.Installed'))
-                    echo $this->Form->Close('Save and Continue'); else
-                    echo '<div class="Finish">' . Wrap(Anchor('Return to Settings', 'plugin/sphinxsearch', 'SmallButton')) . "</div>";
+                echo $this->Form->Close('Save and Continue');
                 ?>
-            <?php endif
-            ?>
-            <br/>
-            <br/>
+            <?php endif ?>
         </div>
     </div>
-</div>
+    <?php if (C('Plugin.SphinxSearch.Config')) : ?>
+        <div style="clear: both"></div>
+        <h1>Step 3: </h1>
+        <br/>
+        <ul>
+            <li><span>Click the button below to write the config file and CRON tasks</span></li>
+        </ul>
+        <br/>
+    <?php endif ?>
+
+    <?php if (C('Plugin.SphinxSearch.Installed')) : ?>
+        <h3>FINISH</h3>
+        <div class="Data">
+            <br/>
+            <span class="Finish"><?php echo T('Congraduations  Sphinx has been installed successfully!') ?></span>
+            <br/>
+            <ul>
+                <li><?php echo Anchor('*View my custom Sphinx.conf file', 'plugin/sphinxsearch/viewfile/' . Gdn::Session()->TransientKey() . '?action=ViewFile&file=conf'); ?></li>
+                <li><?php echo Anchor('View my custom main cron file', 'plugin/sphinxsearch/viewfile/' . Gdn::Session()->TransientKey() . '?action=ViewFile&file=main'); ?></li>
+                <li><?php echo Anchor('View my custom delta cron file', 'plugin/sphinxsearch/viewfile/' . Gdn::Session()->TransientKey() . '?action=ViewFile&file=delta'); ?></li>
+
+                <li><span style="font-style:italic">* Contains your database username/password</span></li>
+            </ul>
+        </div>
+    <?php endif ?>
+
+    <?php if (C('Plugin.SphinxSearch.StartWizard') && C('Plugin.SphinxSearch.Config')) : //don't put this in if wizard not started' ?>
+        <input type="hidden" id="Form_NextAction" name="Configuration/NextAction" value="<?php echo $this->Data['NextAction'] ?>" />
+        <?php
+        if (!C('Plugin.SphinxSearch.Installed'))
+            echo $this->Form->Close('Save and Continue'); else
+            echo '<div class="Finish">' . Wrap(Anchor('Return to Settings', 'plugin/sphinxsearch', 'SmallButton')) . "</div>";
+        ?>
+        <?php
+
+     endif  ?>
+<br/>

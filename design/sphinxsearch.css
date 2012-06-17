@@ -111,6 +111,13 @@
 h3{
     color: white;
 }
+.Header{
+    background: -moz-linear-gradient(center top , #333333, #000000) repeat scroll 0 0 transparent !important;
+    border-bottom: medium none #555555;
+    border-radius: 5px 5px 0 0;
+    margin-top: 10px;
+    padding: 2px 0;
+}
 
 /* Help Box */
 .SearchHelp{
@@ -121,6 +128,10 @@ h3{
 }
 .SearchExamples{
     font-family: monospace;
+    color: #888888 !important;
+}
+.SearchHelp span{
+    color: #DDDDDD;
 }
 
 
@@ -141,7 +152,7 @@ h3{
 }
 /* holy grail 3 column settings */
 .holygrail {
-    background:#111111;    	/* Right column background colour */
+    /*    background:#111111;    	 Right column background colour */
 }
 .holygrail .colmid {
     float:left;
@@ -149,7 +160,6 @@ h3{
     margin-left:-200px; 	/* Width of right column */
     position:relative;
     right:100%;
-    background:#000;    	/* Centre column background colour */
 }
 .holygrail .colleft {
     float:left;
@@ -157,7 +167,7 @@ h3{
     margin-left:-50%;
     position:relative;
     left:400px;         	/* Left column width + right column width */
-    background:#111111;    	/* Left column background colour */
+    /*    background:#111111;    	 Left column background colour */
 }
 .holygrail .col1wrap {
     float:left;
@@ -188,5 +198,8 @@ h3{
     margin-right:25px;  	/* Width of right column right-hand padding + left column left and right padding */
     position:relative;
     left:50%;
+}
+.holygrail .col3 ul{
+    list-style: inside;
 }
 /* End Formatting 3 columns */

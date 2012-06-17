@@ -279,9 +279,11 @@ echo $this->Form->Errors();
                     <!-- Column 1 end -->
                 </div>
             </div>
-            <div class="col2">
-                <!-- Column 2 start (left) -->
+             <div class="Header">
                 <h3>Latest Searches</h3>
+                </div>
+            <div class="col2 Box">
+                <!-- Column 2 start (left) -->
                 <ul>
 
                     <li>aewrw oeiru woieur pwoier u</li>
@@ -301,7 +303,7 @@ echo $this->Form->Errors();
                     <li>aewrw oeiru woieur pwoier u</li>
                 </ul>
             </div>
-            <div class="col3 SearchHelp">
+            <div class="col3 SearchHelp Box">
                 <!-- Column 3 start (right) -->
                 <h3>Search Help</h3>
                 <br/>
@@ -315,32 +317,32 @@ echo $this->Form->Errors();
                 <br/>
                 <ul>
                     <b>The following special operators can be used:</b>
-                    <li><p>Operator OR: </p>
-                        <span class="SearchExamples">hello | world</span>
+                    <li><span>Operator OR: </span>
+                        <p class="SearchExamples">hello | world</p>
                     </li>
-                    <li><p>Operator NOT: </p>
-                        <span class="SearchExamples">hello !world</span>
+                    <li><span>Operator NOT: </span>
+                        <p class="SearchExamples">hello !world</p>
                     </li>
-                    <li><p>Exact Phrase</p>
-                        <span class="SearchExamples">"hello world"</span>
+                    <li><span>Exact Phrase</span>
+                        <p class="SearchExamples">"hello world"</p>
                     </li>
-                    <li><p>Field Search </p>
-                        <span class="SearchExamples">@title hello @commentbody world</span>
+                    <li><span>Field Search </span>
+                        <p class="SearchExamples">@title hello @commentbody world</p>
                     </li>
-                    <li><p>Multiple-Field Search</p>
-                        <span class="SearchExamples">@(title,commentbody) hello world</span>
+                    <li><span>Multiple-Field Search</span>
+                        <p class="SearchExamples">@(title,commentbody) hello world</p>
                     </li>
-                    <li><p>All-Field </p>
-                        <span class="SearchExamples">@* hello</span>
+                    <li><span>All-Field </span>
+                        <p class="SearchExamples">@* hello</p>
                     </li>
-                    <li><p>Quorum Matching</p>
-                        <span class="SearchExamples">"the world is terrible"/3</span>
+                    <li><span>Quorum Matching</span>
+                        <p class="SearchExamples">"the world is terrible"/3</p>
                     </li>
-                    <li><p>Generalized Proximity</p>
-                        <span class="SearchExamples">hello NEAR/3 world NEAR/4</span>
+                    <li><span>Generalized Proximity</span>
+                        <p class="SearchExamples">hello NEAR/3 world NEAR/4</p>
                     </li>
-                    <li><p>Zone Limit</p>
-                        <span class="SearchExamples">ZONE:(h3,h4) only in these titles</span>
+                    <li><span>Zone Limit</span>
+                        <p class="SearchExamples">ZONE:(h3,h4) only in these titles</p>
                     </li>
 
                 </ul>

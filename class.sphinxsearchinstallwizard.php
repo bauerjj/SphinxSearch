@@ -4,17 +4,12 @@ class SphinxSearchInstallWizard {
 
     var $PostPrefix = 'Configuration/'; //not sure why this is inside of the $_POST.....
 
-    public function __construct($Sender, $View) {
+    public function __construct() {
         //First clear all temp install files
         SphinxSearchGeneral::ClearLogFiles();
-
-
-        $this->Sender = $Sender;
-        $this->View = $View;
     }
 
     public function Index() {
-        SaveToConfig('Plugin.SphinxSearch.SearchdPath', 'Not Detected');
         //create validation
         $Validation = new Gdn_Validation();
         $this->ConfigurationModel = new Gdn_ConfigurationModel($Validation);
@@ -218,12 +213,7 @@ class SphinxSearchInstallWizard {
             include_once(PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'class.sphinxsearchinstall.php');
             $SphinxInstall = new SphinxSearchInstall(); //install program
             if (!$Error = $SphinxInstall->InstallExtract()) {
-                //complete by saving settings
-                SaveToConfig('Plugin.SphinxSearch.IndexerPath', C('Plugin.SphinxSearch.InstallPath') . DS . 'sphinx' . DS . 'bin' . DS . 'indexer');
-                SaveToConfig('Plugin.SphinxSearch.SearchdPath', C('Plugin.SphinxSearch.InstallPath') . DS . 'sphinx' . DS . 'bin' . DS . 'searchd');
-                SaveToConfig('Plugin.SphinxSearch.ConfPath', C('Plugin.SphinxSearch.InstallPath') . DS . 'sphinx' . DS . 'etc' . DS . 'sphinx.conf');
 
-                $this->Sender->SetData('NextAction', 'Finish'); //success
             } else {
                 $this->Sender->Form->AddError($Error);
                 $this->Sender->SetData('NextAction', 'Install'); //failed
@@ -240,17 +230,39 @@ class SphinxSearchInstallWizard {
                 SaveToConfig('Plugin.SphinxSearch.StartWizard', FALSE);
                 SaveToConfig('Plugin.SphinxSearch.Connection', FALSE);
                 SaveToConfig('Plugin.SphinxSearch.Installed', FALSE);
+                SaveToConfig('Plugin.SphinxSearch.Config', FALSE);
+                SaveToConfig('Plugin.SphinxSearch.Task', 'Idle');
+                SaveToConfig('Plugin.SphinxSearch.Installed', FALSE);
             }
         }
         redirect('plugin/sphinxsearch/installwizard');
     }
 
+    private function _InstallConfig() {
+        $SphinxInstall = new SphinxSearchInstall(); //install program
+        if ($Error = $SphinxInstall->InstallWriteConfig(C('Plugin.SphinxSearch.InstallPath'))) {
+            $this->Sender->Form->AddError($Error);
+            $this->Sender->SetData('NextAction', 'Install'); //failed
+        } else if ($Error = $SphinxInstall->SetupCron(C('Plugin.SphinxSearch.IndexerPath'),  C('Plugin.SphinxSearch.ConfPath'), C('Plugin.SphinxSearch.Prefix'))) {
+            $this->Sender->Form->AddError($Error);
+            $this->Sender->SetData('NextAction', 'Install'); //failed
+        } else { //SUCCESS
+            SaveToConfig('Plugin.SphinxSearch.Installed', TRUE);
+            $this->Sender->SetData('NextAction', 'Finish');
+        }
+    }
+
     private function _NextAction() {
-        //echo $Task = C('InstallPath'); die;
-           //$InstallPath = C('InstallPath');
-          // $Dir = C('InsideDir');
-        if (isset($_GET['action']))
-            $this->_ToggleWizard();             //stop/start wizard
+        //$this->_InstallConfig();
+        if (isset($_POST['NextAction'])) {
+            SaveToConfig('Plugin.SphinxSearch.Config', TRUE);
+            $this->Sender->SetData('NextAction', 'Config');
+            die;
+        }
+        if (isset($_GET['action'])) {
+            if (($_GET['action'] == 'ToggleWizard'))
+                $this->_ToggleWizard();             //stop/start wizard
+        }
         else if (isset($_POST[$this->PostPrefix . 'NextAction'])) {
             switch ($_POST[$this->PostPrefix . 'NextAction']) {
                 case 'Detection':
@@ -259,7 +271,6 @@ class SphinxSearchInstallWizard {
                     $this->_ConnectionAction();   //verify inputs
                     break;
                 case 'Install':              //Install Sphinx
-                    case 'Finish':
                     $this->Sender->SetData('NextAction', 'Install');
                     $InstallAction = GetValue($this->PostPrefix . 'Plugin-dot-SphinxSearch-dot-Detected', $_POST);
                     if ($this->_VerifyDetection($InstallAction)) {
@@ -267,7 +278,13 @@ class SphinxSearchInstallWizard {
                             $this->Sender->SetData('NextAction', 'Detection');
                     }
                     break;
+                case 'Config':
+                    $this->_InstallConfig();
+                    break;
             }
+        }
+        if (C('Plugin.SphinxSearch.Config') == TRUE) {
+            $this->Sender->SetData('NextAction', 'Config');
         }
     }
 

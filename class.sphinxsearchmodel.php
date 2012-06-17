@@ -9,14 +9,9 @@ class SphinxSearchModel extends Gdn_Module {
           }
 
      function SphinxConnect(){
-
-        $this->SphinxClient->SetServer(C('Plugin.SphinxSearch.Host','localhost'), C('Plugin.SphinxSearch.Port',9312)); //must start searchd in order to connect...or else conection will be refused
+        $this->SphinxClient->SetServer(C('Plugin.SphinxSearch.Host','localhost'), (int)C('Plugin.SphinxSearch.Port',9312)); //must start searchd in order to connect...or else conection will be refused
         $this->SphinxClient->SetMaxQueryTime(C('Plugin.SphinxSearch.MaxQueryTime',2000)); // Sets maximum search query time, in milliseconds. Default valus is 0 which means "do not limit".
-        $this->SphinxClient->SetMatch(SPH_MATCH_EXTENDED2); //use this since using boolean operators
-     }
-
-     function SphinxStatus(){
-         return $this->SphinxClient->Status();
+        $this->SphinxSetMatch(SPH_MATCH_EXTENDED2); //use this since using boolean operators
      }
 
     /**
@@ -123,6 +118,10 @@ class SphinxSearchModel extends Gdn_Module {
         $this->SphinxClient->SetRankingMode($rank);
     }
 
+    public function SphinxStatus(){
+        return $this->SphinxClient->Status();
+    }
+
     function SphinxSetLimits($offset = 0, $limit = 10) {
         //Prototype: function SetLimits ( $offset, $limit, $max_matches=0, $cutoff=0 )
         $this->SphinxClient->SetLimits($offset, $limit);
@@ -177,7 +176,6 @@ class SphinxSearchModel extends Gdn_Module {
         //print_r($result); die;
         //echo $search; die;
         $result = $this->SphinxClient->Query($search, $index);   //here we go
-        //print_r($result);
         if ($result === false) {
             echo '<b style ="color: red">Query failed: ' .$this->SphinxClient->GetLastError() . '.\n';
         } else {

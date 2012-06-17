@@ -32,7 +32,6 @@ class SphinxSearchGeneral {
             try {
                 chdir($Path);
                 exec(sprintf("%s > %s 2>%s & echo $! >> %s", $Command, OUTPUT_FILE, ERROR_FILE, PID_FILE));
-                //while(!self::isRunning($PID)); //wait till finish
             } catch (Exception $e) {
                 return $e;
             }
@@ -69,17 +68,7 @@ class SphinxSearchGeneral {
         }
     }
 
-    /**
-     * Simply checks the existense of searchd/indexer/sphinx.conf
-     */
-    public static function ValidateInstall() {
-        if (!file_exists(C('Plugin.SphinxSearch.IndexerPath')) ||
-                !file_exists(C('Plugin.SphinxSearch.SearchdPath')) ||
-                !file_exists(C('Plugin.SphinxSearch.ConfPath'))
-        )
-            return T('Must reinstall sphinx...cannot locate indexer/searchd/configuration'); //fail
-        else
-            return FALSE; //SUCCESS
-    }
+
+
 
 }

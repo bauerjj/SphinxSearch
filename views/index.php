@@ -1,4 +1,5 @@
-<?php if (!defined('APPLICATION'))
+<?php
+if (!defined('APPLICATION'))
     exit();
 ?>
 
@@ -11,7 +12,7 @@
 
     function updatestatus(status){
         $("#Status").html(
-        "<div class='StatusMsg'>"+ status +"</div>"
+        "<div class='StatusMsg'>Status: "+ status +"</div>"
     );
     }
 
@@ -20,7 +21,7 @@
         $.ajax({
             dataType: "json",
             type: "GET",
-            url: WebRoot+"/plugin/sphinxsearch/test",
+            url: WebRoot+"/plugin/sphinxsearch/ServicePoll",
 
             async: true, /* If set to non-async, browser shows page as "Loading.."*/
             cache: false,
@@ -65,9 +66,10 @@
         list-style: none;
         margin-left: 0px;
     }
-    .Info .FootNote{
+    .FootNote{
         font-style: italic;
         font-size: 11px;
+        margin-left: 15px;
     }
     div.Info, .DismissMessage{
         line-height: 1.8;
@@ -76,7 +78,7 @@
         color: black;
     }
 
-        #Left{
+    #Left{
         float: left;
         width: 320px; /*Width of left column*/
         margin-left: -100%;
@@ -94,14 +96,20 @@
         margin: 10px;
     }
     #messages{
-                color: #00FF00;
+        color: #00FF00;
         background-color: black;
         border: 2px solid silver;
     }
+    .Success{
+        color: green;
+    }
+    .Fail{
+        color: red;
+    }
 </style>
 
-<?php  echo $this->Form->Errors(); ?>
-
+<?php echo $this->Form->Errors(); ?>
+<?php $Settings = $this->Data['Settings'] //Grab all sphinx related settings/status ?>
 
 <div class="Help Aside">
     <?php
@@ -115,7 +123,7 @@
 </div>
 <h1><?php echo T($this->Data['Title']) . ' - ' . $this->Data['PluginVersion']; ?></h1>
 <div class="Info">
-<?php echo T($this->Data['PluginDescription']); ?>
+    <?php echo T($this->Data['PluginDescription']); ?>
 </div>
 
 
@@ -123,99 +131,135 @@
 <div class="Info">
     <ul>
         <li><?php echo Anchor('Install Wizard', 'plugin/sphinxsearch/installwizard'); ?></li>
-        <li><?php echo Anchor('Statistics', 'plugin/sphinxsearch/installwizard'); ?></li>
+        <li><?php echo Anchor('Settings', 'plugin/sphinxsearch/installwizard'); ?></li>
         <li><?php echo Anchor('Install FAQ', 'plugin/sphinxsearch/installwizard'); ?></li>
         <li><?php echo Anchor('Vanilla Plugin Website', 'plugin/sphinxsearch/installwizard'); ?></li>
     </ul>
 </div>
-<h3>Known Issues</h3>
+<h3>Requirements</h3>
 <ol>
     <li>Linux Only!</li>
+    <li>PHP >= 5.3.0</li>
+    <li>Shell Access</li>
+    <li>Spawn a Daemon (searchd)</li>
+    <li>Port Forwarding</li>
 </ol>
 <br/>
-<h3>Settings</h3>
+<h3>Control Panel</h3>
 <br/>
-<div id="MainWrapper">
-        <div id="RightWrapper">
-            <div id="Right">
-                <div id="Status">
-                </div>
-                    <div id="messages">
-                        <div class="msg">
-                            Command Line Output
-                            <br/>
-                            =====Ready=====
-                        </div>
-                    </div>
-            </div>
-        </div>
-    <div id="Left">
-            <div class="Inner">
-<div class="Info">
-    <ul>
-    <?php //echo "<div>".Wrap(Anchor($ToggleName, 'plugin/flagging/toggle/'.Gdn::Session()->TransientKey(), 'SmallButton'))."</div>"; ?>
-    <?php echo "<li>" . Wrap(Anchor('Index ALL', 'plugin/sphinxsearch/service/' . Gdn::Session()->TransientKey(), 'SmallButton')) . "</li>"; ?>
-    <?php echo "<li>" . Wrap(Anchor('Index main', 'plugin/sphinxsearch/service/' . Gdn::Session()->TransientKey(), 'SmallButton')) . "</li>"; ?>
-    <?php echo "<li>" . Wrap(Anchor('Index delta', 'plugin/sphinxsearch/' . Gdn::Session()->TransientKey(), 'SmallButton')) . "</li>"; ?>
-<?php echo "<li>" . Wrap(Anchor('Index stats', 'plugin/sphinxsearch/' . Gdn::Session()->TransientKey(), 'SmallButton')) . "</li>"; ?>
-    </ul>
-    <br/>
+<table class="CPanel Overall">
+    <tbody>
+        <tr>
+            <th class="Desc">General: </th>
+            <th>Indexer</th>
+            <th>Searchd</th>
+            <th>Config</th>
+            <th>Uptime</th>
+            <th>Total Queries</th>
+            <th>Maxed Out</th>
+
+
+        </tr>
+        <tr>
+            <td class="Desc">Status: </td>
+            <td><?php if ($Settings['Status']->IndexerFound) Success('Installed'); else Fail('Not Installed'); ?></td>
+            <td><?php if ($Settings['Status']->SearchdFound) Success('Installed'); else Fail('Not Installed'); ?></td>
+            <td><?php if ($Settings['Status']->ConfFound) Success('Found'); else Fail('Not Found'); ?></td>
+            <td><?php echo Gdn_Format::Seconds($Settings['Status']->Uptime) ?></td>
+            <td><?php echo Gdn_Format::BigNumber($Settings['Status']->TotalQueries) ?></td>
+            <td><?php echo Gdn_Format::BigNumber($Settings['Status']->MaxedOut) ?></td>
+        </tr>
+
+    </tbody>
+</table>
+<br/>
+
+<div id="ControlPanel">
+    <table class="CPanel Index">
+        <tbody>
+            <tr>
+                <th class="Desc">Indexer:</th>
+                <th>Main</th>
+                <th>Delta</th>
+                <th>Stats</th>
+            </tr>
+            <tr>
+                <td class="Desc"># of Docs:</td>
+                <td><?php echo Gdn_Format::BigNumber($Settings['Status']->IndexerMainTotal) ?></td>
+                <td><?php echo Gdn_Format::BigNumber($Settings['Status']->IndexerDeltaTotal) ?></td>
+                <td><?php echo Gdn_Format::BigNumber($Settings['Status']->IndexerStatsTotal) ?></td>
+            </tr>
+            <tr>
+                <td class="Desc">Last Index Time:</td>
+                <td><?php echo Gdn_Format::FuzzyTime($Settings['Status']->IndexerMainLast) ?></td>
+                <td><?php echo $Settings['Status']->IndexerDeltaLast == '---' ? $Settings['Status']->IndexerDeltaLast :  Gdn_Format::FuzzyTime($Settings['Status']->IndexerDeltaLast)?></td>
+                <td><?php echo $Settings['Status']->IndexerStatsLast ?></td>
+            </tr>
+            <tr>
+                <td class="Desc">Actions:  </td>
+                <td>
+                    <?php echo Wrap(Anchor('Index Main', 'plugin/sphinxsearch/service?Action=IndexMain', 'SmallButton')) ?>
+                    <?php echo Wrap(Anchor('Reload Count', 'plugin/sphinxsearch/service?Action=ReloadMain', 'SmallButton')) ?>
+                </td>
+                <td>
+                    <?php echo Wrap(Anchor('Index delta', 'plugin/sphinxsearch/service?Action=IndexDelta', 'SmallButton')) ?>
+                    <?php echo Wrap(Anchor('Reload Count', 'plugin/sphinxsearch/serviceservice?Action=ReloadDelta', 'SmallButton')) ?>
+                </td>
+                <td>
+                    <?php echo Wrap(Anchor('Index stats', 'plugin/sphinxsearch/service?Action=IndexStats', 'SmallButton')) ?>
+                    <?php echo Wrap(Anchor('Reload Count', 'plugin/sphinxsearch/service?Action=ReloadStats', 'SmallButton')) ?>
+                </td>
+            </tr>
+
+        </tbody>
+    </table>
     <ul class="Settings">
         <li class="FootNote">Indexing will temporarily stop sphinx</li>
         <li class="FootNote">Indexing `main` may take a long time</li>
     </ul>
     <br/>
-    <?php echo "<span>" . Wrap(Anchor('Start searchd', 'plugin/flagging/toggle/' . Gdn::Session()->TransientKey(), 'SmallButton')) . "</span>"; ?>
-<?php echo "<span>" . Wrap(Anchor('Stop searchd', 'plugin/flagging/toggle/' . Gdn::Session()->TransientKey(), 'SmallButton')) . "</span>"; ?>
+    <table class="CPanel Searchd">
+        <tbody>
+            <tr>
+                <th class="Desc">Searchd: </th>
+                <th>Status</th>
+                <th>Port</th>
+                <th>Connections</th>
+            </tr>
+            <tr>
+                <td>Status: </td>
+                <td> <?php if ($Settings['Status']->SearchdStatus) Success('Running'); else Fail('Not Running'); ?> </td>
+                <td><?php if ($Settings['Status']->SearchdPortStatus) Success($Settings['Install']->Port); else Fail($Settings['Install']->Port); ?></td>
+                <td><?php echo Gdn_Format::BigNumber($Settings['Status']->SearchdConnections) ?></td>
+            </tr>
+            <tr>
+                <td class="Desc">Actions: </td>
+                <td><?php echo "<span>" . Wrap(Anchor('Start searchd', 'plugin/sphinxsearch/service/?Action=StartSearchd', 'SmallButton')) . "</span>"; ?>
+                    <?php echo "<span>" . Wrap(Anchor('Stop searchd', 'plugin/sphinxsearch/service/?Action=StopSearchd', 'SmallButton')) . "</span>"; ?>
+                </td>
+                <td> <?php echo Wrap(Anchor('Check Port', 'plugin/sphinxsearch/service/?Action=CheckPort', 'SmallButton')) ?></td>
+                <td><?php echo Wrap(Anchor('Reload', 'plugin/sphinxsearch/service/?Action=ReloadConnnections' . Gdn::Session()->TransientKey(), 'SmallButton')) ?></td>
+            </tr>
+
+        </tbody>
+    </table>
+
+
 </div>
-
-<?php
-echo $this->Form->Open();
-?>
-<ul>
-    <li><?php
-echo $this->Form->Label('Search Timeout:', 'Plugin.SphinxSearch.Timeout');
-echo $this->Form->Textbox('Plugin.SphinxSearch.Timeout');
-?></li>
-    <li><?php
-echo $this->Form->Label('# of Retries:', 'Plugin.SphinxSearch.RetriesCount');
-echo $this->Form->Textbox('Plugin.SphinxSearch.RetriesCount');
-?></li>
-    <li><?php
-echo $this->Form->Label('Delay of retries (ms):', 'Plugin.SphinxSearch.RetriesDelay');
-echo $this->Form->Textbox('Plugin.Plugin.SphinxSearch.RetriesDelay');
-?></li>
-    <li><?php
-echo $this->Form->Label('Minimum # of characters to index a word:', 'Plugin.SphinxSearch.MinWordIndexLen');
-echo $this->Form->Textbox('Plugin.SphinxSearch.MinWordIndexLen');
-?></li>
-</ul>
-
+<br/>
+<br/>
+<br/>
+    <div id="Status">Status: Idle
+                </div>
+<div id="messages">
+    <div class="msg">
+        Command Line Output
+        <br/>
+        =====Ready=====
+    </div>
+</div>
 <br/>
 
-<ul>
-    <li><?php
-echo $this->Form->Label('Search Timeout:', 'Plugin.SphinxSearch.Timeout');
-echo $this->Form->Textbox('Plugin.SphinxSearch.Timeout');
-?></li>
-    <li><?php
-echo $this->Form->Label('# of Retries:', 'Plugin.SphinxSearch.RetriesCount');
-echo $this->Form->Textbox('Plugin.SphinxSearch.RetriesCount');
-?></li>
-    <li><?php
-echo $this->Form->Label('Delay of retries (ms):', 'Plugin.SphinxSearch.RetriesDelay');
-echo $this->Form->Textbox('Plugin.Plugin.SphinxSearch.RetriesDelay');
-?></li>
-    <li><?php
-echo $this->Form->Label('Minimum # of characters to index a word:', 'Plugin.SphinxSearch.MinWordIndexLen');
-echo $this->Form->Textbox('Plugin.SphinxSearch.MinWordIndexLen');
-?></li>
-</ul>
-
-<?php echo $this->Form->Close('Save and Continue'); ?>
-            </div>
-        </div>
-    <div style="clear: both"></div>
 <h3>Changelog</h3>
 <br/>
 2012506
@@ -223,4 +267,14 @@ echo $this->Form->Textbox('Plugin.SphinxSearch.MinWordIndexLen');
     <li>Initial Release</li>
 </ol>
 <br/>
-   </div>
+
+<?php
+
+function Success($Text) {
+    echo '<span class="Success">' . $Text . '</span>';
+}
+
+function Fail($Text) {
+    echo '<span class="Fail">' . $Text . '</span>';
+}
+?>

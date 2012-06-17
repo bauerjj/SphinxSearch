@@ -34,57 +34,117 @@ $PluginInfo['SphinxSearch'] = array(
 );
 
 class SphinxSearchPlugin extends Gdn_Plugin {
-    /*
-     * The following are what are indexed/stored
-     *
-     * # Field strings are BOTH indexed AND stored
 
-      sql_field_string = CommentBody
-      sql_field_string = DiscussionName
-      sql_field_string = UserName
-
-      # Attributes are NOT indexed, but stored
-
-      sql_STR_timestamp = DiscussionDateUpdated
-      sql_STR_string = DiscussionCountViews
-      sql_STR_string = DiscussionCountComments
-
-      sql_STR_timestamp = CommentDateInserted
-      sql_STR_timestamp = CommentDateUpdated
-      sql_STR_uint = CatID
-      sql_STR_uint = CatCountDiscussions
-      sql_STR_uint =  CatCountComments
-      sql_STR_uint = CatLastCommentID
-
-
-      sql_STR_string = CatName
-      sql_STR_string = CatUrlCode
-      sql_STR_string = CatDescription
-     */
-
-    //Wizard Install Variables
-
-    var $AlreadySent; //hack to workaround lack of handlers to hook into for rendering this
+    public $AlreadySent; //hack to workaround lack of handlers to hook into for rendering this
     //Define these here to use on the view and for validation purposes
     //DON'T MODIFY THESE UNDER PAIN OF DEATH!
-    var $Match = array('Any', 'All', 'Extended'); //Search Match Mode
-    var $Order = array(0 => 'Relevance', 1 => 'Most Recent', 2 => 'Most Views', 3 => 'Most Replies'); //Search Order - the key corresponds to value on radio list
-    var $ResultFormat = array('Threads', 'Posts');
-    var $Sender;
+    public $Match = array('Any', 'All', 'Extended'); //Search Match Mode
+    public $Order = array(0 => 'Relevance', 1 => 'Most Recent', 2 => 'Most Views', 3 => 'Most Replies'); //Search Order - the key corresponds to value on radio list
+    public $ResultFormat = array('Threads', 'Posts');
+    public $Sender;
+    public $Started = FALSE;
+    public $Handle = '';
+    public $SphinxClient;
+    public $Queries = array(); //keep track of queries
+    public $Settings = array();
 
     public function __construct() {
-        include_once(PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'class.sphinxsearchmodel.php');
-        $this->SphinxSearchModel = new SphinxSearchModel();
-        include_once(PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'class.sphinxsettings.php');
-        $this->SphinxSettings = new SphinxSettings();
+
+        ////////////////////////////////////////////////
+        //Sphinx plugin core modules
+        /////////////////////////////////////////////////
         include_once(PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'sphinxconstants.php');
         include_once(PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'class.sphinxsearchgeneral.php');
+        include_once(PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'class.sphinxfactory.php');
+        include_once(PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'class.sphinxsearchsettings.php');
+        include_once(PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'sphinxapi.php'); //load the Sphinx API file
+        ////////////////////////////////////////////////
+        //Sphinx views used in the widgets
+        /////////////////////////////////////////////////
+        include_once(PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'widgets' . DS . 'views' . DS . 'helper_functions.php');
+
+        foreach (glob(PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'widgets' . DS . '*.php') as $filename) {
+            include $filename; //inclue all of the widget classes
+        }
+
+
+        $this->SphinxClient = new SphinxClient(); //sphinx API
+        $Settings = SphinxFactory::BuildSettings();
+        $this->Settings = $Settings->GetAllSettings();
     }
 
     public function Base_Render_Before($Sender) {
+        //'discussioncontroller','categoriescontroller','discussionscontroller','profilecontroller',
+        //'activitycontroller','draftscontroller','messagescontroller', searchcontroller
+        //
+        //
+        //Add your handlers in here
+        switch ($Sender->ControllerName) {
+            case 'discussioncontroller':
+                //related discussion widget
+                $Thread = $Sender->Discussion->Name;
+                $Related = new SphinxWidgetRelatedDiscussion($this->SphinxClient);
+                $RelatedQuery = $Related->AddQuery(array('DiscussionName' => $Thread));
+                $Sender->AddCssFile('/plugins/SphinxSearch/design/widgetrelateddiscussion.css');
+                $this->Queries[] = $RelatedQuery;
+                break;
+            case 'searchcontroller':
+                //main search
+                $Main = new SphinxWidgetMain($this->SphinxClient);
+                $MainQueries = $Main->AddQuery();
+                $this->Queries[] = $MainQueries;
 
-        //$Sender->AddCssFile('/plugins/SphinxSearch/design/searchdropdown.css'); //dropdown menu add-on
-        $Sender->AddJsFile('jquery.searchdropdown.js', 'plugins/SphinxSearch/');
+                $Related = new SphinxWidgetRelatedMain($this->SphinxClient);
+                $Related = $Related->AddQuery();
+                $this->Queries[] = $Related;
+                break;
+            case 'postcontroller':
+                $Sender->AddCssFile('/plugins/SphinxSearch/design/widgetrelateddiscussion.css');
+                break;
+        }
+        $this->RunSearch($Sender);
+    }
+
+    private function RunSearch($Sender = FALSE) {
+        $FinalResults = array();
+        $Results = $this->SphinxClient->RunQueries(); //perform all of the queries
+        //print_r($Results); die;
+        if ($Results) {
+            foreach ($this->Queries as $Query) {
+                $ResultDocs = array();
+                $Index = $Query['Index'];
+                $Name = $Query['Name'];
+                $Highlight = $Query['Highlight'];
+                $IgnoreFirst = $Query['IgnoreFirst']; //useful for finding related content given the title (don't return the searched for title)
+
+                $Result = $Results[$Index]; //get the individual query result from the results tree
+
+                if ($Result['error'] == FALSE && $Result['total_found'] != 0) { //no errors
+                    if ($IgnoreFirst)
+                        array_shift($Result['matches']);
+
+                    foreach ($Result['matches'] as $Info) {
+                        if (isset($Info['attrs']))
+                            $ResultDocs[] = Gdn_Format::ArrayAsObject($Info['attrs']); //get the result documents
+                    }
+                    $Words = '';
+                    foreach ($Result['words'] as $Word => $Info) {
+                        $Words.= $Word . ' '; //get the submitted input query
+                    }
+                    $Results[$Index]['query'] = $Words; //add the query back into the resuls array
+
+                    if ($Highlight) // are we to highlight some portions?
+                        $ResultDocs = $this->HighLightResults($ResultDocs, $Words); //@todo repeated function in this object as well as sphinxwidgets
+                    $Results[$Index]['matches'] = $ResultDocs; //replace highlighted docs back into the main results array
+                }
+                if ($Sender != FALSE)
+                    $Sender->SetData($Name, $Results[$Index]);
+                else
+                    $FinalResults[$Name] = $Results[$Index];
+            }
+        }
+        //PRINT_R($Results); die;
+        return $FinalResults;
     }
 
     public function PluginController_SphinxSearch_Create($Sender) {
@@ -96,110 +156,168 @@ class SphinxSearchPlugin extends Gdn_Plugin {
         $this->Dispatch($Sender, $Sender->RequestArgs);
     }
 
-    var $Started = FALSE;
-    var $Handle = '';
-
     /**
-     * Entry point to request status on any commands running in the background
-     *
-     * This is used
+     * Enter here to view sphinx.conf or cron files
      */
-    public function Controller_test() {
+    public function Controller_ViewFile($Sender) {
+        if (isset($_GET['action'])) {
+            if ($_GET['action'] == 'ViewFile') {
+                if ($_GET['file'] == 'conf')
+                    $File = C('Plugin.SphinxSearch.InstallPath') . DS . 'sphinx' . DS . 'etc' . DS . 'sphinx.conf';
+                else if ($_GET['file'] == 'main')
+                    $File = PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'cron' . DS . 'cron.reindex.main.php';
+                else if ($_GET['file'] == 'delta')
+                    $File = PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'cron' . DS . 'cron.reindex.delta.php';
+                if (!file_exists($File))
+                    echo ('File does not exist here: ' . $File);
+                else {
+                    echo nl2br(file_get_contents($File));
+                }
+            }
+        }
+    }
+
+    public function Controller_ServicePoll() {
         $Return = array();
         $Output = file_get_contents(PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'install' . DS . 'output.txt');
         $Return['Terminal'] = nl2br($Output);
         $Error = file_get_contents(PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'install' . DS . 'error.txt');
         $Return['Terminal'] .= nl2br('<span class="TermWarning">' . $Error) . '</span>';
         $PID = explode("\n", trim(file_get_contents(PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'install' . DS . 'pid.txt')));
+        $PID = $PID[0]; //get only the first PID
 
+        $Task = C('Plugin.SphinxSearch.ServicePollTask');
+        switch ($Task) {
+            case 'Idle':
+                $Return['Status'] = 'Idle';
+                break;
+            case 'IndexMain':
+                $Return['Status'] = 'Index Main';
+                break;
+            case 'IndexDelta':
+                $Return['Status'] = 'Index Delta';
+                break;
+            case 'IndexStats':
+                $Return['Status'] = 'Index Stats';
+                break;
+        }
+
+        if (!SphinxSearchGeneral::isRunning($PID)) { //check if finished
+            //yes it is finished
+            if ($Return['Status'] != 'Idle')
+                $Return['Status'] .= ' - Finished!';
+            else {
+                SphinxSearchGeneral::ClearLogFiles();
+                $Return['Terminal'] = 'Ready';
+            }
+            SaveToConfig('Plugin.SphinxSearch.ServicePollTask', 'Idle');
+        }
+
+        echo json_encode($Return);
+    }
+
+    /**
+     * Entry point to request status on any commands running in the background
+     *
+     * This is used
+     */
+    public function Controller_InstallPoll() {
+        $Return = array();
+        $Output = file_get_contents(PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'install' . DS . 'output.txt');
+        $Return['Terminal'] = nl2br($Output);
+        $Error = file_get_contents(PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'install' . DS . 'error.txt');
+        $Return['Terminal'] .= nl2br('<span class="TermWarning">' . $Error) . '</span>';
+        $PID = explode("\n", trim(file_get_contents(PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'install' . DS . 'pid.txt')));
         $PID = $PID[0]; //get only the first PID
         if (!SphinxSearchGeneral::isRunning($PID)) { //check if finished
             //yes it is finished
-            $Task = C('Task');
-            $InstallPath = C('InstallPath');
-            $Dir = C('InsideDir');
-            if ($Task == FALSE || !file_exists($InstallPath) || !is_dir($Dir)) //check if paths are OK
+            $Task = C('Plugin.SphinxSearch.Task');
+            $InstallPath = C('Plugin.SphinxSearch.InstallPath');
+            $Dir = C('Plugin.SphinxSearch.InsideDir');
+            if ($Task == 'FinishLibraries' && ($Task == FALSE || !file_exists($InstallPath) || !is_dir($Dir))) //check if paths are OK
                 $Return['Terminal'] .= '<span class="TermWarning">Error locating install folders </span>';
             else {
                 $Wizard = new SphinxSearchInstall();
                 switch ($Task) {
+                    case 'Idle':
+                        $Return['Status'] = 'Idling';
+                        break;
                     case 'Start':
-                        if ($Error != ''){
+                        if ($Error != '') {
                             $Return['Terminal'] .= '<span class="TermWarning">Unable to Proceed due to the following errors:</span> <br/>';
                             break;
                         }
-                        $Wizard->InstallConfigure($InstallPath, $Dir);
-                        SaveToConfig('Task', 'Configure');
+                        $Wizard->InstallConfigure($InstallPath . DS . 'sphinx', $Dir);
+                        SaveToConfig('Plugin.SphinxSearch.Task', 'Configure');
                         break;
                     case 'Configure':
-                        if ($Error != ''){
+                        if ($Error != '') {
                             $Return['Terminal'] .= '<span class="TermWarning">Unable to Proceed due to the above errors</span> <br/>';
                             break;
                         }
                         $Wizard->InstallMake($Dir);
-                        SaveToConfig('Task', 'Make');
+                        SaveToConfig('Plugin.SphinxSearch.Task', 'Make');
                         break;
                     case 'Make':
                         $Wizard->InstallMakeInstall($Dir);
-                        SaveToConfig('Task', 'Make Install');
+                        SaveToConfig('Plugin.SphinxSearch.Task', 'Make Install');
                         break;
                     case 'Make Install':
-                        if(!$Wizard->CheckIndexer($InstallPath)){
+                        if (!$Wizard->CheckIndexer($InstallPath . DS . 'sphinx' . DS . 'bin')) {
                             $Return['Terminal'] .= '<span class="TermWarning">Unable to Find instance of Indexer</span> <br/>';
                             break;
                         }
-                        if(!$Wizard->CheckSearchd($InstallPath)){
+                        if (!$Wizard->CheckSearchd($InstallPath . DS . 'sphinx' . DS . 'bin')) {
                             $Return['Terminal'] .= '<span class="TermWarning">Unable to Find instance of Searchd</span> <br/>';
                             break;
                         }
-                        SaveToConfig('Task', 'Finish');
+                        $Wizard->SaveLocations(); //save indexer/searchd/conf locations
+
+                        SaveToConfig('Plugin.SphinxSearch.Task', 'FinishLibraries');
+                        break;
+                    case 'FinishLibraries':
+                        if (C('Plugin.SphinxSearch.Config') == FALSE)
+                            $Return['Terminal'] = 'reload'; //tell Jquery to reload the page
+                        else
+                            SaveToConfig('Plugin.SphinxSearch.Task', 'InstallConfig');
+                        break;
+                    case 'InstallConfig':
+                        if (C('Plugin.SphinxSearch.Installed'))
+                            $Return['Status'] = '<span style="color: green"> Finished Installing libraries/config/cron for Sphinx!</span>';
+                        else
+                            $Return['Status'] = 'Waiting to install configuration';
                         break;
                 }
-                if (C('Task') == 'Finish')
+                if (C('Plugin.SphinxSearch.Task') == 'FinishLibraries')
                     $Return['Status'] = '<span style="color: green"> Finished Installing libraries for Sphinx!</span>';
             }
         } else {
-            $Return['Status'] = 'Please Wait For: ' . '<b>' . C('Task') . '</b><br/>' . C('Plugin.SphinxSearch.PIDBackgroundWorker');
+            $Return['Status'] = 'Please Wait For: ' . '<b>' . C('Plugin.SphinxSearch.Task') . '</b><br/>' . C('Plugin.SphinxSearch.PIDBackgroundWorker');
         }
 
         echo json_encode($Return);
     }
 
     public function Controller_Index($Sender) {
-        // Prevent non-admins from accessing this page
         $Sender->Permission('Vanilla.Settings.Manage');
 
         $Sender->SetData('PluginDescription', $this->GetPluginKey('Description'));
         $Sender->SetData('PluginVersion', $this->GetPluginKey('Version'));
 
+        $Sphinx = SphinxFactory::BuildSphinx($Sender, $this->GetView('index.php'));
+        //$test->ReIndexMain();
+        //$test->Stop();
+        //$test->Start();
+        $Sphinx->Status();
         $Validation = new Gdn_Validation();
         $ConfigurationModel = new Gdn_ConfigurationModel($Validation);
         $ConfigurationModel->SetField(array(
             'Plugin.SphinxSearch.MaxQueryTime' => 2000,
         ));
-        $Sender->AddJsFile('jquery.searchdropdown.js', 'plugins/SphinxSearch/');
-
+        // $Sender->AddJsFile('jquery.searchdropdown.js', 'plugins/SphinxSearch/');
         // Set the model on the form.
         $Sender->Form->SetModel($ConfigurationModel);
-
-        // If seeing the form for the first time...
-        if ($Sender->Form->AuthenticatedPostBack() === FALSE) {
-            // Apply the config settings to the form.
-            $Sender->Form->SetData($ConfigurationModel->Data);
-        } else {
-            $ConfigurationModel->Validation->ApplyRule('Plugin.SphinxSearch.MaxQueryTime', 'Required');
-            $Saved = $Sender->Form->Save();
-            if ($Saved) {
-                $Sender->StatusMessage = T("Your changes have been saved.");
-            }
-        }
-
-//        chdir('/srv/http/mcuhq/vanilla/plugins/SphinxSearch/install/sphinx-2.0.4-release');
-//        $cmd = 'make install /srv/http/mcuhq/vanilla/plugins/SphinxSearch/install/sphinx-2.0.4-release';
-//        exec(sprintf("%s > %s 2>&1 & echo $! >> %s", 'find / -name *.*php', dirname(__FILE__) . '/output.txt', dirname(__FILE__) . '/pid.txt'));
-        //$Install = new SphinxSearchInstall();
-        //$Install->CheckPort(C('Database.Host','localhost'),9312);
-
+        $Sender->SetData('Settings', $Sphinx->GetSettings());
         $Sender->Render($this->GetView('index.php'));
     }
 
@@ -219,16 +337,30 @@ class SphinxSearchPlugin extends Gdn_Plugin {
      */
     public function Controller_Service($Sender) {
         $Sender->Permission('Vanilla.Settings.Manage');
-
         $Sender->SetData('PluginDescription', $this->GetPluginKey('Description'));
         $Sender->SetData('PluginVersion', $this->GetPluginKey('Version'));
 
-        $SphinxService = new SphinxSearchService($Sender, $this->GetView('index.php'));
-        if ($Error = $SphinxService->ReIndexAll())
-            $Sender->Form->AddError($Error);
-        // if ($Error = $SphinxService->Start())
-        //     $Sender->Form->AddError($Error);
-        //  else
+        $Sphinx = SphinxFactory::BuildSphinx($Sender, $this->GetView('index.php'));
+        $Sphinx->ValidateInstall();
+        switch ($_GET['Action']) {
+            case 'IndexMain':
+                $Sphinx->ReIndexMain();
+                break;
+            case 'IndexDelta':
+                $Sphinx->ReIndexDelta();
+                break;
+            case 'IndexStats':
+                $Sphinx->ReIndexStats();
+                break;
+            case 'StartSearchd':
+                $Sphinx->Start();
+                break;
+            case 'StopSearchd':
+                $Sphinx->Stop();
+                break;
+        }
+        $Sphinx->Status();
+        $Sender->SetData('Settings', $Sphinx->GetSettings());
         $Sender->Render($this->GetView('index.php'));
     }
 
@@ -244,6 +376,24 @@ class SphinxSearchPlugin extends Gdn_Plugin {
         $Wizard->Index();
     }
 
+    public function Controller_NewDiscussion() {
+        $Return = array();
+        if (isset($_POST['Query']))
+            $Query = $_POST['Query'];
+        else
+            return;
+
+        $RelatedPost = new SphinxWidgetRelatedPost($this->SphinxClient);
+        $Related = $RelatedPost->AddQuery(array('Query' => $Query)); //now actually adding the query
+        $this->Queries[] = $Related;
+        $Results = $this->RunSearch();
+
+        $Results = $Results['Related_Post'];
+        $Return['Text'] = $RelatedPost->ToString($Results);
+
+        echo json_encode($Return);
+    }
+
     public function SearchController_Render_Before($Sender) {
         //In order for the default search engine not to run, we will kill PHP from processing
         //after the sphinx view is loaded
@@ -252,26 +402,41 @@ class SphinxSearchPlugin extends Gdn_Plugin {
             $Sender->SetData('Match', $this->Match);
             $Sender->SetData('Order', $this->Order);
             $Sender->SetData('ResultFormat', $this->ResultFormat);
-            $this->_LoadMainSearch($Sender);
+            $Sender->AddCssFile('/plugins/SphinxSearch/design/sphinxsearch.css');
+            $Sender->Render($this->GetView('search.php'));
             die; //necessary to prevent duplicate
         }
     }
 
-    private function _LoadResultSearch($Result, $Inputs) {
-        //print_r($Sender);
-        $this->Sender->AddCssFile('/plugins/SphinxSearch/design/sphinxsearchresult.css');
-        $this->Sender->SetData('Result', $Result); //Sphinx results
-        $this->Sender->SetData('Inputs', $Inputs); //user input values (sanitized)
-        //print_r($Result); die;
-        $this->Sender->Render($this->GetView('results.php'));
+    /**
+     * Adds the related threads to the top of each discussion
+     * @param type $Sender
+     */
+    public function DiscussionController_BeforeDiscussion_Handler($Sender) {
+
     }
 
-    private function _LoadMainSearch($Sender) {
+    /**
+     * Adds the related threads to the top of each discussion
+     * @param type $Sender
+     * @pre RunSearch() ran already
+     */
+    public function DiscussionController_AfterDiscussion_Handler($Sender) {
+        if (isset($Sender->Data['Related_Discussion'])) { //are there any related threads to display?
+            $Related = new SphinxWidgetRelatedDiscussion($this->SphinxClient);
+            $Results = $Sender->Data['Related_Discussion'];
+            echo $Related->ToString($Results);
+        }
+    }
 
-        $Sender->AddCssFile('/plugins/SphinxSearch/design/sphinxsearch.css');
-        //$Sender->AddCssFile('/plugins/SphinxSearch/design/jquery.multiselect.css'); @todo why does multiselect not work?
-        //$Sender->AddJsFile('jquery.multiselect.min.js', 'plugins/SphinxSearch/');
-        $Sender->Render($this->GetView('search.php'));
+    /**
+     * Adds the related threads above "ask a new question/thread"
+     * @param type $Sender
+     * @param type $Args
+     */
+    public function PostController_BeforeFormInputs_Handler($Sender, $Args) {
+        include_once(PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'widgets' . DS . 'views' . DS . 'relatedpost.php');
+        // include $Sender->FetchViewLocation('QnAPost', '', 'plugins/QnA');
     }
 
     /**
@@ -293,61 +458,12 @@ class SphinxSearchPlugin extends Gdn_Plugin {
         //echo '[{"value":"Nirvana"},{"value":"Pink Floyd"}]';
     }
 
-    private function _SearchUserName($Input) {
-        $SearchField = 'UserName';
-
-        $this->SphinxSearchModel->SphinxReset();
-        $this->SphinxSearchModel->SphinxSetMatch(SPH_MATCH_EXTENDED2); //use this since using boolean operators
-        $this->SphinxSearchModel->SetSelect('UserName'); //only need the username
-        $this->SphinxSearchModel->SphinxSetSort(SPH_SORT_RELEVANCE);
-        $this->SphinxSearchModel->SphinxSetGroupDistinct($SearchField); //only want one unique username
-        $this->SphinxSearchModel->SphinxSetGrouping($SearchField, SPH_GROUPBY_ATTR);
-        $this->SphinxSearchModel->SphinxSetLimits($Offset = 0, $Limit = 15); //limit to 15 autocompletes
-        $Result = $this->SphinxSearchModel->SphinxSearch('@(UserName) ' . $Input, $index = 'vanilla'); //perform the search
-        return $this->_JsonEncode($Result['Records'], 'username');
-    }
-
-    private function _MainSearch($Result) {
-        $this->SphinxSearchModel->SphinxReset();      //reset grouping/indexes$t
-        $this->SphinxSearchModel->SphinxSetMatch(SPH_MATCH_EXTENDED); //set matching mode - Should always use this!
-        $SubQuery = '';
-
-        if (!empty($Result['ForumList'])) {       //filster Forum categories
-            if (!in_array(0, $Result['ForumList']))  //If this is TRUE, than user selected to search in "All" categories...no filtering then requried
-                $this->SphinxSearchModel->SphinxSetFilter('CatID', $Result['ForumList']);
-        }
-        if (!empty($Result['MemberList'])) {      //filter by member
-            $String = $this->_OperatorOrSearch($Result['MemberList']);
-            $SubQuery .='@(UserName) ' . $String;
-        }
-        $Query = $this->_SetRankAndQuery($Result['Match'], $Result['Query']); //depending on selected match, need to format the query string to comply with the extended syntax
-        $this->_SetSort($Result['Order']);
-
-//        if($Result['Query'] =='*' || $Result['Query'] == '')
-        $this->SphinxSearchModel->SphinxSetLimits($Offset = 0, $Limit = 1000, $MaxMatches = 0);
-        if ($Result['TitlesOnly'] == 1) {
-            $this->SphinxSearchModel->SphinxSetGroupDistinct('DiscussionName'); //only want one unique thread title
-            $this->SphinxSearchModel->SphinxSetGrouping('DiscussionName', SPH_GROUPBY_ATTR);
-            $MainSearch = $this->_FieldSearch(
-                    $Query, array(
-                SPHINX_FIELD_STR_DISCUSSIONNAME), $Multiple = FALSE); //perform the search
-        } else {
-
-            //$this->SphinxSearchModel->SphinxSetGroupDistinct('discussionname'); //only want one unique username
-            //$this->SphinxSearchModel->SphinxSetGrouping('discussionname', SPH_GROUPBY_ATTR);
-            //$this->SphinxSearchModel->SphinxSetFilter('TableID', array(1));
-            $MainSearch = $this->_FieldSearch(
-                    $Query, array(
-                SPHINX_FIELD_STR_DISCUSSIONNAME,
-                SPHINX_FIELD_STR_COMMENTBODY), $Multiple = TRUE); //perform the search
-            //echo $MainSearch; echo $SubQuery;
-        }
-        $SearchResults = $this->SphinxSearchModel->SphinxSearch(' ' . $SubQuery . ' ' . $MainSearch, $index = SPHINX_INDEX_DIST);
-
-        //print_r($SearchResults); die;
-        //print_r($Search); die;
-        $this->_RelatedThreads($Result['Query']);
-        return $SearchResults;
+    /**
+     * Main entry point after clicking "Search"
+     */
+    public function SearchController_results_Create($Sender) {
+        $Sender->AddCssFile('/plugins/SphinxSearch/design/sphinxsearchresult.css');
+        $Sender->Render(PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'widgets' . DS . 'views' . DS . 'results.php');
     }
 
     /**
@@ -364,252 +480,37 @@ class SphinxSearchPlugin extends Gdn_Plugin {
      * @param int $Offset
      * @return type
      */
-    private function _HighLightResults($Result, $Query, $Limit = 0, $Offset = 0) {
-        if (!isset($Result['Records']))
+    private function HighLightResults($Result, $Query, $Limit = 0, $Offset = 0) {
+        if (!isset($Result))
             return FALSE;               //no records
-        $Records = $Result['Records'];
+        $Records = $Result;
         $CommentArray = array();  //comment body
         foreach ($Records as $Record) {
             $CommentArray[] = $Record->{SPHINX_FIELD_STR_COMMENTBODY};
         }
-        $HighLightedComment = $this->SphinxSearchModel->SphinxBuildExcerpts(
-                $CommentArray, SPHINX_INDEX_MAIN, $Query, $options = $this->SphinxSettings->BuildExcerpts
+        $HighLightedComment = $this->SphinxClient->BuildExcerpts(
+                $CommentArray, SPHINX_INDEX_MAIN, $Query, $options = $this->Settings['Admin']->BuildExcerpts
         );
-        if ($this->SphinxSettings->HighLightTitles) {
+        if ($this->Settings['Admin']->HighLightTitles) {
             $DiscussionArray = array(); //discussion titles
             foreach ($Records as $Record) {
                 $DiscussionArray[] = $Record->{SPHINX_ATTR_STR_DISCUSSIONNAME};
             }
-            $HighLightedDiscussion = $this->SphinxSearchModel->SphinxBuildExcerpts(
+            $HighLightedDiscussion = $this->SphinxClient->BuildExcerpts(
                     $DiscussionArray, SPHINX_INDEX_MAIN, $Query, $options = array(
-                'before_match' => $this->SphinxSettings->BuildExcerpts['before_match'],
-                'after_match' => $this->SphinxSettings->BuildExcerpts['after_match'])
+                'before_match' => $this->Settings['Admin']->BuildExcerpts['before_match'],
+                'after_match' => $this->Settings['Admin']->BuildExcerpts['after_match'])
             ); //don't put any restrictions on anything else here except the opening/closing tags
         }
 
         $Offset = 0;
         foreach ($Records as $Record) {
             $Record->{SPHINX_FIELD_STR_COMMENTBODY} = $HighLightedComment[$Offset];
-            if ($this->SphinxSettings->HighLightTitles)
+            if ($this->Settings['Admin']->HighLightTitles)
                 $Record->{SPHINX_ATTR_STR_DISCUSSIONNAME} = $HighLightedDiscussion[$Offset];
             $Offset++;
         }
-        $Result['Records'] = $Records;
-
-        //print_r($Result);
-        return $Result;
-    }
-
-    /**
-     *
-     * @param string $InputQuery the filtered input query.
-     */
-    private function _RelatedThreads($InputQuery) {
-        $this->SphinxSearchModel->SphinxReset();
-        $this->SphinxSearchModel->SphinxSetMatch(SPH_MATCH_EXTENDED2); //use this since using boolean operators
-        $this->SphinxSearchModel->SetSelect(SPHINX_FIELD_STR_DISCUSSIONNAME); //only need the username
-        $this->SphinxSearchModel->SphinxSetSort(SPH_SORT_RELEVANCE);
-        $this->SphinxSearchModel->SphinxSetRankingMode(SPH_RANK_WORDCOUNT);
-        $this->SphinxSearchModel->SphinxSetLimits($Offset = 0, $Limit = $this->SphinxSettings->ReleatedThreadsLimit); //limit to 15 autocompletes
-        $Search = $this->SphinxSearchModel->SphinxSearch($this->_FieldSearch(
-                        $this->_OperatorOrSearch($InputQuery), array(
-                    SPHINX_FIELD_STR_DISCUSSIONNAME
-                        ), $Multiples = FALSE), $index = SPHINX_INDEX_DIST); //perform the search); //perform the search
-        if ($Search['NumRows'] == 0)
-            $this->Sender->SetData('RelatedThreads', $Search['NumRows'] = 0);
-        else
-            $this->Sender->SetData('RelatedThreads', $Search);
-    }
-
-    /**
-     *
-     * @param string $text
-     * @param int $NumMatches number of words to match in the $text
-     *
-     * Quorum matching operator introduces a kind of fuzzy matching.
-     * It will only match those documents that pass a given threshold of given words.
-     * The example above ("the world is a wonderful place"/3) will match all documents
-     * that have at least 3 of the 6 specified words.
-     */
-    private function _QuorumSearch($Query, $NumMatches) {
-        return '"' . $Query . '/' . $NumMatches . '"';
-    }
-
-    private function _PhraseSearch($Query) {
-        return '"' . $Query . '"';
-    }
-
-    private function _FieldSearch($Query, $Fields = array(), $Multiple = FALSE) {
-        if ($Multiple == FALSE)
-            return '@(' . $Fields[0] . ') ' . $Query; //single field
-        else {
-            $Params = '';
-            foreach ($Fields as $Field) {
-                if ($Params == '')
-                    $Params .= $Field;
-                else
-                    $Params .= ',' . $Field;
-            }
-            return '@(' . $Params . ') ' . $Query;
-        }
-    }
-
-    private function _OperatorOrSearch($Query) {
-        $Input = '';
-        $Return = '';
-        if (is_array($Query)) {
-            foreach ($Query as $Word)
-                $Input .= $Word . ' ';
-            $Input = trim($Input);
-            $Query = $Input;
-        }
-        $QueryString = explode(' ', $Query);
-        foreach ($QueryString as $Word) {   //add the boolean OR operator (|)
-            if (!is_string($Word) || $Word == '')
-                continue;
-            if ($Return != '')
-                $Return .= ' | ' . $Word;
-            else
-                $Return = $Word;
-        }
-        return $Return;
-    }
-
-    private function _AllSearch($Query) {
-        return '@* ' . $Query;
-    }
-
-    private function _SetRankAndQuery($Rank, $Query) {
-        switch ($Rank) {
-            case 0: //Any
-            default:
-                $this->SphinxSearchModel->SphinxSetRankingMode(SPH_RANK_MATCHANY); //match any keyword
-                $Return = $this->_OperatorOrSearch($Query);
-                break;
-            case 1: //All
-                $this->SphinxSearchModel->SphinxSetRankingMode(SPH_RANK_PROXIMITY); //requires perfect match
-                $Return = '"' . $Query . '"'; //add quotes to designate a phrase match is required
-                break;
-            case 2: //Extended
-                $this->SphinxSearchModel->SphinxSetRankingMode(SPH_RANK_PROXIMITY_BM25); //boolean operators
-                $Return = $Query; //do not alter the query...allow the extended syntax to be inserted by user
-                break;
-        }
-        return $Return;
-    }
-
-    private function _SetSort($Order) {
-        switch ($Order) {
-            case 0:  //relevance
-                $this->SphinxSearchModel->SphinxSetSort(SPH_SORT_RELEVANCE, '');
-                break;
-            case 1: //most recent
-                $this->SphinxSearchModel->SphinxSetSort(SPH_SORT_STR_DESC, 'CommentDateInserted');
-                break;
-            case 2: //most replies
-                $this->SphinxSearchModel->SphinxSetSort(SPH_SORT_STR_DESC, 'DiscussionCountComments');
-                break;
-            case 3: //most views
-                $this->SphinxSearchModel->SphinxSetSort(SPH_SORT_STR_DESC, 'DiscussionCountViews'); //relevance only..no direct field
-                break;
-        }
-    }
-
-    /**
-     * Returns a JSON encoded string
-     *
-     * @param array $Result Sphinx result array
-     * @param string $Field field to populate json return string from
-     */
-    private function _JsonEncode($Result, $Field) {
-        $Return = '[';
-        foreach ($Result as $Row) {
-            if ($Return != '[')
-                $Return .= ',';
-            $Return .= json_encode(array('value' => GetValue($Field, $Row)));
-        }
-        $Return .= ']';
-        return $Return;
-    }
-
-    /**
-     * Main entry point after clicking "Search"
-     */
-    public function SearchController_results_Create($Sender) {
-        $this->Sender = $Sender;            //grab a hold of this
-//        $Validation = new Gdn_Validation();
-//        $ConfigurationModel = new Gdn_ConfigurationModel($Validation);
-//        $ConfigurationModel->Validation->ApplyRule($_GET['q'], 'Length');
-        //First, sanitize and validate the user's input
-        $Inputs = $this->_Validate();
-        $Result = $this->_MainSearch($Inputs); //peform the main search
-        $Result = $this->_HighLightResults($Result, $Inputs['Query']); //highlight results
-        $this->_LoadResultSearch($Result, $Inputs); //load results to results screen
-    }
-
-    private function _Validate() {
-        $MemberList = array();
-        $TagList = array();
-        $ForumList = array();
-        $Query = '';
-
-        $QueryIn = trim(filter_input(INPUT_GET, 'q', FILTER_SANITIZE_STRING)); //probably overkill
-        $QueryIn = explode(' ', $QueryIn);
-        foreach ($QueryIn as $Word) {    //get rid of any white spaces inbetween words
-            if (!is_string($Word) || $Word == '')
-                continue;
-            if ($Query == '')
-                $Query = $Word;
-            else
-                $Query .= ' ' . $Word;
-        }
-
-        $TitlesOnly = (filter_input(INPUT_GET, 'titles', FILTER_SANITIZE_NUMBER_INT) == 1 ? 1 : 0); //checkbox - bool
-        $Match = filter_input(INPUT_GET, 'match', FILTER_SANITIZE_NUMBER_INT);
-        $Child = (filter_input(INPUT_GET, 'child', FILTER_SANITIZE_NUMBER_INT) == 1 ? 1 : 0); //checkbox - bool
-        if (isset($_GET['forums'])) {
-            foreach ($_GET['forums'] as $Forum) {
-                if (is_numeric($Forum)) //check if int
-                    $ForumList[] = $Forum;
-            }
-        }
-        $Date = filter_input(INPUT_GET, 'date', FILTER_SANITIZE_STRING);
-        $Order = filter_input(INPUT_GET, 'or', FILTER_SANITIZE_NUMBER_INT); //bool
-
-        $Members = filter_input(INPUT_GET, 'mem', FILTER_SANITIZE_STRING); //list seperated by comma
-        if (!empty($Members)) {
-            $Members = explode(',', $Members);
-            foreach ($Members as $Member) {
-                if (!is_string($Member) || $Member == '' || !str_word_count($Member, 0))
-                    continue;
-                $MemberList[] = trim($Member);
-            }
-        }
-
-        $Tags = filter_input(INPUT_GET, 'tag', FILTER_SANITIZE_STRING); //list seperated by comma
-        if (!empty($Tags)) {
-            $Tags = explode(',', $Tags);
-            foreach ($Tags as $Tag) {
-                if (!is_string($Tag) || $Tag == '' || !str_word_count($Tag, 0))
-                    continue;
-                $TagList[] = trim($Tag);
-            }
-        }
-        $ResultFormat = filter_input(INPUT_GET, 'res', FILTER_SANITIZE_NUMBER_INT); // 0 = thread , 1 = post
-
-        return array(
-            'Query' => $Query,
-            'TitlesOnly' => $TitlesOnly,
-            'Match' => $Match,
-            'ForumList' => $ForumList,
-            'SearchChildren' => $Child,
-            'Date' => $Date,
-            'MemberList' => $MemberList,
-            'Order' => $Order,
-            'TagList' => $TagList,
-            'Order' => $Order,
-            'ResultFormat' => $ResultFormat,
-        );
+        return $Records;
     }
 
     /**
@@ -701,12 +602,118 @@ class SphinxSearchPlugin extends Gdn_Plugin {
         return $Return . '</select>';
     }
 
+    /**
+     * These must correlate with class.sphinxsearchconfig.php
+     */
     public function Setup() {
-        $this->SphinxSettings->Setup();
+        ///////////////////////////////////////////////////////////////
+        //Wizard steps
+        ///////////////////////////////////////////////////////////////
+        SaveToConfig('Plugin.SphinxSearch.StartWizard', FALSE);
+        SaveToConfig('Plugin.SphinxSearch.Connection', FALSE);
+        SaveToConfig('Plugin.SphinxSearch.Detection', FALSE);
+        SaveToConfig('Plugin.SphinxSearch.Detected', FALSE); //whether or not system detected existance of sphinx or not (FALSE if did not)
+        SaveToConfig('Plugin.SphinxSearch.Running', FALSE); //searchd start/stopped
+        SaveToConfig('Plugin.SphinxSearch.Installed', FALSE); //either found existing binaries or succesfull install
+
+
+        SaveToConfig('Task', 'Configure');
+        SaveToConfig('Plugin.SphinxSearch.ServicePollTask', FALSE);
+
+        ////////////////////////////////////////////////////////////
+        //status
+        ///////////////////////////////////////////////////////////////
+        //searchd port
+        SaveToConfig('Plugin.SphinxSearch.SearchdPortStatus', FALSE); //if port is Open/Closed
+        SaveToConfig('Plugin.SphinxSearch.SearchdStatus', FALSE); //if daemon is running or not
+        SaveToConfig('Plugin.SphinxSearch.SearchdConnections', 0);
+
+        //general status
+        SaveToConfig('Plugin.SphinxSearch.IndexerFound', FALSE);
+        SaveToConfig('Plugin.SphinxSearch.SearchdFound', FALSE);
+        SaveToConfig('Plugin.SphinxSearch.ConfFound', FALSE);
+        SaveToConfig('Plugin.SphinxSearch.Uptime', 0);
+        SaveToConfig('Plugin.SphinxSearch.TotalQueries', 0);
+        SaveToConfig('Plugin.SphinxSearch.MaxedOut', 0);
+
+        //total number of docs indexed
+        SaveToConfig('Plugin.SphinxSearch.IndexerMainTotal', 0);
+        SaveToConfig('Plugin.SphinxSearch.IndexerDeltaTotal', 0);
+        SaveToConfig('Plugin.SphinxSearch.IndexerStatsTotal', 0);
+
+        //last time it was indexed
+        SaveToConfig('Plugin.SphinxSearch.IndexerMainLast', '---');
+        SaveToConfig('Plugin.SphinxSearch.IndexerDeltaLast', '---');
+        SaveToConfig('Plugin.SphinxSearch.IndexerStatsLast', '---');
+
+
+        ///////////////////////////////////////////////////////////////
+        //Install settings
+        ///////////////////////////////////////////////////////////////
+        SaveToConfig('Plugin.SphinxSearch.Prefix', 'vss_');
+        SaveToConfig('Plugin.SphinxSearch.Host', 'localhost');
+        SaveToConfig('Plugin.SphinxSearch.Port', 9312);
+        SaveToConfig('Plugin.SphinxSearch.InstallPath', SPHINX_SEARCH_INSTALL_DIR); //path to sphinx install directory
+        SaveToConfig('Plugin.SphinxSearch.IndexerPath', 'Not Detected'); //path to indexer - use this for config purposes!
+        SaveToConfig('Plugin.SphinxSearch.SearchdPath', 'Not Detected'); //path to searchd - use this for config purposes!
+        SaveToConfig('Plugin.SphinxSearch.ConfPath', 'Not Detected'); //path to searchd - use this for config purposes!
+
+        SaveToConfig('Plugin.SphinxSearch.ManualIndexerPath', ''); //manual path to indexer
+        SaveToConfig('Plugin.SphinxSearch.ManualSearchdPath', ''); //manual path to searchd
+        SaveToConfig('Plugin.SphinxSearch.ManualConfPath', ''); //manual path to sphinx.conf
+        ///////////////////////////////////////////////////////////////
+        //admin settings
+        ///////////////////////////////////////////////////////////////
+        SaveToConfig('Plugin.SphinxSearch.LimitRelatedMain', 20); //# of related discussion titles next to the main search results
+        SaveToConfig('Plugin.SphinxSearch.LimitRelatedPost', 20);
+        SaveToConfig('Plugin.SphinxSearch.LimitRelatedDiscussion', 20);
+
+        SaveToConfig('Plugin.SphinxSearch.MinWordIndexLen', 3); //minimum characters to index a word
+        SaveToConfig('Plugin.SphinxSearch.MaxMatches', 1000); //per query
+        //debug parameters
+        SaveToConfig('Plugin.SphinxSearch.Timeout', 3312); //units of ms
+        SaveToConfig('Plugin.SphinxSearch.RetriesCount', 50); //On temporary failures searchd will attempt up to $count retries per agent
+        SaveToConfig('Plugin.SphinxSearch.RetriesDelay', 50); //$delay is the delay between the retries, in ms
+        //BuildExcerpts
+        SaveToConfig('Plugin.SphinxSearch.BuildExcerpts.BeforeMatch', '<span class="SphinxExcerpts">');
+        SaveToConfig('Plugin.SphinxSearch.BuildExcerpts.AfterMatch', '</span>');
+        SaveToConfig('Plugin.SphinxSearch.BuildExcerpts.ChunkSeparator', '...');
+        SaveToConfig('Plugin.SphinxSearch.BuildExcerpts.Limit', 60);
+        SaveToConfig('Plugin.SphinxSearch.BuildExcerpts.Around', 3);
+        SaveToConfig('Plugin.SphinxSearch.MaxQueryTime', 2000); //units of ms
+        //create shpinx table to tell the indexes what to index
+        Gdn::Structure()
+                ->Table('sph_counter')
+                ->Column('counter_id', 'int', FALSE) //order matters here!
+                ->Column('max_doc_id', 'int', FALSE)
+                ->PrimaryKey('counter_id', 'int')
+                ->Set();
+
+        //for stats
+        Gdn::Structure()
+                ->Table('sph_stats')
+                ->Column('int', 'int', FALSE) //order matters here!
+                ->Column('keywords', 'varchar(255)', FALSE, 'index')
+                ->Column('date_added', 'datetime', FALSE)
+                ->Column('keywords_full', 'tinyint(255)', FALSE)
+                ->Column('status', 'varchar(255)', FALSE)
+                ->PrimaryKey('id', 'int')
+                ->Set();
     }
 
     public function OnDisable() {
-        $this->SphinxSettings->OnDisable();
+        RemoveFromSettings('Plugin.SphinxSearch.MaxQueryTime');
+        RemoveFromSettings('Plugin.SphinxSearch.Host');
+        RemoveFromSettings('Plugin.SphinxSearch.Port');
+        RemoveFromSettings('Plugin.SphinxSearch.Timeout');
+        RemoveFromSettings('Plugin.SphinxSearch.RetiresCount');
+        RemoveFromSettings('Plugin.SphinxSearch.RetriesDelay');
+        RemoveFromSettings('Plugin.SphinxSearch.MinWordIndexLen');
+
+
+        Gdn::Structure()
+                ->Table('sph_counter')
+                ->Drop();
     }
 
 }
