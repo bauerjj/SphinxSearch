@@ -11,7 +11,9 @@
  */
 //print_r($this->Data); die;
 $Results = $this->Data['Main']; //main search results
-$RelatedThreads = $this->Data['Related_Main']; //related threads on the sidebare
+$RelatedThreads = $this->Data['Related_Main']; //related threads on the sidebar
+$SingleKeywords = $this->Data['SingleKeywords']; //top keywords
+$FullKeywords = $this->Data['FullKeywords']; //Full keywords (ie full searches)
 $GETString = explode('&', $_SERVER['QUERY_STRING']); //use this to providea link back to search
 if(isset($Results['total_found'])):
 
@@ -55,6 +57,12 @@ if (!($Results['total_found'] == 0)): //make sure there is something here
                 </table>
                 <h3 id="ReleatedSearches">Related Threads</h3>
                 <?php echo WriteSimple($RelatedThreads); ?>
+
+                <h3 id="ReleatedSearches">Related Searches</h3>
+                <?php echo $FullKeywords; ?>
+
+                <h3 id="ReleatedSearches">Top searched keywords</h3>
+                <?php echo $SingleKeywords; ?>
 
             </div>
         </div>

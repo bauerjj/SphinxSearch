@@ -1,23 +1,18 @@
 <?php
 
-abstract class SphinxWidgets{
+abstract class Widgets{
 
     protected $SphinxClient; //sphinxAPI
 
     protected $Settings;
 
 
-
     abstract function AddQuery($Options);
 
-    public function __construct($SphinxClient) {
+    public function __construct($SphinxClient, $Settings) {
         $this->SphinxClient = $SphinxClient;
-
-
-        $Setup = SphinxFactory::BuildSettings();
-        $this->Settings = $Setup->GetAllSettings();
+        $this->Settings = $Settings;
         $this->Connect();
-
     }
 
     private function Connect(){
@@ -137,7 +132,6 @@ abstract class SphinxWidgets{
 
     protected function _SearchUserName($Input) {
         $SearchField = 'UserName';
-
         $this->SphinxSearchModel->SphinxReset();
         $this->SphinxSearchModel->SphinxSetMatch(SPH_MATCH_EXTENDED2); //use this since using boolean operators
         $this->SphinxSearchModel->SetSelect('UserName'); //only need the username
@@ -172,34 +166,11 @@ abstract class SphinxWidgets{
             SPHINX_FIELD_STR_DISCUSSIONNAME
                 ), $Multiples = FALSE);
 
+
+
         return $Query;
     }
 
-
-    protected function PerformSearch($search, $index) {
-        $result = $this->SphinxClient->Query($search, $index);   //here we go
-        if ($result === false) {
-            echo '<b style ="color: red">Query failed: ' .$this->SphinxClient->GetLastError() . '.\n';
-        } else {
-            if ($this->SphinxClient->GetLastWarning()) {
-                echo '<b style ="color: red">WARNING: ' . $this->SphinxClient->GetLastWarning() . ' </b>';
-            }
-        }
-        //Parse the returned results
-        if ($result['total_found'] == 0) //check if no results were returned
-            return array('records' => 0, 'NumRows' => $result['total_found']);
-        else {
-            $result_docs = array();
-            foreach ($result['matches'] as $doc => $docinfo) {
-                $result_docs[] = Gdn_Format::ArrayAsObject($docinfo['attrs']); //convert to object to be consistenst with returned MYSQL data
-            }
-
-            if (!isset($result['words'])) //using 'SPH_MATCH_ALL will' not have this defined
-                return array('Records' => $result_docs, 'NumRows' => $result['total_found'],'Time' => $result['time'], 'Words' => false); //set it to false
-            else
-                return array('Records' => $result_docs, 'NumRows' => $result['total_found'], 'Time' => $result['time'],'Words' => $result['words']);
-        }
-    }
 
     /**
      * validate the POST from the main search fields
@@ -257,7 +228,7 @@ abstract class SphinxWidgets{
         $SanitizedFormat = filter_input(INPUT_GET, 'res', FILTER_SANITIZE_NUMBER_INT); // 0 = thread , 1 = post
 
         return array(
-            'Query' => $Query,
+            'Query' => $this->SphinxClient->EscapeString($Query), //Escapes characters that are treated as special operators by the query language parser. Returns an escaped string.
             'TitlesOnly' => $TitlesOnly,
             'Match' => $Match,
             'ForumList' => $ForumList,

@@ -1,30 +1,35 @@
 <?php
 
-class SphinxWidgetMain extends SphinxWidgets {
+class WidgetMain extends Widgets implements SplObserver {
 
     private $Sanitized = ''; //
-
     private $Queries = array(); //keep track of query offset
 
-    public function __construct($SphinxClient) {
-        parent::__construct($SphinxClient);
+    public function __construct($SphinxClient, $Settings) {
+        parent::__construct($SphinxClient, $Settings);
     }
 
-    public function AddQuery($Options = FALSE) {
-       $this->MainSearch();
-       return $this->Queries;
+    public function Update(SplSubject $Subject) {
+
     }
 
-    public function Handler($Sender){
+    public function AddQuery($Sender, $Options = FALSE) {
+        if ($Sender->ControllerName == 'searchcontroller') {
+            $this->MainSearch();
+            return $this->Queries;
+        }
+        else
+            return FALSE;
+    }
+
+    public function Handler($Sender) {
         //do nothing
     }
 
     private function MainSearch() {
         $this->Sanitized = $this->ValidateInputs();
-       $this->Search($this->Sanitized);
-
+        $this->Search($this->Sanitized);
     }
-
 
     private function Search($Sanitized) {
         $this->SphinxClient->ResetFilters();
@@ -43,7 +48,7 @@ class SphinxWidgetMain extends SphinxWidgets {
         $this->SetSortMode($Sanitized['Order']);
 
 //        if($Sanitized['Query'] =='*' || $Sanitized['Query'] == '')
-        $this->SphinxClient->SetLimits($Offset = 0, $Limit = 1000, $MaxMatches = 0);
+        $this->SphinxClient->SetLimits($Offset = 0, $this->Settings['Admin']->LimitResultsPage, $MaxMatches = 0);
         if ($Sanitized['TitlesOnly'] == 1) {
             $this->SphinxClient->SetGroupDistinct('DiscussionName'); //only want one unique thread title
             $this->SphinxClient->SetGrouping('DiscussionName', SPH_GROUPBY_ATTR);
@@ -63,9 +68,9 @@ class SphinxWidgetMain extends SphinxWidgets {
         }
         $Query = ' ' . $SubQuery . ' ' . $MainSearch;
         $QueryIndex = $this->SphinxClient->AddQuery($Query, $index = SPHINX_INDEX_DIST, 'Main Search');
-        $this->Queries =  array(
-            'Name'=>'Main',
-            'Index'=>$QueryIndex,
+        $this->Queries[] = array(
+            'Name' => 'Main',
+            'Index' => $QueryIndex,
             'Highlight' => TRUE,
             'IgnoreFirst' => FALSE,
         );
@@ -106,4 +111,5 @@ class SphinxWidgetMain extends SphinxWidgets {
         }
         return $Return;
     }
+
 }

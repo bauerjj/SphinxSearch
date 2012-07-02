@@ -45,6 +45,7 @@ define('SPHINX_SEARCH_STATS_INDEX', 'stats');
 //individual index names - rotate these by themselves
 define ('SPHINX_INDEX_MAIN',C('Plugin.SphinxSearch.Prefix', 'vss_').'main');
 define ('SPHINX_INDEX_DELTA',C('Plugin.SphinxSearch.Prefix', 'vss_').'delta');
+define ('SPHINX_INDEX_STATS',C('Plugin.SphinxSearch.Prefix', 'vss_').'stats');
 
 //distributed index - search against this, but don't update this on itself
 define ('SPHINX_INDEX_DIST','vanilla');

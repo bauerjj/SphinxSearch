@@ -142,6 +142,8 @@ function WriteSleak($Results) {
 
 function WriteTable($Results) {
     $String = '';
+    if($Results['error'] != FALSE)
+        return FALSE;
     $Total = $Results['total_found'];
     if ($Total == 0) {
         return $String; //return an empty string if no results

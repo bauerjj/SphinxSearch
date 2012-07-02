@@ -97,33 +97,44 @@ class SphinxSearchSettings {
     }
 
     public function GetAdminSettings() {
-        self::$_Admin['Debug'] = C('Plugin.SphinxSearch.Debug', TRUE);      //whether or not to show any searchd/indxer errors/warnings
-
-        //Add an offset to what you really want (want 20 => put in 21) due to stripping out
-        //the first result found of related content (omit first given query result)
-        
-        self::$_Admin['LimitRelatedMain'] = C('Plugin.SphinxSearch.LimitRelatedMain', 21);      //# of related discussion titles next to the main search results
-        self::$_Admin['LimitRelatedPost'] = C('Plugin.SphinxSearch.LimitRelatedPost', 21);      //# of related discussion titles that pops up when user searching for related threads
-        self::$_Admin['LimitRelatedDiscussion'] = C('Plugin.SphinxSearch.LimitRelatedPost', 21);      //# of related discussion titles on bottom of each discussion
-        self::$_Admin['HighLightTitles'] = C('Plugin.SphinxSearch.HighLightTitles', TRUE);
-        self::$_Admin['HighLightText'] = C('Plugin.SphinxSearch.HighLightText', TRUE);
-        self::$_Admin['ReleatedThreadsLimit'] = C('Plugin.SphinxSearch.ReleatedThreadsLimit', 15);
-        self::$_Admin['BuildExcerpts'] = array(
-            'before_match' => C('Plugin.SphinxSearch.BuildExcerpts.BeforeMatch', '<span class="SphinxExcerpts">'),
-            'after_match' => C('Plugin.SphinxSearch.BuildExcerpts.BeforeMatch', '</span>'),
-            'chunk_separator' => C('Plugin.SphinxSearch.BuildExcerpts.ChunkSeparator', '...'),
-            'limit' => C('Plugin.SphinxSearch.BuildExcerpts.Limit', 100), //Maximum snippet size, in symbols (codepoints). Integer, default is 256.
-            'around' => C('Plugin.SphinxSearch.BuildExcerpts.Around', 20), //words around the matched word
-        );
-
-
+        //searchd settings
         self::$_Admin['Timeout'] = C('Plugin.SphinxSearch.Timeout', 3312); //units of ms
         self::$_Admin['RetriesCount'] = C('Plugin.SphinxSearch.RetriesCount', 50); //On temporary failures searchd will attempt up to $count retries per agent
         self::$_Admin['RetriesDelay'] = C('Plugin.SphinxSearch.RetriesDelay', 50); //$delay is the delay between the retries, in ms
-        self::$_Admin['MinWordIndexLen'] = C('Plugin.SphinxSearch.RetriesDelay', 50); //$delay is the delay between the retries, in ms
+        self::$_Admin['MinWordIndexLen'] = C('Plugin.SphinxSearch.MinWordIndexLen', 50); //$delay is the delay between the retries, in ms
         self::$_Admin['MemLimit'] = C('Plugin.SphinxSearch.MemLimit', '32M'); // must keep the 'M' designator
         self::$_Admin['MaxQueryTime'] = C('Plugin.SphinxSearch.MaxQueryTime', 2000); //units of ms
         self::$_Admin['MaxMatches'] = C('Plugin.SphinxSearch.MaxMatches', 1000);
+        
+
+        //Add an offset to what you really want (want 20 => put in 21) due to stripping out
+        //the first result found of related content (omit first given query result)
+        self::$_Admin['LimitRelatedMain'] = C('Plugin.SphinxSearch.LimitRelatedMain', 21);      //# of related discussion titles next to the main search results
+        self::$_Admin['LimitRelatedPost'] = C('Plugin.SphinxSearch.LimitRelatedPost', 21);      //# of related discussion titles that pops up when user searching for related threads
+        self::$_Admin['LimitRelatedDiscussion'] = C('Plugin.SphinxSearch.LimitRelatedDiscussion', 21);      //# of related discussion titles on bottom of each discussion
+        self::$_Admin['LimitRelatedSearches'] = C('Plugin.SphinxSearch.LimitRelatedSearches', 21);      //# of related
+        self::$_Admin['LimitRelatedKeywords'] = C('Plugin.SphinxSearch.LimitRelatedKeywords', 21);      //# of related
+        self::$_Admin['LimitResultsPage'] = C('Plugin.SphinxSearch.LimitResultsPage', 10);      //# of docs on the main results page
+        self::$_Admin['HighLightTitles'] = C('Plugin.SphinxSearch.HighLightTitles', TRUE);
+        self::$_Admin['HighLightText'] = C('Plugin.SphinxSearch.HighLightText', TRUE);
+        self::$_Admin['ReleatedThreadsLimit'] = C('Plugin.SphinxSearch.ReleatedThreadsLimit', 15);
+
+
+        self::$_Admin['BuildExcerpts'] = array(
+            'before_match' => '<span class="SphinxExcerpts">',
+            'after_match' => '</span>',
+            'chunk_separator' => '...',
+            'limit' => C('Plugin.SphinxSearch.BuildExcerptsLimit', 100), //Maximum snippet size, in symbols (codepoints). Integer, default is 256.
+            'around' => C('Plugin.SphinxSearch.BuildExcerptsAround', 20), //words around the matched word
+        );
+        //Enable/Disable widgets
+        self::$_Admin['MainSearchEnable'] = C('Plugin.SphinxSearch.MainSearchEnable', TRUE);
+        self::$_Admin['MainHitBoxEnable'] = C('Plugin.SphinxSearch.MainHitBoxEnable', TRUE);
+        self::$_Admin['StatsEnable'] = C('Plugin.SphinxSearch.StatsEnable', TRUE);
+        self::$_Admin['RelatedEnable'] = C('Plugin.SphinxSearch.RelatedEnable', TRUE);
+
+
+
 
         return self::$_Admin;
     }

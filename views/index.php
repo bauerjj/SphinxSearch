@@ -131,7 +131,7 @@ if (!defined('APPLICATION'))
 <div class="Info">
     <ul>
         <li><?php echo Anchor('Install Wizard', 'plugin/sphinxsearch/installwizard'); ?></li>
-        <li><?php echo Anchor('Settings', 'plugin/sphinxsearch/installwizard'); ?></li>
+        <li><?php echo Anchor('Settings', 'plugin/sphinxsearch/settings'); ?></li>
         <li><?php echo Anchor('Install FAQ', 'plugin/sphinxsearch/installwizard'); ?></li>
         <li><?php echo Anchor('Vanilla Plugin Website', 'plugin/sphinxsearch/installwizard'); ?></li>
     </ul>

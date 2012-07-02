@@ -33,7 +33,7 @@ $PluginInfo['SphinxSearch'] = array(
     'AuthorUrl' => 'http://mcuhq.com'
 );
 
-class SphinxSearchPlugin extends Gdn_Plugin {
+class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
 
     public $AlreadySent; //hack to workaround lack of handlers to hook into for rendering this
     //Define these here to use on the view and for validation purposes
@@ -44,9 +44,12 @@ class SphinxSearchPlugin extends Gdn_Plugin {
     public $Sender;
     public $Started = FALSE;
     public $Handle = '';
+    public $Widgets = array();
     public $SphinxClient;
     public $Queries = array(); //keep track of queries
     public $Settings = array();
+    public $_Status = array(); //log of stuff that is happening
+    public $_Storage = array(); //storage of objects that are subscribed
 
     public function __construct() {
 
@@ -63,46 +66,96 @@ class SphinxSearchPlugin extends Gdn_Plugin {
         /////////////////////////////////////////////////
         include_once(PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'widgets' . DS . 'views' . DS . 'helper_functions.php');
 
-        foreach (glob(PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'widgets' . DS . '*.php') as $filename) {
-            include $filename; //inclue all of the widget classes
-        }
-
-
         $this->SphinxClient = new SphinxClient(); //sphinx API
         $Settings = SphinxFactory::BuildSettings();
         $this->Settings = $Settings->GetAllSettings();
+
+        //create subclasses
+        $this->_Storage = new SplObjectStorage();
+
+        $this->RegisterWidgets();
     }
 
-    public function Base_Render_Before($Sender) {
+    public function Attach(SplObserver $Observer) {
+        $this->_Storage->attach($Observer);
+    }
+
+    public function Detach(SplObserver $Observer) {
+        $this->_Storage->detach($Observer);
+    }
+
+    public function Notify() {
+        foreach ($this->_Storage as $Observer) {
+            $Observer->update($this);
+        }
+    }
+
+    public function GetStatus() {
+        return $this->_Status; //classic get operation
+    }
+
+    public function Update($Results, $Sender) {
+        $this->_Status = array(
+            'Results' => $Results,
+            'Sender' => $Sender,
+        ); //notify widgets that the sphinx search has been performed
+        $this->Notify(); //let the subscribers know of this
+    }
+
+    public function RegisterWidgets() {
+        $Path = PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'widgets' . DS;
+        foreach (glob($Path . '*.php') as $filename) {
+            include $filename; //inclue all of the widget classes
+            $File = str_replace($Path, '', $filename);
+            $Class = explode('.', $File);
+            $Class = $Class[2];
+            if ($Class == 'php')
+                $ClassName = 'widgets'; //for the abstract class, 'class.widgets.php'
+            else
+                $ClassName = 'widget' . $Class;
+
+            if ($ClassName != 'widgets') { //can't instantiate abstract class
+                $Obj = new $ClassName($this->SphinxClient, $this->Settings);
+                $this->Widgets[$ClassName] = $Obj; //keep track of registered widgets
+                $this->Attach($Obj);
+            }
+        }
+    }
+
+    public function QueryWidgets($Sender) {
+        foreach ($this->Widgets as $Class => $Obj) {
+            if (method_exists($Obj, 'AddQuery'))
+                $Query = $Obj->{'AddQuery'}($Sender);
+            if ($Query != FALSE)
+                $this->Queries = array_merge($this->Queries, $Query);
+        }
+    }
+
+    public function Base_Render_Before(&$Sender) {
         //'discussioncontroller','categoriescontroller','discussionscontroller','profilecontroller',
         //'activitycontroller','draftscontroller','messagescontroller', searchcontroller
-        //
-        //
-        //Add your handlers in here
         switch ($Sender->ControllerName) {
-            case 'discussioncontroller':
-                //related discussion widget
-                $Thread = $Sender->Discussion->Name;
-                $Related = new SphinxWidgetRelatedDiscussion($this->SphinxClient);
-                $RelatedQuery = $Related->AddQuery(array('DiscussionName' => $Thread));
-                $Sender->AddCssFile('/plugins/SphinxSearch/design/widgetrelateddiscussion.css');
-                $this->Queries[] = $RelatedQuery;
-                break;
-            case 'searchcontroller':
-                //main search
-                $Main = new SphinxWidgetMain($this->SphinxClient);
-                $MainQueries = $Main->AddQuery();
-                $this->Queries[] = $MainQueries;
-
-                $Related = new SphinxWidgetRelatedMain($this->SphinxClient);
-                $Related = $Related->AddQuery();
-                $this->Queries[] = $Related;
-                break;
-            case 'postcontroller':
-                $Sender->AddCssFile('/plugins/SphinxSearch/design/widgetrelateddiscussion.css');
-                break;
+//            case 'discussioncontroller':
+//                //related discussion widget
+//                $Thread = $Sender->Discussion->Name;
+//                $Related = new WidgetRelatedDiscussion($this->SphinxClient);
+//                $RelatedQuery = $Related->AddQuery(array('DiscussionName' => $Thread));
+//                $Sender->AddCssFile('/plugins/SphinxSearch/design/widgetrelateddiscussion.css');
+//                $this->Queries[] = $RelatedQuery;
+//                break;
+//            case 'searchcontroller':
+//                //main search
+//
+//                break;
+//            case 'postcontroller':
+//                $Sender->AddCssFile('/plugins/SphinxSearch/design/widgetrelateddiscussion.css');
+//                break;
         }
-        $this->RunSearch($Sender);
+        $Sender->AddCssFile('/plugins/SphinxSearch/design/widgetrelateddiscussion.css');
+        $this->QueryWidgets($Sender);
+        $Results = $this->RunSearch($Sender);
+        //print_r($Results);die;
+        $this->Update($Results, $Sender); //update the widgets notifiying of results
     }
 
     private function RunSearch($Sender = FALSE) {
@@ -123,15 +176,17 @@ class SphinxSearchPlugin extends Gdn_Plugin {
                     if ($IgnoreFirst)
                         array_shift($Result['matches']);
 
-                    foreach ($Result['matches'] as $Info) {
+                    foreach ($Result['matches'] as $Id => $Info) { //preserve the returned Doc ID
                         if (isset($Info['attrs']))
-                            $ResultDocs[] = Gdn_Format::ArrayAsObject($Info['attrs']); //get the result documents
+                            $ResultDocs[$Id] = Gdn_Format::ArrayAsObject($Info['attrs']); //get the result documents
                     }
                     $Words = '';
-                    foreach ($Result['words'] as $Word => $Info) {
-                        $Words.= $Word . ' '; //get the submitted input query
+                    if (isset($Result['words'])) {
+                        foreach ($Result['words'] as $Word => $Info) {
+                            $Words.= $Word . ' '; //get the submitted input query
+                        }
+                        $Results[$Index]['query'] = $Words; //add the query back into the resuls array
                     }
-                    $Results[$Index]['query'] = $Words; //add the query back into the resuls array
 
                     if ($Highlight) // are we to highlight some portions?
                         $ResultDocs = $this->HighLightResults($ResultDocs, $Words); //@todo repeated function in this object as well as sphinxwidgets
@@ -139,8 +194,8 @@ class SphinxSearchPlugin extends Gdn_Plugin {
                 }
                 if ($Sender != FALSE)
                     $Sender->SetData($Name, $Results[$Index]);
-                else
-                    $FinalResults[$Name] = $Results[$Index];
+                // else
+                $FinalResults[$Name] = $Results[$Index];
             }
         }
         //PRINT_R($Results); die;
@@ -329,6 +384,23 @@ class SphinxSearchPlugin extends Gdn_Plugin {
         $Sender->Render($this->GetView('faq.php'));
     }
 
+    public function Controller_Settings($Sender) {
+        $Sender->Permission('Vanilla.Settings.Manage');
+        $Sender->SetData('PluginDescription', $this->GetPluginKey('Description'));
+        $Sender->SetData('PluginVersion', $this->GetPluginKey('Version'));
+        $Sender->SetData('Settings', $this->Settings);
+
+        $Validation = new Gdn_Validation();
+        $ConfigurationModel = new Gdn_ConfigurationModel($Validation);
+        $ConfigurationModel->SetField(array(
+            'Plugin.SphinxSearch.MaxQueryTime' => 2000,
+        ));
+        $Sender->Form->SetModel($ConfigurationModel);
+
+
+        $Sender->Render($this->GetView('settings.php'));
+    }
+
     /**
      * main entry point to poll the status of sphinx such
      * as reindexing/start/stop/rotate/etc
@@ -417,15 +489,14 @@ class SphinxSearchPlugin extends Gdn_Plugin {
     }
 
     /**
-     * Adds the related threads to the top of each discussion
+     * Adds the related threads to the bottom of each discussion
      * @param type $Sender
      * @pre RunSearch() ran already
      */
     public function DiscussionController_AfterDiscussion_Handler($Sender) {
         if (isset($Sender->Data['Related_Discussion'])) { //are there any related threads to display?
-            $Related = new SphinxWidgetRelatedDiscussion($this->SphinxClient);
             $Results = $Sender->Data['Related_Discussion'];
-            echo $Related->ToString($Results);
+            $this->Update($Results, $Sender);
         }
     }
 
@@ -511,6 +582,43 @@ class SphinxSearchPlugin extends Gdn_Plugin {
             $Offset++;
         }
         return $Records;
+    }
+
+    /**
+     * Enable/Disable Flagging.
+     */
+    public function Controller_Toggle($Sender) {
+
+        // Enable/Disable Content Flagging
+        if (Gdn::Session()->ValidateTransientKey(GetValue(1, $Sender->RequestArgs))) {
+            $Option = $_GET['action'];
+            switch ($Option) {
+                case 'mainsearch':
+                    if ($this->Settings['Admin']->MainSearchEnable)
+                        SaveToConfig('Plugin.SphinxSearch.MainSearchEnable', FALSE);
+                    else
+                        SaveToConfig('Plugin.SphinxSearch.MainSearchEnable', TRUE);
+
+                    break;
+                case 'stats':
+                    if ($this->Settings['Admin']->StatsEnable)
+                        SaveToConfig('Plugin.SphinxSearch.StatsEnable', FALSE);
+                    else
+                        SaveToConfig('Plugin.SphinxSearch.StatsEnable', TRUE);
+
+                    break;
+               case 'related':
+                    if ($this->Settings['Admin']->RelatedEnable)
+                        SaveToConfig('Plugin.SphinxSearch.RelatedEnable', FALSE);
+                    else
+                        SaveToConfig('Plugin.SphinxSearch.RelatedEnable', TRUE);
+
+                    break;
+                default:
+                    break;
+            }
+            Redirect('plugin/sphinxsearch/settings');
+        }
     }
 
     /**
@@ -664,23 +772,80 @@ class SphinxSearchPlugin extends Gdn_Plugin {
         ///////////////////////////////////////////////////////////////
         //admin settings
         ///////////////////////////////////////////////////////////////
+
+        //index settings
+        SaveToConfig('Plugin.SphinxSearch.Morphology', 'none');
+        SaveToConfig('Plugin.SphinxSearch.Dict', 'crc');
+        SaveToConfig('Plugin.SphinxSearch.MinStemmingLen', 1);
+        SaveToConfig('Plugin.SphinxSearch.StopWordsEnable', TRUE);
+        SaveToConfig('Plugin.SphinxSearch.WordFormsEnable', FALSE);
+        SaveToConfig('Plugin.SphinxSearch.MinWordIndexLen', 3); //minimum characters to index a word
+        SaveToConfig('Plugin.SphinxSearch.MinPrefixLen', 0);
+        SaveToConfig('Plugin.SphinxSearch.MinInfixLen', 0);
+        SaveToConfig('Plugin.SphinxSearch.StarEnable', FALSE);
+        SaveToConfig('Plugin.SphinxSearch.NGramLen', 0);
+        SaveToConfig('Plugin.SphinxSearch.HtmlStripEnable', FALSE);
+        SaveToConfig('Plugin.SphinxSearch.OnDiskDictEnable', FALSE);
+        SaveToConfig('Plugin.SphinxSearch.InPlaceEnable', FALSE);
+        SaveToConfig('Plugin.SphinxSearch.ExpandKeywordsEnable', FALSE);
+        SaveToConfig('Plugin.SphinxSearch.RTMemLimit', 0);
+
+        //indexer settings
+        SaveToConfig('Plugin.SphinxSearch.MemLimit', '32M'); //must keep the 'M'
+        SaveToConfig('Plugin.SphinxSearch.MaxIOps', 0);
+        SaveToConfig('Plugin.SphinxSearch.MaxIOSize', 0);
+        SaveToConfig('Plugin.SphinxSearch.WriteBuffer', '1M');
+        SaveToConfig('Plugin.SphinxSearch.MaxFileBuffer', '8M');
+        //searchd settings
+        SaveToConfig('Plugin.SphinxSearch.ReadTimeout', 5); //Network client request read timeout, in seconds
+        SaveToConfig('Plugin.SphinxSearch.ClientTimeout', 360); //Maximum time to wait between requests (in seconds) when using persistent connections
+        SaveToConfig('Plugin.SphinxSearch.MaxChildren', 0); //Maximum amount of children to fork (or in other words, concurrent searches to run in parallel).
+        SaveToConfig('Plugin.SphinxSearch.MaxMatches', 1000); //per query
+        SaveToConfig('Plugin.SphinxSearch.ReadBuffer', '1M');
+        SaveToConfig('Plugin.SphinxSearch.Workers', 'fork');
+        SaveToConfig('Plugin.SphinxSearch.ThreadStack', '64K');
+        SaveToConfig('Plugin.SphinxSearch.ExpansionLimit', 50);
+        SaveToConfig('Plugin.SphinxSearch.PreforkRotationThrottle', 0);
+
+
+
+        SaveToConfig('Plugin.SphinxSearch.RetriesCount', 50); //On temporary failures searchd will attempt up to $count retries per agent
+        SaveToConfig('Plugin.SphinxSearch.RetriesDelay', 50); //$delay is the delay between the retries, in ms
+
+
+
         SaveToConfig('Plugin.SphinxSearch.LimitRelatedMain', 20); //# of related discussion titles next to the main search results
         SaveToConfig('Plugin.SphinxSearch.LimitRelatedPost', 20);
         SaveToConfig('Plugin.SphinxSearch.LimitRelatedDiscussion', 20);
+        SaveToConfig('Plugin.SphinxSearch.LimitRelatedSearches', 20);
+        SaveToConfig('Plugin.SphinxSearch.LimitRelatedKeywords', 20);
+        SaveToConfig('Plugin.SphinxSearch.LimitResultsPage', 10);
 
-        SaveToConfig('Plugin.SphinxSearch.MinWordIndexLen', 3); //minimum characters to index a word
-        SaveToConfig('Plugin.SphinxSearch.MaxMatches', 1000); //per query
-        //debug parameters
-        SaveToConfig('Plugin.SphinxSearch.Timeout', 3312); //units of ms
-        SaveToConfig('Plugin.SphinxSearch.RetriesCount', 50); //On temporary failures searchd will attempt up to $count retries per agent
-        SaveToConfig('Plugin.SphinxSearch.RetriesDelay', 50); //$delay is the delay between the retries, in ms
+
+
         //BuildExcerpts
-        SaveToConfig('Plugin.SphinxSearch.BuildExcerpts.BeforeMatch', '<span class="SphinxExcerpts">');
-        SaveToConfig('Plugin.SphinxSearch.BuildExcerpts.AfterMatch', '</span>');
-        SaveToConfig('Plugin.SphinxSearch.BuildExcerpts.ChunkSeparator', '...');
-        SaveToConfig('Plugin.SphinxSearch.BuildExcerpts.Limit', 60);
-        SaveToConfig('Plugin.SphinxSearch.BuildExcerpts.Around', 3);
+        SaveToConfig('Plugin.SphinxSearch.BuildExcerptsBeforeMatch', '<span class="SphinxExcerpts">');
+        SaveToConfig('Plugin.SphinxSearch.BuildExcerptsAfterMatch', '</span>');
+        SaveToConfig('Plugin.SphinxSearch.BuildExcerptsChunkSeparator', '...');
+        SaveToConfig('Plugin.SphinxSearch.BuildExcerptsLimit', 60);
+        SaveToConfig('Plugin.SphinxSearch.BuildExcerptsAround', 3);
         SaveToConfig('Plugin.SphinxSearch.MaxQueryTime', 2000); //units of ms
+        //Widgets Enable/disable
+        SaveToConfig('Plugin.SphinxSearch.MainSearchEnable', TRUE);
+        SaveToConfig('Plugin.SphinxSearch.StatsEnable', TRUE);
+
+
+
+        SaveToConfig('Plugin.SphinxSearch.MainRelatedEnable', TRUE);
+        SaveToConfig('Plugin.SphinxSearch.MainHitBoxEnable', TRUE);
+
+
+
+
+
+
+
+
         //create shpinx table to tell the indexes what to index
         Gdn::Structure()
                 ->Table('sph_counter')
@@ -692,11 +857,10 @@ class SphinxSearchPlugin extends Gdn_Plugin {
         //for stats
         Gdn::Structure()
                 ->Table('sph_stats')
-                ->Column('int', 'int', FALSE) //order matters here!
+                ->Column('id', 'int(11)', FALSE) //order matters here!
                 ->Column('keywords', 'varchar(255)', FALSE, 'index')
+                ->Column('keywords_full', 'varchar(255)', FALSE)
                 ->Column('date_added', 'datetime', FALSE)
-                ->Column('keywords_full', 'tinyint(255)', FALSE)
-                ->Column('status', 'varchar(255)', FALSE)
                 ->PrimaryKey('id', 'int')
                 ->Set();
     }

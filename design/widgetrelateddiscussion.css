@@ -62,6 +62,7 @@
     box-shadow:0 2px 8px 4px #000;
 }
 div.DiscussionInfo{
+    width: 500px;
     margin-left: 10px;
     line-height: 15px;
     margin-bottom: 5px;
