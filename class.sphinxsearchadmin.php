@@ -46,6 +46,9 @@ class SphinxSearchAdmin {
         $this->Service->ValidateInstall();
     }
 
+    public function CheckSphinxRunning(){
+        return $this->Service->CheckSphinxRunning();
+    }
 
     public function Status(){
         $this->Service->Status();
@@ -61,6 +64,9 @@ class SphinxSearchAdmin {
     }
     public function ReIndexDelta(){
         $this->Service->ReIndexDelta();
+    }
+    public function ReIndexStats(){
+        $this->Service->ReIndexStats();
     }
     public function CheckPort(){
         $this->Service->CheckPort();

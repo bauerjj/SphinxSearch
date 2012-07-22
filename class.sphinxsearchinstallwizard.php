@@ -16,8 +16,6 @@ class SphinxSearchInstallWizard {
         $this->ConfigurationModel->SetField(array(
         ));
 
-        //$this->Sender->Form->AddHidden('Action','werwerweWER', TRUE);
-        // $this->Sender->Form->SetData(array('NextAction'=>array('value'=>'Starttttttttttt'))); //must be an array!!!
         $this->Sender->Form->SetModel($this->ConfigurationModel);   //set model on form
 
         $this->Sender->SetData('NextAction', 'Detection');

@@ -23,6 +23,8 @@ class WidgetRelatedPost extends Widgets implements SplObserver {
 
     public function AddQuery($Sender, $Options = FALSE) {
         if ($Sender->ControllerName == 'postcontroller') {
+            $this->SphinxClient->ResetFilters();
+            $this->SphinxClient->ResetGroupBy();
             $Thread = $Options['Query']; //get the discussion name (thread topic) to search against
             $Query = $this->RelatedThreads($Thread, $this->Settings['Admin']->LimitRelatedPost);
             $QueryIndex = $this->SphinxClient->AddQuery($Query, $Index = SPHINX_INDEX_DIST, 'Related Post');

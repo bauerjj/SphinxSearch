@@ -1,9 +1,5 @@
 <?php
 
-/**
- * Create a Facade
- */
-
 class SphinxObservable implements SplSubject {
 
     public $_Status = array(); //log of stuff that is happening

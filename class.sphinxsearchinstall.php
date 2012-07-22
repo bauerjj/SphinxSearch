@@ -179,9 +179,9 @@ class SphinxSearchInstall extends SphinxObservable {
 
     public function SaveLocations() {
         //complete by saving settings
-        parent::Update(SPHINX_SUCCESS, 'IndexerPath', $this->_Settings['Install']->InstallPath . DS . 'sphinx' . DS . 'bin' . DS . 'indexer');
-        parent::Update(SPHINX_SUCCESS, 'SearchdPath', $this->_Settings['Install']->InstallPath . DS . 'sphinx' . DS . 'bin' . DS . 'searchd');
-        parent::Update(SPHINX_SUCCESS, 'ConfPath', $this->_Settings['Install']->InstallPath . DS . 'sphinx' . DS . 'etc' . DS . 'sphinx.conf');
+        parent::Update(SS_SUCCESS, 'IndexerPath', $this->_Settings['Install']->InstallPath . DS . 'sphinx' . DS . 'bin' . DS . 'indexer');
+        parent::Update(SS_SUCCESS, 'SearchdPath', $this->_Settings['Install']->InstallPath . DS . 'sphinx' . DS . 'bin' . DS . 'searchd');
+        parent::Update(SS_SUCCESS, 'ConfPath', $this->_Settings['Install']->InstallPath . DS . 'sphinx' . DS . 'etc' . DS . 'sphinx.conf');
     }
 
     public function InstallExtract() {

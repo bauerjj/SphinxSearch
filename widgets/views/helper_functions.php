@@ -2,53 +2,63 @@
 if (!defined('APPLICATION'))
     exit();
 
-function WriteFull($Results) {
-    $Result = $Results; //main search results
-    if (isset($Result['total_found'])):
-        if (!($Result['total_found'] == 0)): //make sure there is something here
-            ob_start();
+function WriteResults($Format, $Results, $WriteText = FALSE) {
+    switch (strtolower($Format)) {
+        case 'sleak':
+            return WriteSleak($Results, $WriteText);
+            break;
+        case 'full':
+            return WriteFull($Results, $WriteText);
+            break;
+        case 'table':
+            return WriteTable($Results, $WriteText);
+            break;
+        case 'simple':
+        default:
+            return WriteSimple($Results, $WriteText);
+            break;
+    }
+}
+
+function WriteFull($Results, $WriteText) {
+    if (sizeof($Results) == 0) //make sure there is something here
+        return '';
+    ob_start();
+    ?>
+    <div class="col1">
+        <!-- Column 1 start (Center) -->
+        <?php foreach ($Results as $Row): ?>
+            <?php
+            $Author->Photo = $Row->UserPhoto;
+            $Author->Name = $Row->UserName
             ?>
-                        <div class="col1">
-                            <!-- Column 1 start (Center) -->
-                            <div id="SearchSummary">
-                                <span id="SearchDetail">Search Query: </span>
-                                <span id="SearchQuery"><?php echo $Result['query'] ?></span>
-                                <span id="Time"><?php echo $Result['total_found'] . Plural($Result['total_found'], ' result', ' results') . ' in ' . $Result['time'] . 's' ?></span>
-                                <span class="Pager"></span>
-                            </div>
-                            <?php foreach ($Result['matches'] as $Row): ?>
-                                <?php $Author->Photo = $Row->{SPHINX_ATTR_STR_USERPHOTO};
-                                $Author->Name = $Row->{SPHINX_FIELD_STR_USERNAME}
-                                ?>
-                                <div class="UserInfo">
-                                    <div class="Contact">
-                                        <div class="UserNameContainer">
-                <?php echo UserPhoto($Author, array('LinkClass' => '', 'ImageClass' => 'ProfilePhotoSmall')) ?>
-                                            <div class="DiscussionInfo">
-                                                <h4 class="DiscussionTitle"><?php echo Anchor($Row->{SPHINX_ATTR_STR_DISCUSSIONNAME}, 'discussion/' . $Row->{SPHINX_ATTR_UINT_DISCUSSIONID} . '/' . Gdn_Format::Url($Row->{SPHINX_ATTR_STR_DISCUSSIONNAME})) ?></h4>
-                                                <span class="DiscussionAuthor"><?php
-                echo 'Discussion in ' . Anchor($Row->{SPHINX_ATTR_STR_CATNAME}, 'categories/' . $Row->{SPHINX_ATTR_STR_CATULCODE}) . ' started by ' . Anchor($Row->{SPHINX_FIELD_STR_USERNAME}, 'profile/' . $Row->{SPHINX_ATTR_UINT_USERID} . '/' . $Row->{SPHINX_FIELD_STR_USERNAME}) . ' on ' .
-                Anchor(Gdn_Format::Date($Row->{SPHINX_ATTR_TSTAMP_DISCUSSIONDATEINSERTED}), 'discussion/' . $Row->{SPHINX_ATTR_UINT_DISCUSSIONID} . '/' . Gdn_Format::Url($Row->{SPHINX_ATTR_STR_DISCUSSIONNAME}) . '/p1')
-                ?></span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="UserInfoExtra">
-                                        <dl class="userstats">
-                                            <dt>Replies:</dt>
-                                            <dd><?php echo Gdn_Format::BigNumber($Row->{SPHINX_ATTR_UINT_DISCUSSIONCOMENTS}) ?></dd>
-                                            <dt>Views:</dt>
-                                            <dd class="Views"><?php echo Gdn_Format::BigNumber($Row->{SPHINX_ATTR_UINT_DISCUSSIONVIEWS}) ?></dd>
-                                        </dl>
-                                    </div>
-                                </div>
-                                <div class="CommentBody">
-                                <?php echo $Row->{SPHINX_FIELD_STR_COMMENTBODY} ?>
-                                </div>
-            <?php endforeach ?>
+            <div class="UserInfo">
+                <div class="Contact">
+                    <div class="UserNameContainer">
+                        <?php echo UserPhoto($Author, array('LinkClass' => '', 'ImageClass' => 'ProfilePhotoSmall')) ?>
+                        <div class="DiscussionInfo">
+                            <h4 class="DiscussionTitle"><?php echo Anchor($Row->Title. Wrap(htmlspecialchars(SliceString($Row->DiscussionBody, SS_BODY_LIMIT)), 'span', array('class'=>'ToolTip')), 'discussion/' . $Row->DiscussionID . '/' . Gdn_Format::Url($Row->Title), FALSE, array('class'=>'HasToolTip')) ?></h4>
+                            <span class="DiscussionAuthor"><?php
+                echo 'Discussion in ' . Anchor($Row->CatName, 'categories/' . $Row->CatUrlCode) . ' started by ' . Anchor($Row->UserName, 'profile/' . $Row->UserID . '/' . $Row->UserName) . ' on ' .
+                Anchor(Gdn_Format::Date($Row->DateInserted), 'discussion/' . $Row->DiscussionID . '/' . Gdn_Format::Url($Row->Title) . '/p1')
+                        ?></span>
                         </div>
-        <?php endif ?>
-    <?php endif ?>
+                    </div>
+                </div>
+                <div class="UserInfoExtra">
+                    <dl class="userstats">
+                        <dt>Replies:</dt>
+                        <dd><?php echo Gdn_Format::BigNumber($Row->CountComments) ?></dd>
+                        <dt>Views:</dt>
+                        <dd class="Views"><?php echo Gdn_Format::BigNumber($Row->CountViews) ?></dd>
+                    </dl>
+                </div>
+            </div>
+            <div class="CommentBody">
+                <?php echo SliceString($Row->Body, SS_BODY_LIMIT); ?>
+            </div>
+        <?php endforeach ?>
+    </div>
     <?php
     $String = ob_get_contents();
     @ob_end_clean();
@@ -62,27 +72,34 @@ function WriteFull($Results) {
  * @param type $Results
  * @return type
  */
-function WriteSimple($Results){
-ob_start();
-        ?>
-        <div id="Search_Container">
-            <div id="RelatedThreads">
-                <?php foreach ($Results['matches'] as $Row): ?>
-                    <h4 class="DiscussionTitle"><?php echo Anchor($Row->{SPHINX_ATTR_STR_DISCUSSIONNAME}, 'discussion/' . $Row->{SPHINX_ATTR_UINT_DISCUSSIONID} . '/' . Gdn_Format::Url($Row->{SPHINX_ATTR_STR_DISCUSSIONNAME})) ?></h4>
-                <?php endforeach ?>
-                <div style="clear: both"></div>
-            </div>
+function WriteSimple($Results, $WriteText) {
+    if (sizeof($Results) == 0)
+        return '';
+    ob_start();
+    ?>
+    <div class="col1">
+        <div id="RelatedThreads">
+            <?php foreach ($Results as $Row): ?>
+                <h4 class="DiscussionTitle"><?php echo Anchor($Row->Title. Wrap(htmlspecialchars(SliceString($Row->DiscussionBody, SS_BODY_LIMIT)), 'span', array('class'=>'ToolTip')), 'discussion/' . $Row->DiscussionID . '/' . Gdn_Format::Url($Row->Title), FALSE, array('class'=>'HasToolTip')) ?></h4>
+                <?php if ($WriteText) : ?>
+                    <div class="CommentBody">
+                        <?php echo SliceString($Row->Body, SS_BODY_LIMIT); ?>
+                    </div>
+                <?php endif ?>
+            <?php endforeach ?>
+            <div style="clear: both"></div>
         </div>
-        <?php
-        $String = ob_get_contents();
-        @ob_end_clean();
+    </div>
+    <?php
+    $String = ob_get_contents();
+    @ob_end_clean();
 
-        return $String;
+    return $String;
 }
 
-function WriteSleak($Results) {
+function WriteSleak($Results, $WriteText) {
     $String = '';
-    $Total = $Results['total_found'];
+    $Total = sizeof($Results);
     if ($Total == 0) {
         return $String; //return an empty string if no results
     }
@@ -92,22 +109,22 @@ function WriteSleak($Results) {
     $Org = $Count;
     ob_start();
     ?>
-    <div id="RelatedThreads">
+    <div class="col1">
         <table id="RelatedThreadsTable">
             <tbody>
                 <tr>
                     <?php for ($i = 0; $i < $Cols; $i++): ?>
                         <td>
                             <?php while ($Count--): ?>
-                                <?php $Row = $Results['matches'][$j] ?>
+                                <?php $Row = $Results[$j] ?>
                                 <div class="UserInfo">
                                     <div class="Contact">
                                         <div class="UserNameContainer">
                                             <div class="DiscussionInfo">
-                                                <h4 class="DiscussionTitle"><?php echo Anchor($Row->{SPHINX_ATTR_STR_DISCUSSIONNAME}, 'discussion/' . $Row->{SPHINX_ATTR_UINT_DISCUSSIONID} . '/' . Gdn_Format::Url($Row->{SPHINX_ATTR_STR_DISCUSSIONNAME})) ?></h4>
+                                                <h4 class="DiscussionTitle"><?php echo Anchor($Row->Title. Wrap(htmlspecialchars(SliceString($Row->DiscussionBody, SS_BODY_LIMIT)), 'span', array('class'=>'ToolTip')), 'discussion/' . $Row->DiscussionID . '/' . Gdn_Format::Url($Row->Title), FALSE, array('class' => 'HasToolTip')) ?></h4>
                                                 <span class="DiscussionAuthor"><?php
-                    echo 'Discussion in ' . Anchor($Row->{SPHINX_ATTR_STR_CATNAME}, 'categories/' . $Row->{SPHINX_ATTR_STR_CATULCODE}) . ' started by ' . Anchor($Row->{SPHINX_FIELD_STR_USERNAME}, 'profile/' . $Row->{SPHINX_ATTR_UINT_USERID} . '/' . $Row->{SPHINX_FIELD_STR_USERNAME}) . ' on ' .
-                    Anchor(Gdn_Format::Date($Row->{SPHINX_ATTR_TSTAMP_DISCUSSIONDATEINSERTED}), 'discussion/' . $Row->{SPHINX_ATTR_UINT_DISCUSSIONID} . '/' . Gdn_Format::Url($Row->{SPHINX_ATTR_STR_DISCUSSIONNAME}) . '/p1')
+                    echo 'Discussion in ' . Anchor($Row->CatName, 'categories/' . $Row->CatUrlCode) . ' started by ' . Anchor($Row->UserName, 'profile/' . $Row->UserID . '/' . $Row->UserName) . ' on ' .
+                    Anchor(Gdn_Format::Date($Row->DateInserted), 'discussion/' . $Row->DiscussionID . '/' . Gdn_Format::Url($Row->Title) . '/p1')
                                 ?></span>
                                             </div>
                                         </div>
@@ -115,18 +132,22 @@ function WriteSleak($Results) {
                                     <div class="UserInfoExtra">
                                         <dl class="userstats">
                                             <dt>Replies:</dt>
-                                            <dd><?php echo Gdn_Format::BigNumber($Row->{SPHINX_ATTR_UINT_DISCUSSIONCOMENTS}) ?></dd>
+                                            <dd><?php echo Gdn_Format::BigNumber($Row->CountComments) ?></dd>
                                             <dt>Views:</dt>
-                                            <dd class="Views"><?php echo Gdn_Format::BigNumber($Row->{SPHINX_ATTR_UINT_DISCUSSIONVIEWS}) ?></dd>
+                                            <dd class="Views"><?php echo Gdn_Format::BigNumber($Row->CountViews) ?></dd>
                                         </dl>
                                     </div>
                                 </div>
-                            <?php $j++ ?>
+                                <?php if ($WriteText) : ?>
+                                    <div class="CommentBody">
+                                        <?php echo SliceString($Row->Body, SS_BODY_LIMIT); ?>
+                                    </div>
+                                <?php endif ?>
+                                <?php $j++ ?>
                             <?php endwhile ?>
                         </td>
                         <?php
-                        $Count = floor($Total / $Cols) ;
-
+                        $Count = floor($Total / $Cols);
                         ?>
                     <?php endfor ?>
                 </tr>
@@ -140,53 +161,64 @@ function WriteSleak($Results) {
     return $String;
 }
 
-function WriteTable($Results) {
+function WriteTable($Results, $WriteText) {
     $String = '';
-    if($Results['error'] != FALSE)
-        return FALSE;
-    $Total = $Results['total_found'];
+    $Total = sizeof($Results);
     if ($Total == 0) {
         return $String; //return an empty string if no results
     }
     ob_start();
     ?>
-    <div id="RelatedThreads">
-        <table id="RelatedThreadsTable">
-            <tbody>
-                <tr>
-                    <th class="Title">Discussion</th>
-                    <th>Information</th>
-                    <th>Replies</th>
-                    <th>Views</th>
-                    <th>Latest</th>
-                </tr>
-                    <?php foreach($Results['matches'] as $Row): ?>
+    <div class="col1">
+        <div id="RelatedThreads">
+            <table id="RelatedThreadsTable">
+                <tbody>
+                    <tr>
+                        <th class="Title">Discussion</th>
+                        <th>Information</th>
+                        <th>Replies</th>
+                        <th>Views</th>
+                        <th>Latest</th>
+                    </tr>
+                    <?php foreach ($Results as $Row): ?>
                         <tr>
                             <td class="Title">
-                                <h4 class="DiscussionTitle"><?php echo Anchor($Row->{SPHINX_ATTR_STR_DISCUSSIONNAME}, 'discussion/' . $Row->{SPHINX_ATTR_UINT_DISCUSSIONID} . '/' . Gdn_Format::Url($Row->{SPHINX_ATTR_STR_DISCUSSIONNAME})) ?></h4>
+                                <h4 class="DiscussionTitle"><?php echo Anchor($Row->Title. Wrap(htmlspecialchars(SliceString($Row->DiscussionBody, SS_BODY_LIMIT)), 'span', array('class'=>'ToolTip')), 'discussion/' . $Row->DiscussionID . '/' . Gdn_Format::Url($Row->Title), FALSE, array('class'=>'HasToolTip')) ?></h4>
                             </td>
                             <td>
                                 <span class="DiscussionAuthor"><?php
-                echo Anchor($Row->{SPHINX_ATTR_STR_CATNAME}, 'categories/' . $Row->{SPHINX_ATTR_STR_CATULCODE}) . ' started by ' . Anchor($Row->{SPHINX_FIELD_STR_USERNAME}, 'profile/' . $Row->{SPHINX_ATTR_UINT_USERID} . '/' . $Row->{SPHINX_FIELD_STR_USERNAME}) . ' on ' .
-                Anchor(Gdn_Format::Date($Row->{SPHINX_ATTR_TSTAMP_DISCUSSIONDATEINSERTED}), 'discussion/' . $Row->{SPHINX_ATTR_UINT_DISCUSSIONID} . '/' . Gdn_Format::Url($Row->{SPHINX_ATTR_STR_DISCUSSIONNAME}) . '/p1')
-                            ?></span>
+                echo Anchor($Row->CatName, 'categories/' . $Row->CatUrlCode) . ' started by ' . Anchor($Row->UserName, 'profile/' . $Row->UserID . '/' . $Row->UserName) . ' on ' .
+                Anchor(Gdn_Format::Date($Row->DateInserted), 'discussion/' . $Row->DiscussionID . '/' . Gdn_Format::Url($Row->Title) . '/p1')
+                        ?></span>
                             </td>
                             <td>
-                                <?php echo Gdn_Format::BigNumber($Row->{SPHINX_ATTR_UINT_DISCUSSIONCOMENTS}) ?>
+                                <?php echo Gdn_Format::BigNumber($Row->CountComments) ?>
                             </td>
                             <td>
 
-                                <?php echo Gdn_Format::BigNumber($Row->{SPHINX_ATTR_UINT_DISCUSSIONVIEWS}) ?>
+                                <?php echo Gdn_Format::BigNumber($Row->CountViews) ?>
                             </td>
                             <td>
-                               <?php echo Anchor($Row->{SPHINX_ATTR_STR_LASTCOMMENTUSERNAME}, 'profile/' . $Row->{SPHINX_ATTR_UINT_LASTCOMMENTUSERID} . '/' . $Row->{SPHINX_ATTR_STR_LASTCOMMENTUSERNAME}) . ' on ' .
-                Anchor(Gdn_Format::Date($Row->{SPHINX_ATTR_STAMP_DATELASTCOMMENT}), 'discussion/' . $Row->{SPHINX_ATTR_UINT_DISCUSSIONID} . '/' . Gdn_Format::Url($Row->{SPHINX_ATTR_STR_DISCUSSIONNAME}) . '/'.$Row->{SPHINX_ATTR_UINT_DISCUSSIONLASTCOMMENTID}.'#'.'Comment_'.$Row->{SPHINX_ATTR_UINT_DISCUSSIONLASTCOMMENTID}) ?>
+                                <?php
+                                echo Anchor($Row->LastUserName, 'profile/' . $Row->LastUserID . '/' . $Row->LastUserName) . ' on ' .
+                                Anchor(Gdn_Format::Date($Row->DateLastComment), 'discussion/' . $Row->DiscussionID . '/' . Gdn_Format::Url($Row->Title) . '/' . $Row->LastCommentID . '#' . 'Comment_' . $Row->LastCommentID)
+                                ?>
                             </td>
                         </tr>
-                    <?php endforeach ?>
-            </tbody>
-        </table>
-        <div style="clear: both"></div>
+                        <?php if ($WriteText) : ?>
+                            <tr>
+                                <td>
+                        <div class="CommentBody">
+                            <?php echo SliceString($Row->Body, SS_BODY_LIMIT); ?>
+                        </div>
+                                    </td>
+                        </tr>
+                    <?php endif ?>
+                <?php endforeach ?>
+                </tbody>
+            </table>
+            <div style="clear: both"></div>
+        </div>
     </div>
     <?php
     $String = ob_get_contents();

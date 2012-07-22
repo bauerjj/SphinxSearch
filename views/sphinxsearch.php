@@ -191,9 +191,14 @@ if (!defined('APPLICATION'))
             </tr>
             <tr>
                 <td class="Desc">Last Index Time:</td>
-                <td><?php echo Gdn_Format::FuzzyTime($Settings['Status']->IndexerMainLast) ?></td>
-                <td><?php echo $Settings['Status']->IndexerDeltaLast == '---' ? $Settings['Status']->IndexerDeltaLast :  Gdn_Format::FuzzyTime($Settings['Status']->IndexerDeltaLast)?></td>
-                <td><?php echo $Settings['Status']->IndexerStatsLast ?></td>
+                <td><?php echo $Settings['Status']->IndexerMainLast == '---' ? '----' : Gdn_Format::FuzzyTime($Settings['Status']->IndexerMainLast) ?></td>
+                <td><?php echo $Settings['Status']->IndexerDeltaLast == '---' ? '----' :  Gdn_Format::FuzzyTime($Settings['Status']->IndexerDeltaLast)?></td>
+                <td><?php echo $Settings['Status']->IndexerStatsLast == '---' ? '----' : Gdn_Format::FuzzyTime($Settings['Status']->IndexerStatsLast) ?></td>
+            </tr>
+            <td class="Desc">cron Files: </td>
+            <td><?php echo Anchor(T('cron file'), 'plugin/sphinxsearch/viewfile?action=viewfile&file=maincron')?></td>
+            <td><?php echo Anchor(T('cron file'), 'plugin/sphinxsearch/viewfile?action=viewfile&file=deltacron')?></td>
+            <td><?php echo Anchor(T('cron file'), 'plugin/sphinxsearch/viewfile?action=viewfile&file=maincron')?></td>
             </tr>
             <tr>
                 <td class="Desc">Actions:  </td>
@@ -228,7 +233,7 @@ if (!defined('APPLICATION'))
             </tr>
             <tr>
                 <td>Status: </td>
-                <td> <?php if ($Settings['Status']->SearchdStatus) Success('Running'); else Fail('Not Running'); ?> </td>
+                <td> <?php if ($Settings['Status']->SearchdRunning) Success('Running'); else Fail('Not Running'); ?> </td>
                 <td><?php if ($Settings['Status']->SearchdPortStatus) Success($Settings['Install']->Port); else Fail($Settings['Install']->Port); ?></td>
                 <td><?php echo Gdn_Format::BigNumber($Settings['Status']->SearchdConnections) ?></td>
             </tr>

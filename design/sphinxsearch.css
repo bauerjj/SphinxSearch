@@ -6,6 +6,54 @@
         Sphinx Search Plugin .
 */
 
+
+/*
+For the main search panel on the left
+
+*/
+#LeftPanel{
+    float: left;
+    width: 250px;
+    box-shadow: 0 4px 8px 4px #0C0C0C;
+    padding-left: 5px;
+}
+#LeftPanel ol li{
+    list-style-type: circle;
+    list-style: inside;
+}
+#LeftPanel ol,ul{
+    margin: 8px 0px;
+}
+
+/**
+ For the bottom panel on the main search page
+*/
+#BottomPanel{
+    clear: both;
+    margin: auto;
+    box-shadow: 0 4px 8px 4px #0C0C0C;
+    width: 600px;
+    word-wrap: break-word;
+}
+#BottomPanel .Space{
+    padding: 0px 5px;
+}
+#BottomPanel .largest{
+    font-size: larger;
+}
+#BottomPanel .large{
+    font-size: large;
+}
+#BottomPanel .medium{
+    font-size: medium;
+}
+#BottomPanel .small{
+    font-size: small;
+}
+#BottomPanel .smallest{
+    font-size: smaller;
+}
+
 /*Jquery UI overwrites*/
 .ui-widget {
     font-size: 11px !important;
@@ -54,6 +102,9 @@
 #SearchMenu{
     margin: 10px auto;
     width: 700px;
+}
+#SearchMenu dd{
+    padding: 3px 0px;
 }
 #SearchDropdown option{
     width: 200px;

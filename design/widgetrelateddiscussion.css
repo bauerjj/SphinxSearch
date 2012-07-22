@@ -6,6 +6,27 @@
         Purpose of the stylesheet follows.
 */
 
+/**
+Tool tip
+
+src; http://stackoverflow.com/questions/5683364/how-to-make-pure-css-floating-tooltips-absolutely-positioned-span-dynamically
+*/
+.ShowToolTip {
+    background-color: black;
+    color: white;
+    padding:5px;
+    margin-top: 1.3em;
+    position: absolute;
+    max-width: 200px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+    z-index: 999;
+}
+.HasToolTip .ToolTip {
+    display:none;
+}
+
 /** For the table.css**/
 #RelatedThreadsTable .Title{
     padding-left: 10px;
@@ -62,7 +83,7 @@
     box-shadow:0 2px 8px 4px #000;
 }
 div.DiscussionInfo{
-    width: 500px;
+/*    width: 500px;*/
     margin-left: 10px;
     line-height: 15px;
     margin-bottom: 5px;

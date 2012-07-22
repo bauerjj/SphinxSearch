@@ -14,10 +14,10 @@ class SphinxSearchService extends SphinxObservable {
         $SphinxSearchModel = new SphinxSearchModel();
         $Status = $SphinxSearchModel->SphinxStatus(); //will return an array of misc info if sphinx is running
         if($Status){
-            parent::Update(SPHINX_SUCCESS, 'Uptime', $Status[0][1]); //sphinx returns uptime in seconds
-            parent::Update(SPHINX_SUCCESS, 'SearchdConnections', $Status[1][1]);
-            parent::Update(SPHINX_SUCCESS, 'MaxedOut', $Status[2][1]);
-            parent::Update(SPHINX_SUCCESS, 'TotalQueries', $Status[12][1]);
+            parent::Update(SS_SUCCESS, 'Uptime', $Status[0][1]); //sphinx returns uptime in seconds
+            parent::Update(SS_SUCCESS, 'SearchdConnections', $Status[1][1]);
+            parent::Update(SS_SUCCESS, 'MaxedOut', $Status[2][1]);
+            parent::Update(SS_SUCCESS, 'TotalQueries', $Status[12][1]);
         }
         $this->CheckSphinxRunning(); //update searchd status
         $this->ValidateInstall(); //validate the install
@@ -30,15 +30,15 @@ class SphinxSearchService extends SphinxObservable {
         if (!file_exists($this->_Settings['Install']->IndexerPath))
             parent::Update(SPHINX_FATAL_ERROR, 'IndexerFound', FALSE, "Can't find indexer at path: ".$this->_Settings['Install']->IndexerPath);
         else
-            parent::Update(SPHINX_SUCCESS, 'IndexerFound', TRUE);
+            parent::Update(SS_SUCCESS, 'IndexerFound', TRUE);
         if (!file_exists($this->_Settings['Install']->SearchdPath))
             parent::Update(SPHINX_FATAL_ERROR, 'SearchdFound', FALSE, "Can't find searchd at path: ".$this->_Settings['Install']->SearchdPath);
         else
-            parent::Update(SPHINX_SUCCESS, 'SearchdFound', TRUE);
+            parent::Update(SS_SUCCESS, 'SearchdFound', TRUE);
         if (!file_exists($this->_Settings['Install']->ConfPath))
             parent::Update(SPHINX_FATAL_ERROR, 'SearchdFound', FALSE, "Can't find configuration file at path: ".$this->_Settings['Install']->ConfPath);
         else
-            parent::Update(SPHINX_SUCCESS, 'ConfFound', TRUE);
+            parent::Update(SS_SUCCESS, 'ConfFound', TRUE);
     }
 
 
@@ -49,7 +49,7 @@ class SphinxSearchService extends SphinxObservable {
             $fp = fsockopen($Host, $Port, $errno, $errstr, 5);
             if (is_resource($fp)) {
                 fclose($fp);
-                parent::Update(SPHINX_SUCCESS, 'SearchdPortStatus', 'Open');
+                parent::Update(SS_SUCCESS, 'SearchdPortStatus', 'Open');
             }
             else
                 parent::Update(SPHINX_ERROR, 'SearchdPortStatus');
@@ -78,7 +78,7 @@ class SphinxSearchService extends SphinxObservable {
             if($Error = SphinxSearchGeneral::RunCommand($Command, '/', 'Starting searchd'))
                     parent::Update(SPHINX_FATAL_ERROR, '', '', $Error);
             else
-                parent::Update(SPHINX_SUCCESS, 'SearchdStatus', TRUE);//save as running
+                parent::Update(SS_SUCCESS, 'SearchdRunning', TRUE);//save as running
 
         }
     }
@@ -93,7 +93,7 @@ class SphinxSearchService extends SphinxObservable {
             if($Error = SphinxSearchGeneral::RunCommand($Command, '/', 'Attempting to stop searchd', $Background = FALSE))
                     parent::Update(SPHINX_FATAL_ERROR, '', '', $Error);
             else
-                parent::Update(SPHINX_SUCCESS, 'SearchdStatus', FALSE); //save as not running
+                parent::Update(SS_SUCCESS, 'SearchdRunning', FALSE); //save as not running
         }
     }
 
@@ -101,11 +101,11 @@ class SphinxSearchService extends SphinxObservable {
         $SphinxSearchModel = new SphinxSearchModel();
         $Status = $SphinxSearchModel->SphinxStatus(); //will return an array of misc info if sphinx is running
         if (!empty($Status)){
-            parent::Update(SPHINX_SUCCESS, 'SearchdStatus', TRUE);//save as running
+            parent::Update(SS_SUCCESS, 'SearchdRunning', TRUE);//save as running
             return $Status; //yes, it is
         }
         else{
-            parent::Update(SPHINX_SUCCESS, 'SearchdStatus', FALSE); //save as not running
+            parent::Update(SS_SUCCESS, 'SearchdRunning', FALSE); //save as not running
             return FALSE; //not running
         }
     }
@@ -222,17 +222,17 @@ class SphinxSearchService extends SphinxObservable {
         $Prefix = $this->_Settings['Install']->Prefix;
         switch ($IndexName) {
             case 'all':
-                $IndexName = $Prefix . SPHINX_SEARCH_STATS_INDEX . ' ' . $Prefix . SPHINX_SEARCH_DELTA_INDEX . ' ' . $Prefix . SPHINX_SEARCH_MAIN_INDEX . ' ';
+                $IndexName = $Prefix . SS_STATS_INDEX . ' ' . $Prefix . SS_DELTA_INDEX . ' ' . $Prefix . SS_MAIN_INDEX . ' ';
                 break;
-            case SPHINX_SEARCH_DELTA_INDEX:
-                $IndexName = $Prefix . SPHINX_SEARCH_DELTA_INDEX;
+            case SS_STATS_INDEX:
+                $IndexName = $Prefix . SS_STATS_INDEX;
                 break;
-            case SPHINX_SEARCH_DELTA_INDEX:
-                $IndexName = $Prefix . SPHINX_SEARCH_DELTA_INDEX;
+            case SS_DELTA_INDEX:
+                $IndexName = $Prefix . SS_DELTA_INDEX;
                 break;
-            case SPHINX_SEARCH_MAIN_INDEX:
+            case SS_MAIN_INDEX:
             default:
-                $IndexName = $Prefix . SPHINX_SEARCH_MAIN_INDEX;
+                $IndexName = $Prefix . SS_MAIN_INDEX;
                 break;
         }
 
@@ -244,21 +244,21 @@ class SphinxSearchService extends SphinxObservable {
     }
 
     public function ReIndexMain() {
-        $this->ReIndex(SPHINX_SEARCH_MAIN_INDEX);
-        parent::Update(SPHINX_SUCCESS, 'ServicePollTask', 'IndexMain');
-        parent::Update(SPHINX_SUCCESS, 'IndexerMainLast', time());
+        $this->ReIndex(SS_MAIN_INDEX);
+        parent::Update(SS_SUCCESS, 'ServicePollTask', 'IndexMain');
+        parent::Update(SS_SUCCESS, 'IndexerMainLast', time());
     }
 
     public function ReIndexDelta() {
-        $this->ReIndex(SPHINX_SEARCH_DELTA_INDEX);
-        parent::Update(SPHINX_SUCCESS, 'ServicePollTask', 'IndexDelta');
-        parent::Update(SPHINX_SUCCESS, 'IndexerDeltaLast', time());
+        $this->ReIndex(SS_DELTA_INDEX);
+        parent::Update(SS_SUCCESS, 'ServicePollTask', 'IndexDelta');
+        parent::Update(SS_SUCCESS, 'IndexerDeltaLast', time());
     }
 
     public function ReIndexStats() {
-        $this->ReIndex(SPHINX_SEARCH_STATS_INDEX);
-        parent::Update(SPHINX_SUCCESS, 'ServicePollTask', 'IndexStats');
-        parent::Update(SPHINX_SUCCESS, 'IndexerStatsLast', time());
+        $this->ReIndex(SS_STATS_INDEX);
+        parent::Update(SS_SUCCESS, 'ServicePollTask', 'IndexStats');
+        parent::Update(SS_SUCCESS, 'IndexerStatsLast', time());
     }
 
 }

@@ -12,8 +12,14 @@
 */
 
 
+
+
+
 .CommentBody{
     margin-left: 5px;
+}
+#NavBar{
+    clear: both;
 }
 div.DiscussionInfo{
     margin-left: 29px;
@@ -41,11 +47,15 @@ h3{
     border-top: 1px dotted #555555;
     padding-top: 5px;
 }
+.Search_Container{
+    padding-left: 5px;
+}
 
 
 /* Search Info stuff */
 #SearchQuery{
     font-size: 22px;
+    color: #646464;
 }
 #SearchDetail{
     font-size: 18px;
@@ -56,10 +66,16 @@ h3{
 }
 #SearchAgain{
     font-size: 10px;
+    float: left;
 }
 #Time{
-    float: right;
+    float: left;
     color: #555555;
+    margin-left: 5px;
+}
+.col1{
+    clear: both;
+    margin-top: 50px;
 }
 /* End Search Info stuff */
 
@@ -191,7 +207,7 @@ td.Word{
     font-weight: bold;
     background-color: #444444;
 }
-.DiscussionInfo .SphinxExcerpts{
+.DiscussionInfo .SphinxExcerpts, .DiscussionTitle .SphinxExcerpts{
     font-weight: bold;
     font-size: 16px;
 }

@@ -31,5 +31,5 @@ echo '<ul>
 <ul>
     <li>You get a "Fatal Error in PHP.define(); Constant NOW already defined - Answer: Grab the latest vanilla version</li>
     <li>Total Queries does not mean 'Total Searches'(i.e 12 queries != 12 individual searches on your site)</li>
-    <li></li>
+    <li>You get a "stop: kill() on pid xxxx failed: Operation not permitted Sphinx" This is because you started sphinx from the Command line or some other means</li>
 </ul>

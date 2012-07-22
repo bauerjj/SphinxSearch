@@ -5,17 +5,38 @@
     .Filler{
         background-color: grey;
     }
+    .astrix{
+        color: red;
+    }
+    ol, ul {
+        list-style: upper-roman;
+        margin-left: 50px;
+    }
 
 
 
 </style>
+<h1><?php echo T($this->Data['Title']) . ' - ' . $this->Data['PluginVersion']; ?></h1>
+<div class="Info">
+    <?php echo T($this->Data['PluginDescription']); ?>
+</div>
+<h3><?php echo 'Quick Links'; ?></h3>
+<div class="Info">
+    <ul>
+        <li><?php echo Anchor('Back To Main Settings', 'plugin/sphinxsearch'); ?></li>
+        <li><?php echo Anchor('Generate a new config file', 'plugin/sphinxsearch'); ?></li>
+        <li><?php echo Anchor('View my config file', 'plugin/sphinxsearch/viewfile?action=viewfile&file=conf'); ?></li>
+    </ul>
+</div>
+<h3>Settings</h3>
+<br/>
+<br/>
 <?php
 $Settings = $this->Data['Settings'];
 //print_r($Settings); die;
 echo $this->Form->Open();
+echo $this->Form->Errors();
 ?>
-<br/>
-<br/>
 <div class="FilterMenu">
     <?php
     $ToggleName = $Settings['Admin']->MainSearchEnable ? T('Disable Main Search') : T('Enable Main Search');
@@ -28,7 +49,6 @@ echo $this->Form->Open();
             <tr>
                 <th> Main Search - Settings</th>
                 <th> Description </th>
-                <th> View Format </th>
             </tr>
         </thead>
         <tbody>
@@ -39,9 +59,6 @@ echo $this->Form->Open();
                 <td>
                     <?php echo $this->Form->Label('Number of results per page', 'Plugin.SphinxSearch.LimitResultsPage'); ?>
                 </td>
-                <td>
-                    <?php echo $this->Form->DropDown('test', array('simple', 'full', 'sleak', 'table')) ?>
-                </td>
             </tr>
             <tr>
                 <td class="Input">
@@ -49,9 +66,6 @@ echo $this->Form->Open();
                 </td>
                 <td>
                     <?php echo $this->Form->Label('Enable the HitBox', 'Plugin.SphinxSearch.MainHitBoxEnable'); ?>
-                </td>
-                <td>
-                    <?php echo '--' ?>
                 </td>
             </tr>
         </tbody>
@@ -80,21 +94,10 @@ echo $this->Form->Open();
         <tbody>
             <tr>
                 <td class="Input">
-                    <?php echo $this->Form->Textbox('Plugin.SphinxSearch.LimitRelatedKeywords'); ?>
+                    <?php echo $this->Form->Textbox('Plugin.SphinxSearch.LimitRelatedSearches'); ?>
                 </td>
                 <td>
-                    <?php echo $this->Form->Label('Number of related SINGLE keywords on the main search page (0 to disable)', 'Plugin.SphinxSearch.LimitRelatedKeywords'); ?>
-                </td>
-                <td>
-                    <?php echo $this->Form->DropDown('test', array('simple'), array('disabled' => 'disabled')) ?>
-                </td>
-            </tr>
-            <tr>
-                <td class="Input">
-                    <?php echo $this->Form->Textbox('Plugin.SphinxSearch.LimitFullKeywords'); ?>
-                </td>
-                <td>
-                    <?php echo $this->Form->Label('Number of related FULL searches on the main search page (0 to disable)', 'Plugin.SphinxSearch.LimitFullKeywords'); ?>
+                    <?php echo $this->Form->Label('Number of related FULL searches on the main search page (0 to disable)', 'Plugin.SphinxSearch.LimitRelatedSearches'); ?>
                 </td>
                 <td>
                     <?php echo $this->Form->DropDown('test', array('simple'), array('disabled' => 'disabled')) ?>
@@ -102,10 +105,10 @@ echo $this->Form->Open();
             </tr>
             <tr>
                 <td class="Input">
-                    <?php echo $this->Form->Textbox('Plugin.SphinxSearch.LimitFullKeywords'); ?>
+                    <?php echo $this->Form->Textbox('Plugin.SphinxSearch.LimitTopKeywords'); ?>
                 </td>
                 <td>
-                    <?php echo $this->Form->Label('Number of top SINGLE keywords on the main search page (0 to disable)', 'Plugin.SphinxSearch.LimitFullKeywords'); ?>
+                    <?php echo $this->Form->Label('Number of top SINGLE keywords on the main search page (0 to disable)', 'Plugin.SphinxSearch.LimitTopKeywords'); ?>
                 </td>
                 <td>
                     <?php echo $this->Form->DropDown('test', array('simple'), array('disabled' => 'disabled')) ?>
@@ -113,10 +116,10 @@ echo $this->Form->Open();
             </tr>
             <tr>
                 <td class="Input">
-                    <?php echo $this->Form->Textbox('Plugin.SphinxSearch.LimitFullKeywords'); ?>
+                    <?php echo $this->Form->Textbox('Plugin.SphinxSearch.LimitTopSearches'); ?>
                 </td>
                 <td>
-                    <?php echo $this->Form->Label('Number of top FULL searches on the main search page (0 to disable)', 'Plugin.SphinxSearch.LimitFullKeywords'); ?>
+                    <?php echo $this->Form->Label('Number of top FULL searches on the main search page (0 to disable)', 'Plugin.SphinxSearch.LimitTopSearches'); ?>
                 </td>
                 <td>
                     <?php echo $this->Form->DropDown('test', array('simple'), array('disabled' => 'disabled')) ?>
@@ -147,21 +150,10 @@ echo $this->Form->Open();
         <tbody>
             <tr>
                 <td class="Input">
-                    <?php echo $this->Form->Textbox('Plugin.SphinxSearch.LimitRelatedPost'); ?>
+                    <?php echo $this->Form->Textbox('Plugin.SphinxSearch.LimitRelatedThreadsSidebarDiscussion'); ?>
                 </td>
                 <td>
-                    <?php echo $this->Form->Label('Number of related threads on the sidebar panel with every discussion  (0 to disable)', 'Plugin.SphinxSearch.LimitRelatedPost'); ?>
-                </td>
-                <td>
-                    <?php echo $this->Form->DropDown('test', array('simple'), array('disabled' => 'disabled')) ?>
-                </td>
-            </tr>
-            <tr>
-                <td class="Input">
-                    <?php echo $this->Form->Textbox('Plugin.SphinxSearch.LimitRelatedMain'); ?>
-                </td>
-                <td>
-                    <?php echo $this->Form->Label('Number of related threads on the main search sidebar (0 to disable)', 'Plugin.SphinxSearch.LimitRelatedMain'); ?>
+                    <?php echo $this->Form->Label('Number of related threads on the sidebar panel with every discussion  (0 to disable)', 'Plugin.SphinxSearch.LimitRelatedThreadsSidebarDiscussion'); ?>
                 </td>
                 <td>
                     <?php echo $this->Form->DropDown('test', array('simple'), array('disabled' => 'disabled')) ?>
@@ -169,24 +161,35 @@ echo $this->Form->Open();
             </tr>
             <tr>
                 <td class="Input">
-                    <?php echo $this->Form->Textbox('Plugin.SphinxSearch.LimitRelatedPost'); ?>
+                    <?php echo $this->Form->Textbox('Plugin.SphinxSearch.LimitRelatedThreadsMain'); ?>
                 </td>
                 <td>
-                    <?php echo $this->Form->Label('Number of results that pop up when adding a new discussion (0 to disable)', 'Plugin.SphinxSearch.LimitRelatedPost'); ?>
+                    <?php echo $this->Form->Label('Number of related threads on the main search sidebar (0 to disable)', 'Plugin.SphinxSearch.LimitRelatedThreadsMain'); ?>
                 </td>
                 <td>
-                    <?php echo $this->Form->DropDown('test', array('simple', 'full', 'sleak', 'table')) ?>
+                    <?php echo $this->Form->DropDown('test', array('simple'), array('disabled' => 'disabled')) ?>
                 </td>
             </tr>
             <tr>
                 <td class="Input">
-                    <?php echo $this->Form->Textbox('Plugin.SphinxSearch.LimitRelatedDiscussion'); ?>
+                    <?php echo $this->Form->Textbox('Plugin.SphinxSearch.LimitRelatedThreadsPost'); ?>
                 </td>
                 <td>
-                    <?php echo $this->Form->Label('Number of related threads on the bottom of each discussion thread (0 to disable)', 'Plugin.SphinxSearch.LimitRelatedDiscussion'); ?>
+                    <?php echo $this->Form->Label('Number of results that pop up when adding a new discussion (0 to disable)', 'Plugin.SphinxSearch.LimitRelatedThreadsPost'); ?>
                 </td>
                 <td>
-                    <?php echo $this->Form->DropDown('test', array('simple', 'full', 'sleak', 'table')) ?>
+                    <?php echo $this->Form->DropDown('Plugin.SphinxSearch.RelatedThreadsPostFormat', array('simple' => 'simple', 'full' =>'full', 'sleak' => 'sleak', 'table' => 'table')) ?>
+                </td>
+            </tr>
+            <tr>
+                <td class="Input">
+                    <?php echo $this->Form->Textbox('Plugin.SphinxSearch.LimitRelatedThreadsBottomDiscussion'); ?>
+                </td>
+                <td>
+                    <?php echo $this->Form->Label('Number of related threads on the bottom of each discussion thread (0 to disable)', 'Plugin.SphinxSearch.LimitRelatedThreadsBottomDiscussion'); ?>
+                </td>
+                <td>
+                    <?php echo $this->Form->DropDown('Plugin.SphinxSearch.RelatedThreadsBottomDiscussionFormat', array('simple' => 'simple', 'full' =>'full', 'sleak' => 'sleak', 'table' => 'table')) ?>
                 </td>
             </tr>
         </tbody>
@@ -204,14 +207,6 @@ echo $this->Form->Open();
     <tbody>
         <tr>
             <td class="Input">
-                <?php echo $this->Form->Textbox('Plugin.SphinxSearch.MaxMatches'); ?>
-            </td>
-            <td>
-                <?php echo $this->Form->Label('Maximum number of matching documents to return before quiting', 'Plugin.SphinxSearch.MaxMatches'); ?>
-            </td>
-        </tr>
-        <tr>
-            <td class="Input">
                 <?php echo $this->Form->Textbox('Plugin.SphinxSearch.MaxQueryTime'); ?>
             </td>
             <td>
@@ -220,23 +215,15 @@ echo $this->Form->Open();
         </tr>
         <tr>
             <td class="Input">
-                <?php echo $this->Form->Textbox('Plugin.SphinxSearch.Timeout'); ?>
-            </td>
-            <td>
-                <?php echo $this->Form->Label('Search Timeout', 'Plugin.SphinxSearch.Timeout'); ?>
-            </td>
-        </tr>
-        <tr>
-            <td class="Input">
                 <?php echo $this->Form->Textbox('Plugin.SphinxSearch.RetriesCount'); ?>
             </td>
             <td>
-                <?php echo $this->Form->Label('# of Retries', 'Plugin.SphinxSearch.RetriesCount'); ?>
+                <?php echo $this->Form->Label('Number of Retries', 'Plugin.SphinxSearch.RetriesCount'); ?>
             </td>
         </tr>
         <tr>
             <td class="Input">
-                <?php echo $this->Form->Textbox('Plugin.Plugin.SphinxSearch.RetriesDelay'); ?>
+                <?php echo $this->Form->Textbox('Plugin.SphinxSearch.RetriesDelay'); ?>
             </td>
             <td>
                 <?php echo $this->Form->Label('Delay of retries (ms)', 'Plugin.SphinxSearch.RetriesDelay'); ?>
@@ -244,18 +231,125 @@ echo $this->Form->Open();
         </tr>
         <tr>
             <td class="Input">
-                <?php echo $this->Form->Textbox('Plugin.SphinxSearch.MinWordIndexLen'); ?>
+                <?php echo $this->Form->Textbox('Plugin.SphinxSearch.ReadTimeout'); ?>
             </td>
             <td>
-                <?php echo $this->Form->Label('Minimum # of characters required to index a word', 'Plugin.SphinxSearch.MinWordIndexLen'); ?>
+                <?php echo $this->Form->Label('Network Read Timeout (s)', 'Plugin.SphinxSearch.ReadTimeout'); ?>
             </td>
         </tr>
+        <tr>
+            <td class="Input">
+                <?php echo $this->Form->Textbox('Plugin.SphinxSearch.ClientTimeout'); ?>
+            </td>
+            <td>
+                <?php echo $this->Form->Label('Client Read Timeout (s)', 'Plugin.SphinxSearch.ClientTimeout'); ?>
+            </td>
+        </tr>
+        <tr>
+            <td class="Input">
+                <?php echo $this->Form->Textbox('Plugin.SphinxSearch.MaxChildren'); ?>
+            </td>
+            <td>
+                <?php echo $this->Form->Label('Maximum amount of children to fork (or in other words, concurrent searches', 'Plugin.SphinxSearch.MaxChildren'); ?>
+            </td>
+        </tr>
+        <tr>
+            <td class="Input">
+                <?php echo $this->Form->Textbox('Plugin.SphinxSearch.MaxMatches'); ?>
+            </td>
+            <td>
+                <?php echo $this->Form->Label('Maximum amount of matches', 'Plugin.SphinxSearch.MaxMatches'); ?>
+            </td>
+        </tr>
+        <tr>
+            <td class="Input">
+                <?php echo $this->Form->Textbox('Plugin.SphinxSearch.ReadBuffer'); ?>
+            </td>
+            <td>
+                <?php echo $this->Form->Label('Read Buffer size', 'Plugin.SphinxSearch.ReadBuffer'); ?>
+            </td>
+        </tr>
+        <tr>
+            <td class="Input">
+                <?php echo $this->Form->DropDown('Plugin.SphinxSearch.Workers',array('none','fork','prefork','threads')); ?>
+            </td>
+            <td>
+                <?php echo $this->Form->Label('Workers', 'Plugin.SphinxSearch.Workers'); ?>
+            </td>
+        </tr>
+        <tr>
+            <td class="Input">
+                <?php echo $this->Form->Textbox('Plugin.SphinxSearch.ThreadStack'); ?>
+            </td>
+            <td>
+                <?php echo $this->Form->Label('Thread Stack', 'Plugin.SphinxSearch.ThreadStack'); ?>
+            </td>
+        </tr>
+        <tr>
+            <td class="Input">
+                <?php echo $this->Form->Textbox('Plugin.SphinxSearch.ExpansionLimit'); ?>
+            </td>
+            <td>
+                <?php echo $this->Form->Label('Expansion Limit', 'Plugin.SphinxSearch.ExpansionLimit'); ?>
+            </td>
+        </tr>
+        <tr>
+            <td class="Input">
+                <?php echo $this->Form->Textbox('Plugin.SphinxSearch.PreforkRotationThrottle'); ?>
+            </td>
+            <td>
+                <?php echo $this->Form->Label('Prefork Rotation Throttle', 'Plugin.SphinxSearch.PreforkRotationThrottle'); ?>
+            </td>
+        </tr>
+
+       </tbody>
+</table>
+    <table class="AltRows">
+    <thead>
+        <tr>
+            <th> Indexer - Settings</th>
+            <th> Description </th>
+        </tr>
+    </thead>
+    <tbody>
         <tr>
             <td class="Input">
                 <?php echo $this->Form->Textbox('Plugin.SphinxSearch.MemLimit'); ?>
             </td>
             <td>
                 <?php echo $this->Form->Label('Size of memory that sphinx will consume (keep the "M")', 'Plugin.SphinxSearch.MemLimit'); ?>
+            </td>
+        </tr>
+        <tr>
+            <td class="Input">
+                <?php echo $this->Form->Textbox('Plugin.SphinxSearch.MaxIOps'); ?>
+            </td>
+            <td>
+                <?php echo $this->Form->Label('Maximum I/O operations per second, for I/O throttling. indexer can cause bursts of intensive disk I/O during indexing, and it might desired to limit its disk activity (and keep something for other programs running on the same machine, such as searchd). I/O throttling helps to do that. It works by enforcing a minimum guaranteed delay between subsequent disk I/O operations performed by indexer. Modern SATA HDDs are able to perform up to 70-100+ I/O operations per second (thats mostly limited by disk heads seek time). Limiting indexing I/O to a fraction of that can help reduce search performance dedgradation caused by indexing. ', 'Plugin.SphinxSearch.MemIOps'); ?>
+            </td>
+        </tr>
+        <tr>
+            <td class="Input">
+                <?php echo $this->Form->Textbox('Plugin.SphinxSearch.MaxIOSize'); ?>
+            </td>
+            <td>
+                <?php echo $this->Form->Label('I/O throttling related option. It limits maximum file I/O operation (read or write) size for all operations performed by indexer. A value of 0 means that no limit is imposed. Reads or writes that are bigger than the limit will be split in several smaller operations, and counted as several operation by max_iops setting. At the time of this writing, all I/O calls should be under 256 KB (default internal buffer size) anyway, so max_iosize values higher than 256 KB must not affect anything. ', 'Plugin.SphinxSearch.MaxIOSize'); ?>
+            </td>
+        </tr>
+        <tr>
+            <td class="Input">
+                <?php echo $this->Form->Textbox('Plugin.SphinxSearch.WriteBuffer'); ?>
+            </td>
+            <td>
+                <?php echo $this->Form->Label('Write buffer size, bytes. Write buffers are used to write both temporary and final index files when indexing. Larger buffers reduce the number of required disk writes. Memory for the buffers is allocated in addition to mem_limit. Note that several (currently up to 4) buffers for different files will be allocated, proportionally increasing the RAM usage. ', 'Plugin.SphinxSearch.WriteBuffer'); ?>
+            </td>
+        </tr>
+        <tr>
+            <td class="Input">
+                <?php echo $this->Form->Textbox('Plugin.SphinxSearch.MaxFileBuffer'); ?>
+            </td>
+            <td>
+                <?php echo $this->Form->Label('Maximum file field adaptive buffer size, bytes. File field buffer is used to load files referred to from sql_file_field columns. This buffer is adaptive, starting at 1 MB at first allocation, and growing in 2x steps until either file contents can be loaded, or maximum buffer size, specified by max_file_field_buffer directive, is reached', 'Plugin.SphinxSearch.MaxFileBuffer'); ?>
             </td>
         </tr>
        </tbody>
@@ -282,6 +376,22 @@ echo $this->Form->Open();
             </td>
             <td>
                 <?php echo $this->Form->Label('Number of words to highlight around the target word (0 to disable)', 'Plugin.SphinxSearch.BuildExcerptsLimit'); ?>
+            </td>
+        </tr>
+        <tr>
+            <td class="Input">
+                <?php echo $this->Form->Checkbox('Plugin.SphinxSearch.BuildExcerptsTitleEnable', 'Highlight titles Enable'); ?>
+            </td>
+            <td>
+                <?php echo $this->Form->Label("Highlight matching words in discussion titles", 'Plugin.SphinxSearch.BuildExcerptsTitleEnable'); ?>
+            </td>
+        </tr>
+         <tr>
+            <td class="Input">
+                <?php echo $this->Form->Checkbox('Plugin.SphinxSearch.BuildExcerptsBodyEnable', 'Highlight body text Enable'); ?>
+            </td>
+            <td>
+                <?php echo $this->Form->Label("Highlight matching words in body text", 'Plugin.SphinxSearch.BuildExcerptsBodyEnable'); ?>
             </td>
         </tr>
     </tbody>
@@ -422,7 +532,7 @@ echo $this->Form->Open();
 
 
 
-<span>* Requires a new configuration file to be generated and reindex to see changes</span>
+<span class="astrix">Any change to searchd or indexer require a new config file to be generated and reindex for the changes to take effect</span>
 
 <br/>
 <br/>

@@ -5,138 +5,184 @@
  */
 class SphinxSearchSettings {
 
-    private static $_Instace;   //store the single instance
-    protected static $_All = array(); //contain all Settings settings
-    protected static $_Wizard = array(); //contains all admin settings
-    protected static $_Install = array(); //contains all settings
-    protected static $_Status = array();
-    protected static $_Admin = array(); //contains all settings
+    private static $Instace;   //store the single instance
+    protected static $All = array(); //contain all Settings
+    protected static $SearchOptions = array();
+    protected static $Wizard = array();
+    protected static $Install = array();
+    protected static $Status = array();
+    protected static $Admin = array();
 
     //By making the constructor private we have prohibited objects
     //of the class from being instantiated from outside the class
 
     public function __construct() {
+
     }
 
     public static function GetInstance() {
-       // if (!self::$_Instace)
+        // if (!self::$Instace)
         if (1)
-            self::$_Instace = new SphinxSearchSettings(); //only create a new instance once!
-        return self::$_Instace;
+            self::$Instace = new SphinxSearchSettings(); //only create a new instance once!
+        return self::$Instace;
     }
 
     public function GetAllSettings() {
-        self::$_All = array(
+        self::$All = array(
+            'SearchOptions' => Gdn_Format::ArrayAsObject(self::GetSearchOptions()),
             'Wizard' => Gdn_Format::ArrayAsObject(self::GetWizardSettings()),
             'Install' => Gdn_Format::ArrayAsObject(self::GetInstall()),
             'Status' => Gdn_Format::ArrayAsObject(self::GetStatus()),
             'Admin' => Gdn_Format::ArrayAsObject(self::GetAdminSettings()),
         );
-        return self::$_All;
+        return self::$All;
+    }
+
+    public function GetSearchOptions() {
+        self::$SearchOptions = array(
+            'Match' => array('Any' => 'Any', 'All' => 'All', 'Extended' => 'Extended'), //Search Match Mode
+            'Order' => array('Relevance' => 'Relevance', 'MostRecent' => 'Most Recent', 'MostViews' => 'Most Views', 'MostReplies' => 'Most Replies'), //Search Order - the key corresponds to value on radio list
+            'Time' => array('All' => 'All', 'ThisWeek' => 'This Week', 'ThisMonth' => 'This Month', 'ThisYear' => 'This Year'), //t
+            'ResultFormat' => array('Full' => 'Full', 'Table' => 'Table', 'Sleak' => 'Sleak','Simple' => 'Simple'),
+        );
+
+        return self::$SearchOptions;
     }
 
     public function GetWizardSettings() {
-        //Wizard steps
-        self::$_Wizard['Start'] = C('Plugin.SphinxSearch.StartWizard', FALSE);
-        self::$_Wizard['Connection'] = C('Plugin.SphinxSearch.Connection', FALSE);
-        self::$_Wizard['Detection'] = C('Plugin.SphinxSearch.Detection', FALSE);
-        self::$_Wizard['Detected'] = C('Plugin.SphinxSearch.Detected', FALSE); //whether or not system detected existance of sphinx or not (FALSE if did not)
-
-        self::$_Wizard['Running'] = C('Plugin.SphinxSearch.Running', FALSE); //searchd start/stopped
-        self::$_Wizard['Installed'] = C('Plugin.SphinxSearch.Installed', FALSE); //either found existing binaries or succesfull install
-
-        self::$_Wizard['Task'] = C('Task', 'Settingsure');
-
-        return self::$_Wizard;
+        $Wizard = array(
+            'Plugin.SphinxSearch.StartWizard' => FALSE,
+            'Plugin.SphinxSearch.Connection' => FALSE,
+            'Plugin.SphinxSearch.Detection' => FALSE,
+            'Plugin.SphinxSearch.Detected' => FALSE,
+            'Plugin.SphinxSearch.Running' => FALSE,
+            'Plugin.SphinxSearch.Installed' => FALSE,
+            'Plugin.SphinxSearch.Task' => FALSE,
+            'Plugin.SphinxSearch.ServicePollTask' => FALSE,
+        );
+        foreach ($Wizard as $Name => $Default) {
+            $Val = explode('.', $Name);
+            $ShortName = $Val[2];
+            self::$Wizard[$ShortName] = C($Name, $Default);
+        }
+        return self::$Wizard;
     }
 
     public function GetStatus() {
-        //general status
-        self::$_Status['IndexerFound'] = C('Plugin.SphinxSearch.IndexerFound', FALSE);
-        self::$_Status['SearchdFound'] = C('Plugin.SphinxSearch.SearchdFound', FALSE);
-        self::$_Status['ConfFound'] = C('Plugin.SphinxSearch.ConfFound', FALSE);
-        self::$_Status['Uptime'] = C('Plugin.SphinxSearch.Uptime', 0);
-        self::$_Status['TotalQueries'] = C('Plugin.SphinxSearch.TotalQueries', 0);
-        self::$_Status['MaxedOut'] = C('Plugin.SphinxSearch.MaxedOut', 0);
-
-        self::$_Status['IndexerMainLast'] = C('Plugin.SphinxSearch.IndexerMainLast', 0);
-        self::$_Status['IndexerDeltaLast'] = C('Plugin.SphinxSearch.IndexerDeltaLast', 0);
-        self::$_Status['IndexerStatsLast'] = C('Plugin.SphinxSearch.IndexerStatsLast', 0);
-
-        self::$_Status['SearchdPortStatus'] = C('Plugin.SphinxSearch.PortStatus'); //if port is Open/Closed
-        self::$_Status['SearchdConnections'] = C('Plugin.SphinxSearch.SearchdConnections', 0);
-        self::$_Status['SearchdStatus'] = C('Plugin.SphinxSearch.SearchdStatus', FALSE);
-
-        self::$_Status['IndexerMainTotal'] = C('Plugin.SphinxSearch.IndexerMainTotal');
-        self::$_Status['IndexerDeltaTotal'] = C('Plugin.SphinxSearch.IndexerDeltaTotal');
-        self::$_Status['IndexerStatsTotal'] = C('Plugin.SphinxSearch.IndexerStatsTotal');
-
-
-        return self::$_Status;
+        $Status = array(
+            'Plugin.SphinxSearch.IndexerFound' => FALSE,
+            'Plugin.SphinxSearch.SearchdFound' => FALSE,
+            'Plugin.SphinxSearch.ConfFound' => FALSE,
+            'Plugin.SphinxSearch.Uptime' => 0,
+            'Plugin.SphinxSearch.TotalQueries' => 0,
+            'Plugin.SphinxSearch.MaxedOut' => 0,
+            'Plugin.SphinxSearch.IndexerMainLast' => 0,
+            'Plugin.SphinxSearch.MaxedOut' => 0,
+            'Plugin.SphinxSearch.IndexerMainLast' => '---',
+            'Plugin.SphinxSearch.IndexerDeltaLast' => '---',
+            'Plugin.SphinxSearch.IndexerStatsLast' => '---',
+            'Plugin.SphinxSearch.SearchdPortStatus' => FALSE,
+            'Plugin.SphinxSearch.SearchdConnections' => 0,
+            'Plugin.SphinxSearch.SearchdRunning' => FALSE,
+            'Plugin.SphinxSearch.IndexerMainTotal' => 0,
+            'Plugin.SphinxSearch.IndexerDeltaTotal' => 0,
+            'Plugin.SphinxSearch.IndexerStatsTotal' => 0,
+        );
+        foreach ($Status as $Name => $Default) {
+            $Val = explode('.', $Name);
+            $ShortName = $Val[2];
+            self::$Status[$ShortName] = C($Name, $Default);
+        }
+        return self::$Status;
     }
 
     public function GetInstall() {
-        //used for polling background tasks
-        self::$_Install['ServicePollTask'] = C('Plugin.SphinxSearch.ServicePollTask', FALSE);
 
-
-        self::$_Install['Host'] = C('Plugin.SphinxSearch.Host', 'localhost');
-        self::$_Install['Port'] = C('Plugin.SphinxSearch.Port', 9312);
-        self::$_Install['Prefix'] = C('Plugin.SphinxSearch.Prefix', 'vss_');
-
-        self::$_Install['InstallPath'] = C('Plugin.SphinxSearch.InstallPath', SPHINX_SEARCH_INSTALL_DIR); //path to sphinx install directory
-        self::$_Install['IndexerPath'] = C('Plugin.SphinxSearch.IndexerPath', 'Not Detected'); //path to indexer - use this for Settings purposes!
-        self::$_Install['SearchdPath'] = C('Plugin.SphinxSearch.SearchdPath', 'Not Detected'); //path to searchd - use this for Settings purposes!
-        self::$_Install['ConfPath'] = C('Plugin.SphinxSearch.ConfPath', 'Not Detected'); //path to searchd - use this for Settings purposes!
-
-        self::$_Install['ManualIndexerPath'] = C('Plugin.SphinxSearch.ManualIndexerPath', ''); //manual path to indexer
-        self::$_Install['ManualSearchdPath'] = C('Plugin.SphinxSearch.ManualSearchdPath', ''); //manual path to searchd
-        self::$_Install['ManualConfPath'] = C('Plugin.SphinxSearch.ManualConfPath', ''); //manual path to sphinx.conf
-
-        return self::$_Install;
+        $Install = array(
+            'Plugin.SphinxSearch.ServicePollTask' => FALSE,
+            'Plugin.SphinxSearch.Host' => 'localhost',
+            'Plugin.SphinxSearch.Port' => 9312,
+            'Plugin.SphinxSearch.Prefix' => 'vss_',
+            'Plugin.SphinxSearch.InstallPath' => SS_INSTALL_DIR,
+            'Plugin.SphinxSearch.IndexerPath' => 'Not Detected',
+            'Plugin.SphinxSearch.SearchdPath' => 'Not Detected',
+            'Plugin.SphinxSearch.ConfPath' => 'Not Detected',
+            'Plugin.SphinxSearch.ManualIndexerPath' => '',
+            'Plugin.SphinxSearch.ManualSearchdPath' => '',
+            'Plugin.SphinxSearch.ManualConfPath' => '',
+        );
+        foreach ($Install as $Name => $Default) {
+            $Val = explode('.', $Name);
+            $ShortName = $Val[2];
+            self::$Install[$ShortName] = C($Name, $Default);
+        }
+        return self::$Install;
     }
 
+    /**
+     * All checkboxes MUST BE A BOOLEAN!! Or else validator will require something and a FALSE will inccur an error
+     * @return type
+     */
     public function GetAdminSettings() {
-        //searchd settings
-        self::$_Admin['Timeout'] = C('Plugin.SphinxSearch.Timeout', 3312); //units of ms
-        self::$_Admin['RetriesCount'] = C('Plugin.SphinxSearch.RetriesCount', 50); //On temporary failures searchd will attempt up to $count retries per agent
-        self::$_Admin['RetriesDelay'] = C('Plugin.SphinxSearch.RetriesDelay', 50); //$delay is the delay between the retries, in ms
-        self::$_Admin['MinWordIndexLen'] = C('Plugin.SphinxSearch.MinWordIndexLen', 50); //$delay is the delay between the retries, in ms
-        self::$_Admin['MemLimit'] = C('Plugin.SphinxSearch.MemLimit', '32M'); // must keep the 'M' designator
-        self::$_Admin['MaxQueryTime'] = C('Plugin.SphinxSearch.MaxQueryTime', 2000); //units of ms
-        self::$_Admin['MaxMatches'] = C('Plugin.SphinxSearch.MaxMatches', 1000);
-        
-
-        //Add an offset to what you really want (want 20 => put in 21) due to stripping out
-        //the first result found of related content (omit first given query result)
-        self::$_Admin['LimitRelatedMain'] = C('Plugin.SphinxSearch.LimitRelatedMain', 21);      //# of related discussion titles next to the main search results
-        self::$_Admin['LimitRelatedPost'] = C('Plugin.SphinxSearch.LimitRelatedPost', 21);      //# of related discussion titles that pops up when user searching for related threads
-        self::$_Admin['LimitRelatedDiscussion'] = C('Plugin.SphinxSearch.LimitRelatedDiscussion', 21);      //# of related discussion titles on bottom of each discussion
-        self::$_Admin['LimitRelatedSearches'] = C('Plugin.SphinxSearch.LimitRelatedSearches', 21);      //# of related
-        self::$_Admin['LimitRelatedKeywords'] = C('Plugin.SphinxSearch.LimitRelatedKeywords', 21);      //# of related
-        self::$_Admin['LimitResultsPage'] = C('Plugin.SphinxSearch.LimitResultsPage', 10);      //# of docs on the main results page
-        self::$_Admin['HighLightTitles'] = C('Plugin.SphinxSearch.HighLightTitles', TRUE);
-        self::$_Admin['HighLightText'] = C('Plugin.SphinxSearch.HighLightText', TRUE);
-        self::$_Admin['ReleatedThreadsLimit'] = C('Plugin.SphinxSearch.ReleatedThreadsLimit', 15);
-
-
-        self::$_Admin['BuildExcerpts'] = array(
-            'before_match' => '<span class="SphinxExcerpts">',
-            'after_match' => '</span>',
-            'chunk_separator' => '...',
-            'limit' => C('Plugin.SphinxSearch.BuildExcerptsLimit', 100), //Maximum snippet size, in symbols (codepoints). Integer, default is 256.
-            'around' => C('Plugin.SphinxSearch.BuildExcerptsAround', 20), //words around the matched word
+        $AdminSettings = array(
+            'Plugin.SphinxSearch.LimitResultsPage' => 20,
+            'Plugin.SphinxSearch.MainResultsFormat' => 'simple',
+            'Plugin.SphinxSearch.MainHitBoxEnable' => TRUE,
+            'Plugin.SphinxSearch.LimitRelatedSearches' => 20,
+            'Plugin.SphinxSearch.LimitTopKeywords' => 20,
+            'Plugin.SphinxSearch.LimitTopSearches' => 20,
+            'Plugin.SphinxSearch.LimitRelatedThreadsSidebarDiscussion' => 20,
+            'Plugin.SphinxSearch.LimitRelatedThreadsMain' => 20,
+            'Plugin.SphinxSearch.LimitRelatedThreadsPost' => 20,
+            'Plugin.SphinxSearch.RelatedThreadsPostFormat' => 'simple',
+            'Plugin.SphinxSearch.LimitRelatedThreadsBottomDiscussion' => 20,
+            'Plugin.SphinxSearch.RelatedThreadsBottomDiscussionFormat' => 'table',
+            'Plugin.SphinxSearch.MaxQueryTime' => 2000,
+            'Plugin.SphinxSearch.RetriesCount' => 50,
+            'Plugin.SphinxSearch.RetriesDelay' => 50,
+            'Plugin.SphinxSearch.ReadTimeout' => 5,
+            'Plugin.SphinxSearch.ClientTimeout' => 360,
+            'Plugin.SphinxSearch.MaxChildren' => 0,
+            'Plugin.SphinxSearch.MaxMatches' => 1000,
+            'Plugin.SphinxSearch.ReadBuffer' => '1M',
+            'Plugin.SphinxSearch.Workers' => 'fork',
+            'Plugin.SphinxSearch.ThreadStack' => '64K',
+            'Plugin.SphinxSearch.ExpansionLimit' => 50,
+            'Plugin.SphinxSearch.PreforkRotationThrottle' => 0,
+            'Plugin.SphinxSearch.MemLimit' => '32M',
+            'Plugin.SphinxSearch.MaxIOps' => 0,
+            'Plugin.SphinxSearch.MaxIOSize' => 0,
+            'Plugin.SphinxSearch.WriteBuffer' => '1M',
+            'Plugin.SphinxSearch.MaxFileBuffer' => '8M',
+            'Plugin.SphinxSearch.BuildExcerptsAround' => 3,
+            'Plugin.SphinxSearch.BuildExcerptsLimit' => 60,
+            'Plugin.SphinxSearch.BuildExcerptsTitleEnable' => TRUE,
+            'Plugin.SphinxSearch.BuildExcerptsBodyEnable' => TRUE,
+            'Plugin.SphinxSearch.Morphology' => 'none',
+            'Plugin.SphinxSearch.Dict' => 'crc',
+            'Plugin.SphinxSearch.MinStemmingLen' => 1,
+            'Plugin.SphinxSearch.StopWordsEnable' => TRUE,
+            'Plugin.SphinxSearch.WordFormsEnable' => FALSE,
+            'Plugin.SphinxSearch.MinWordIndexLen' => 3,
+            'Plugin.SphinxSearch.MinPrefixLen' => 0,
+            'Plugin.SphinxSearch.MinInfixLen' => 0,
+            'Plugin.SphinxSearch.StarEnable' => FALSE,
+            'Plugin.SphinxSearch.NGramLen' => 0,
+            'Plugin.SphinxSearch.HtmlStripEnable' => FALSE,
+            'Plugin.SphinxSearch.OnDiskDictEnable' => FALSE,
+            'Plugin.SphinxSearch.InPlaceEnable' => FALSE,
+            'Plugin.SphinxSearch.ExpandKeywordsEnable' => FALSE,
+            'Plugin.SphinxSearch.RTMemLimit' => 0,
+            'Plugin.SphinxSearch.MainSearchEnable' => TRUE, //LEAVE THIS FOR BUTTONS TO DISAB/ENABLE
+            'Plugin.SphinxSearch.StatsEnable' => TRUE,
+            'Plugin.SphinxSearch.RelatedEnable' => TRUE,
         );
-        //Enable/Disable widgets
-        self::$_Admin['MainSearchEnable'] = C('Plugin.SphinxSearch.MainSearchEnable', TRUE);
-        self::$_Admin['MainHitBoxEnable'] = C('Plugin.SphinxSearch.MainHitBoxEnable', TRUE);
-        self::$_Admin['StatsEnable'] = C('Plugin.SphinxSearch.StatsEnable', TRUE);
-        self::$_Admin['RelatedEnable'] = C('Plugin.SphinxSearch.RelatedEnable', TRUE);
-
-
-
-
-        return self::$_Admin;
+        foreach ($AdminSettings as $Name => $Default) {
+            $Val = explode('.', $Name);
+            $ShortName = $Val[2];
+            self::$Admin[$ShortName] = C($Name, $Default);
+        }
+        return self::$Admin;
     }
 
 }

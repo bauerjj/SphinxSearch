@@ -11,6 +11,7 @@
 class WidgetRelatedDiscussion extends Widgets implements SplObserver {
 
     private $Queries = array();
+    private $Name = 'RelatedDiscussion';
 
     public function __construct($SphinxClient, $Settings) {
         parent::__construct($SphinxClient, $Settings);
@@ -27,31 +28,40 @@ class WidgetRelatedDiscussion extends Widgets implements SplObserver {
             //related threads on each 'discussioncontroller' page. Base_redner_before -> Update will pass
             //the results in an assocated result with the name being the key. Handlers should NOT do this, but
             //rather pass in the result directly
+            //@todo this only works right now because only use one event handler - FIX THIS
 
-            if (!isset($Results['Related_Discussion'])) {
-                echo $this->ToString($Results);
+            if (!isset($Results[$this->Name])) { // the '!' is important here
+                if ($this->Settings['Admin']->LimitRelatedThreadsBottomDiscussion > 0) { //put it on the bottom
+                    $Matches = $this->GetSQLData($this->Settings['Admin']->RelatedThreadsBottomDiscussionFormat, $Results['matches']);
+                    $String = $this->ToString($Matches);
+                    echo $String;
+                }
+            } else {
+                if ($this->Settings['Admin']->LimitRelatedThreadsSidebarDiscussion > 0) { //put it on the sidebar
+                    //$Matches = $this->GetSQLData('simple', $Results[$this->Name]['matches']);
+                    //$Module = new RelatedDiscussionModule(WriteSimple($Matches));
+                    //$Sender->AddModule($Module);
+                }
+
+                //first time seeing this after 'base_render_before'...must set the data on the view
+                $Sender->SetData($this->Name, $Results[$this->Name]);
             }
         }
     }
 
     public function AddQuery($Sender, $Options = FALSE) {
         if ($Sender->ControllerName == 'discussioncontroller') {
+            $this->SphinxClient->ResetFilters();
+            $this->SphinxClient->ResetGroupBy();
+            $this->SphinxClient->SetSortMode(SPH_SORT_RELEVANCE);
+            $this->SphinxClient->SetRankingMode(SPH_RANK_WORDCOUNT);
+            $this->SphinxClient->SetLimits(0, $this->Settings['Admin']->LimitRelatedThreadsSidebarDiscussion);
             $Thread = $Sender->Discussion->Name; //get the discussion name (thread topic) to search against
-            $Query = $this->RelatedThreads($Thread, $this->Settings['Admin']->LimitRelatedDiscussion, array(
-                SPHINX_ATTR_STR_DISCUSSIONNAME,
-                SPHINX_ATTR_STR_CATNAME,
-                SPHINX_ATTR_STR_CATULCODE,
-                SPHINX_ATTR_TSTAMP_DISCUSSIONDATEINSERTED,
-                SPHINX_ATTR_UINT_DISCUSSIONVIEWS,
-                SPHINX_ATTR_UINT_DISCUSSIONCOMENTS,
-                SPHINX_ATTR_UINT_DISCUSSIONID,
-                SPHINX_ATTR_UINT_CATID,
-                SPHINX_FIELD_STR_USERNAME,
-                SPHINX_ATTR_UINT_USERID,
-                    ));
-            $QueryIndex = $this->SphinxClient->AddQuery($Query, $Index = SPHINX_INDEX_DIST, 'Main Related');
+            $Query = $this->FieldSearch($this->OperatorOrSearch($Thread), array(SS_FIELD_TITLE));
+            $QueryIndex = $this->SphinxClient->AddQuery($Query, $Index = SS_INDEX_DIST, $this->Name);
+
             $this->Queries[] = array(
-                'Name' => 'Related_Discussion',
+                'Name' => $this->Name,
                 'Index' => $QueryIndex,
                 'Highlight' => FALSE,
                 'IgnoreFirst' => TRUE,
@@ -62,13 +72,13 @@ class WidgetRelatedDiscussion extends Widgets implements SplObserver {
             return FALSE;
     }
 
-    public function ToString($Results) {
+    private function ToString($Results) {
         $String = '';
-        if ($Results == 0) {
+        if (sizeof($Results) == 0) {
             return; //return an empty string if no results
         }
         $String .= '<h4 id="Header_Related">Related Discussions</h4>';
-        $String .= WriteTable($Results);
+        $String .= WriteResults('Table',$Results);
 
         return $String;
     }
