@@ -17,21 +17,16 @@ class SphinxFactory{
         return new SphinxSearchInstall($Settings);
     }
 
-    public static function BuildModel(){
-        return new SphinxSearchModel(); //a wrapper around the sphinx API
-    }
-
     public static function BuildSettings(){
         return  SphinxSearchSettings::GetInstance();
-
     }
 
     public static function BuildService($Settings){
         return new SphinxSearchService($Settings);
     }
 
-    public static function BuildWizard(){
-        return new SphinxSearchInstallWizard();
+    public static function BuildWizard($Settings){
+        return new SphinxSearchInstallWizard($Settings);
     }
 
     public static function BuildAPI(){

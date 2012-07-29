@@ -55,13 +55,16 @@ class SphinxSearchGeneral {
 
             $status = trim(proc_close($resource));
             if ($status) {
-                return ($stderr . '<br/><br/>' .
+                $Error = $stderr . '<br/><br/>' .
                         '<b>' . $PrefixMsg . ', try to run this command manually in Terminal: </b><br/>' .
                         $Command . '<br/><br/> at directory: <br/>' .
                         $Path .
                         '<br/><br/>Try running it with sudo if it doesn\'t work
                     <br/><b>Terminal Output:</b><br/>' .
-                        $stdout);
+                        $stdout;
+                $Error = str_replace('%', '%%', $Error);//THIS IS IMPORTANT! Must escape strings in case of percent signs since this is eventually used
+                                                 //ins sprintf in gdn_form
+                return $Error;
             }
             else
                 return FALSE;

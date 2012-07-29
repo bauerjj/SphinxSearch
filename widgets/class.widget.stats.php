@@ -12,6 +12,9 @@ class WidgetStats extends Widgets implements SplObserver {
     private $NameTKeywords = 'TopKeywords'; //name of the search
     private $NameTSearches = 'TopSearches';
     private $NameRSearches = 'RelatedSearches';
+    private $NameTMainSearches = 'TotalMain'; //total queries for main
+    private $NameTDeltaSearches = 'TotalDelta'; //total queries for delta
+    private $NameTStatsSearches = 'TotalStats'; //total queries for stats
     private $Queries = array(); //keep track of query offset
 
     public function __construct($SphinxClient, $Settings) {
@@ -24,12 +27,12 @@ class WidgetStats extends Widgets implements SplObserver {
         $Sender = $Status['Sender'];
         //store stats ...perform this after the search since we grab the indivdual search words
         //that sphinx has search against. This saves us processing time of each and seperating other things
+
         if ($Sender->ControllerName == 'searchcontroller') {
-            if (isset($Results['MainSearch']['words'])){
+            if (isset($Results['MainSearch']['words'])) {
                 $this->InsertStats($Results['MainSearch']['words']);
             }
-
-            if (isset($Results[$this->NameTKeywords])) {
+            if (isset($Results[$this->NameTKeywords]['matches'])) {
                 $SingleKeywords = $this->SingleKeywords($Results[$this->NameTKeywords], $this->Settings['Admin']->LimitTopKeywords); //single keywords (apple, vanilla, cool)
                 foreach ($SingleKeywords as $Row) {
                     $KeywordsArray [] = $Row->keywords;
@@ -38,22 +41,29 @@ class WidgetStats extends Widgets implements SplObserver {
                 $Sender->AddModule($Module);
             }
 
-            if (isset($Results[$this->NameTSearches])) {
+            if (isset($Results[$this->NameTSearches]['matches'])) {
                 $TopSearches = $this->FullSearches($Results[$this->NameTSearches], $this->Settings['Admin']->LimitTopSearches);
                 $Module = new TopSearchesModule($TopSearches);
                 $Sender->AddModule($Module);
             }
 
-            if (isset($Results[$this->NameRSearches])) {
+            if (isset($Results[$this->NameRSearches]['matches'])) {
                 $RelatedSearches = $this->FullSearches($Results[$this->NameRSearches], $this->Settings['Admin']->LimitRelatedSearches); // full search ("vanllia is cool")
                 $Module = new RelatedSearchesModule($RelatedSearches);
                 $Sender->AddModule($Module);
             }
+        } else if (isset($Results[$this->NameTMainSearches]['matches'])) {
+            SaveToConfig('Plugin.SphinxSearch.IndexerMainTotal', $Results[$this->NameTMainSearches]['total_found']);
+        } else if (isset($Results[$this->NameTDeltaSearches]['matches'])) {
+            SaveToConfig('Plugin.SphinxSearch.IndexerDeltaTotal', $Results[$this->NameTDeltaSearches]['total_found']);
+        } else if (isset($Results[$this->NameTStatsSearches]['matches'])) {
+            SaveToConfig('Plugin.SphinxSearch.IndexerStatsTotal', $Results[$this->NameTStatsSearches]['total_found']);
         }
     }
 
     public function AddQuery($Sender, $Options = FALSE) {
         if ($Sender->ControllerName == 'searchcontroller') {
+            //use this: $Options['Landing'] to indicate we are on the main search page with all the advanced features and such
             if ($this->Settings['Admin']->LimitTopKeywords > 0 && ($Options['Landing'] == TRUE)) {
                 //Get the top keywords
                 $this->SphinxClient->ResetFilters();
@@ -114,8 +124,42 @@ class WidgetStats extends Widgets implements SplObserver {
                     'IgnoreFirst' => FALSE,
                 );
             }
-        }
-        else
+        } else if ($Sender->ControllerName == 'plugincontroller') {
+            if (GetValue('Index', $Options)) { //pass this manually inside of the sphinxsearch plugin index controller
+                /**
+                 * Use this for only the Admin side of things for now...this gets the total number of queries
+                 *
+                 * This is a very potential EXPENSIVE query to make since it bindly matches all the documents to get the total amount indexed
+                 */
+                $Prefix = $this->Settings['Install']->Prefix;
+                $Index = GetValue('Index', $Options);
+                $this->SphinxClient->ResetFilters();
+                $this->SphinxClient->ResetGroupBy();
+                $this->SphinxClient->SetLimits(0, 1); //no limits
+
+                $QueryIndex = $this->SphinxClient->AddQuery('', $Prefix.$Index); //blank query..match all documents basically
+
+                switch ($Index) { //get index name ....use this later in 'update' to determine which statistic to update the total count for
+                    case SS_STATS_INDEX:
+                        $IndexName = $this->NameTStatsSearches;
+                        break;
+                    case SS_DELTA_INDEX:
+                        $IndexName = $this->NameTDeltaSearches;
+                        break;
+                    case SS_MAIN_INDEX:
+                    default:
+                        $IndexName = $this->NameTMainSearches;
+                        break;
+                }
+
+                $this->Queries[] = array(
+                    'Name' => $IndexName,
+                    'Index' => $QueryIndex,
+                    'Highlight' => FALSE,
+                    'IgnoreFirst' => FALSE,
+                );
+            }
+        }else
             return FALSE;
 
 
@@ -143,6 +187,8 @@ class WidgetStats extends Widgets implements SplObserver {
     }
 
     public function SingleKeywords($Result, $Limit) {
+        if (!GetValue('matches', $Result))
+            return array(); //no matches
         $Ids = array_keys($Result['matches']); //get all of the keyword IDs
         if (sizeof($Ids) != 0) {
             $SingleKeywords = Gdn::SQL()
@@ -158,7 +204,7 @@ class WidgetStats extends Widgets implements SplObserver {
             return $SingleKeywords;
         }
         else
-            return FALSE;
+            return array();
     }
 
     public function FullSearches($Result, $Limit) {

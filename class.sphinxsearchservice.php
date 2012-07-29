@@ -2,18 +2,73 @@
 
 class SphinxSearchService extends SphinxObservable {
 
-    protected $_Name = 'Service'; //for reporting purposes
-    private $_Settings = array();
+    private $Settings = array();
 
     public function __construct($Config) {
-        $this->_Settings = $Config;
+        $this->Settings = $Config;
         parent::__construct();
     }
 
-    public function Status(){
-        $SphinxSearchModel = new SphinxSearchModel();
-        $Status = $SphinxSearchModel->SphinxStatus(); //will return an array of misc info if sphinx is running
-        if($Status){
+    //Use this when want to pass in new settings
+    public function NewSettings($Settings) {
+        $this->Settings = $Settings;
+    }
+
+    /**
+     * Parse sphinx conf and grab path to search pid file
+     *
+     * @param string $SS_conf filename
+     * @return string
+     */
+    public function GetPIDFileName() {
+        $Content = file_get_contents($this->Settings['Install']->ConfPath);
+        if (preg_match("#\bpid_file\s+=\s+(.*)\b#", $Content, $Matches)) {
+            return $Matches[1];
+        }
+        else
+            parent::Update(SS_FATAL_ERROR, '', FALSE, 'Cannot find PID file location defined inside of configuration: ' . $this->Settings['Install']->ConfPath);
+        return FALSE;
+    }
+
+    /**
+     * @pre validatelogpermissions
+     * @return boolean
+     */
+    public function GetSearchLog() {
+        $Content = file_get_contents($this->Settings['Install']->ConfPath);
+        if (preg_match("#\blog\s+=\s+(.*)\b#", $Content, $Matches)) {
+            return $Matches[1];
+        }
+        else
+            parent::Update(SS_FATAL_ERROR, '', FALSE, 'Cannot find Search log location defined inside of configuration: ' . $this->Settings['Install']->ConfPath);
+        return FALSE;
+    }
+
+    public function GetQueryLog() {
+        $Content = file_get_contents($this->Settings['Install']->ConfPath);
+        if (preg_match("#\bquery_log\s+=\s+(.*)\b#", $Content, $Matches)) {
+            return $Matches[1];
+        }
+        else
+            parent::Update(SS_FATAL_ERROR, '', FALSE, 'Cannot find query log location defined inside of configuration found: ' . $this->Settings['Install']->ConfPath);
+        return FALSE;
+    }
+
+    public function GetDataPath() {
+        $Content = file_get_contents($this->Settings['Install']->ConfPath);
+        if (preg_match("#\bpath\s+=\s+(.*\bdata\b)\b#", $Content, $Matches)) {
+            return $Matches[1] . DS; //IMPORTANT!! return with the slash
+        }
+        else
+            echo 'no'; die;
+        parent::Update(SS_FATAL_ERROR, '', FALSE, 'Cannot find data path location defined inside of configuration found: ' . $this->Settings['Install']->ConfPath);
+        return FALSE;
+    }
+
+    public function Status() {
+        $SphinxSearchModel = new SphinxClient();
+        $Status = $SphinxSearchModel->Status(); //will return an array of misc info if sphinx is running
+        if ($Status) {
             parent::Update(SS_SUCCESS, 'Uptime', $Status[0][1]); //sphinx returns uptime in seconds
             parent::Update(SS_SUCCESS, 'SearchdConnections', $Status[1][1]);
             parent::Update(SS_SUCCESS, 'MaxedOut', $Status[2][1]);
@@ -23,28 +78,27 @@ class SphinxSearchService extends SphinxObservable {
         $this->ValidateInstall(); //validate the install
     }
 
-     /**
+    /**
      * Simply checks the existense of searchd/indexer/sphinx.conf
      */
     public function ValidateInstall() {
-        if (!file_exists($this->_Settings['Install']->IndexerPath))
-            parent::Update(SPHINX_FATAL_ERROR, 'IndexerFound', FALSE, "Can't find indexer at path: ".$this->_Settings['Install']->IndexerPath);
+        if (!file_exists($this->Settings['Install']->IndexerPath))
+            parent::Update(SS_FATAL_ERROR, 'IndexerFound', FALSE, "Can't find indexer at path: " . $this->Settings['Install']->IndexerPath);
         else
             parent::Update(SS_SUCCESS, 'IndexerFound', TRUE);
-        if (!file_exists($this->_Settings['Install']->SearchdPath))
-            parent::Update(SPHINX_FATAL_ERROR, 'SearchdFound', FALSE, "Can't find searchd at path: ".$this->_Settings['Install']->SearchdPath);
+        if (!file_exists($this->Settings['Install']->SearchdPath))
+            parent::Update(SS_FATAL_ERROR, 'SearchdFound', FALSE, "Can't find searchd at path: " . $this->Settings['Install']->SearchdPath);
         else
             parent::Update(SS_SUCCESS, 'SearchdFound', TRUE);
-        if (!file_exists($this->_Settings['Install']->ConfPath))
-            parent::Update(SPHINX_FATAL_ERROR, 'SearchdFound', FALSE, "Can't find configuration file at path: ".$this->_Settings['Install']->ConfPath);
+        if (!file_exists($this->Settings['Install']->ConfPath))
+            parent::Update(SS_FATAL_ERROR, 'ConfFound', FALSE, "Can't find configuration file at path: " . $this->Settings['Install']->ConfPath);
         else
             parent::Update(SS_SUCCESS, 'ConfFound', TRUE);
     }
 
-
     public function CheckPort() {
-        $Host = $this->_Settings['Install']->Host;
-        $Port = $this->_Settings['Install']->Port;
+        $Host = $this->Settings['Install']->Host;
+        $Port = $this->Settings['Install']->Port;
         try {
             $fp = fsockopen($Host, $Port, $errno, $errstr, 5);
             if (is_resource($fp)) {
@@ -52,9 +106,9 @@ class SphinxSearchService extends SphinxObservable {
                 parent::Update(SS_SUCCESS, 'SearchdPortStatus', 'Open');
             }
             else
-                parent::Update(SPHINX_ERROR, 'SearchdPortStatus');
+                parent::Update(SS_WARNING, 'SearchdPortStatus');
         } catch (Exception $e) {
-            parent::Update(SPHINX_FATAL_ERROR, 'SearchdPortStatus', FALSE, $e);
+            parent::Update(SS_FATAL_ERROR, 'SearchdPortStatus', FALSE, $e);
         }
     }
 
@@ -63,23 +117,24 @@ class SphinxSearchService extends SphinxObservable {
         $SearchLog = $this->GetSearchLog();
 
         if (!file_exists($QueryLog) || !is_readable($QueryLog))
-            parent::Update(SPHINX_FATAL_ERROR, 'This file does not exist or is not readable...must CHMOD 777 here: ' . $QueryLog);
+            parent::Update(SS_FATAL_ERROR, 'This file does not exist or is not readable...must CHMOD 777 here: ' . $QueryLog);
         if (!file_exists($QueryLog) || !is_readable($QueryLog))
-            parent::Update(SPHINX_FATAL_ERROR, FALSE, FALSE, 'This file does not exist or is not readable...must CHMOD 777 here: ' . $SearchLog);
+            parent::Update(SS_FATAL_ERROR, FALSE, FALSE, 'This file does not exist or is not readable...must CHMOD 777 here: ' . $SearchLog);
     }
 
     /**
      * starting the daemon service (searchd) will create log files and search.pid
      * @return type
      */
-    function Start() {
+    public function Start() {
         if (!$this->CheckSphinxRunning()) { //don't start if already running
-            $Command = $this->_Settings['Install']->SearchdPath . ' --config ' . $this->_Settings['Install']->ConfPath;
-            if($Error = SphinxSearchGeneral::RunCommand($Command, '/', 'Starting searchd'))
-                    parent::Update(SPHINX_FATAL_ERROR, '', '', $Error);
+            $Command = $this->Settings['Install']->SearchdPath . ' --config ' . $this->Settings['Install']->ConfPath;
+            $Error = SphinxSearchGeneral::RunCommand($Command, '/', 'Starting searchd', $Background = FALSE);
+            if ($Error) {
+                parent::Update(SS_FATAL_ERROR, 'SearchdRunning', FALSE, $Error);
+            }
             else
-                parent::Update(SS_SUCCESS, 'SearchdRunning', TRUE);//save as running
-
+                parent::Update(SS_SUCCESS, 'SearchdRunning', TRUE); //save as running
         }
     }
 
@@ -87,31 +142,30 @@ class SphinxSearchService extends SphinxObservable {
      * stops the searchd daemon
      * @return type
      */
-    function Stop() {
+    public function Stop() {
         if ($this->CheckSphinxRunning()) {
-            $Command = $this->_Settings['Install']->SearchdPath . ' --config ' . $this->_Settings['Install']->ConfPath . ' --stop';
-            if($Error = SphinxSearchGeneral::RunCommand($Command, '/', 'Attempting to stop searchd', $Background = FALSE))
-                    parent::Update(SPHINX_FATAL_ERROR, '', '', $Error);
+            $Command = $this->Settings['Install']->SearchdPath . ' --config ' . $this->Settings['Install']->ConfPath . ' --stop';
+            if ($Error = SphinxSearchGeneral::RunCommand($Command, '/', 'Attempting to stop searchd', $Background = FALSE))
+                parent::Update(SS_FATAL_ERROR, 'SearchdRunning', FALSE, $Error);
             else
                 parent::Update(SS_SUCCESS, 'SearchdRunning', FALSE); //save as not running
         }
     }
 
     public function CheckSphinxRunning() {
-        $SphinxSearchModel = new SphinxSearchModel();
-        $Status = $SphinxSearchModel->SphinxStatus(); //will return an array of misc info if sphinx is running
-        if (!empty($Status)){
-            parent::Update(SS_SUCCESS, 'SearchdRunning', TRUE);//save as running
+        $SphinxSearchModel = new SphinxClient();
+        $Status = $SphinxSearchModel->Status(); //will return an array of misc info if sphinx is running
+        if (!empty($Status)) {
+            parent::Update(SS_SUCCESS, 'SearchdRunning', TRUE); //save as running
             return $Status; //yes, it is
-        }
-        else{
+        } else {
             parent::Update(SS_SUCCESS, 'SearchdRunning', FALSE); //save as not running
             return FALSE; //not running
         }
     }
 
     public function GetPID() {
-        $PIDPath = $this->GetPIDFileName($this->_Settings['Install']->ConfPath); //get path to PID file
+        $PIDPath = $this->GetPIDFileName($this->Settings['Install']->ConfPath); //get path to PID file
         if (file_exists($PIDPath) && is_readable($PIDPath)) {
             $PID = trim(file_get_contents($PIDPath));
             exec("ps $PID", $Output);
@@ -119,10 +173,9 @@ class SphinxSearchService extends SphinxObservable {
                 return TRUE;
             }
         } else {
-            parent::Update(SPHINX_FATAL_ERROR, '', '', 'Unable to read PID file at ' . $PIDPath);
+            parent::Update(SS_FATAL_ERROR, '', '', 'Unable to read PID file at ' . $PIDPath);
         }
     }
-
 
     /**
      * There is a bug using FuzzyTime as of 2.0.18...multiple redefines
@@ -165,7 +218,7 @@ class SphinxSearchService extends SphinxObservable {
      */
     public function GetMainIndexFileName($Extension = '.spi') {
         $Return = array();
-        $SphinxConf = $this->_Settings['Install']->ConfPath;
+        $SphinxConf = $this->Settings['Install']->ConfPath;
         $Content = file_get_contents($SphinxConf);
         if (preg_match_all("#\bpath\s+=\s+(.*)\b#", $Content, $Matches)) {
             $SphinxMainIndexPath = $Matches[1][0] . $Extension;
@@ -184,42 +237,8 @@ class SphinxSearchService extends SphinxObservable {
         return $Return;
     }
 
-    /**
-     * Parse sphinx conf and grab path to search pid file
-     *
-     * @param string $sphinx_conf filename
-     * @return string
-     */
-    function GetPIDFileName() {
-        $Content = file_get_contents($this->_Settings['Install']->ConfPath);
-        if (preg_match("#\bpid_file\s+=\s+(.*)\b#", $Content, $Matches)) {
-            return $Matches[1];
-        }
-        return FALSE;
-    }
-
-    /**
-     * @pre validatelogpermissions
-     * @return boolean
-     */
-    public function GetSearchLog() {
-        $Content = file_get_contents($this->_Settings['Install']->ConfPath);
-        if (preg_match("#\blog\s+=\s+(.*)\b#", $Content, $Matches)) {
-            return $Matches[1];
-        }
-        return FALSE;
-    }
-
-    public function GetQueryLog($SphinxConf) {
-        $Content = file_get_contents($this->_Settings['Install']->ConfPath);
-        if (preg_match("#\bquery_log\s+=\s+(.*)\b#", $Content, $Matches)) {
-            return $Matches[1];
-        }
-        return FALSE;
-    }
-
-    private function ReIndex($IndexName) {
-        $Prefix = $this->_Settings['Install']->Prefix;
+    private function ReIndex($IndexName, $Background = FALSE) {
+        $Prefix = $this->Settings['Install']->Prefix;
         switch ($IndexName) {
             case 'all':
                 $IndexName = $Prefix . SS_STATS_INDEX . ' ' . $Prefix . SS_DELTA_INDEX . ' ' . $Prefix . SS_MAIN_INDEX . ' ';
@@ -239,26 +258,29 @@ class SphinxSearchService extends SphinxObservable {
         //if sphinx is running..add the 'rotate' command
         $Rotate = '--rotate';
 
-        $Command = $this->_Settings['Install']->IndexerPath . " $IndexName  $Rotate  --config " . $this->_Settings['Install']->ConfPath;
-        SphinxSearchGeneral::RunCommand($Command, '/', 'Indexing ' . $IndexName, $Background = TRUE); //run this in the background
+        $Command = $this->Settings['Install']->IndexerPath . " $IndexName  $Rotate  --config " . $this->Settings['Install']->ConfPath;
+
+        $Error = SphinxSearchGeneral::RunCommand($Command, '/', 'Indexing ' . $IndexName, $Background); //run this in the background perhaps
+        if ($Error)
+            parent::Update(SS_FATAL_ERROR, FALSE, FALSE, 'Failed to index ' . $IndexName . ': ' . $Error);
     }
 
-    public function ReIndexMain() {
-        $this->ReIndex(SS_MAIN_INDEX);
+    public function ReIndexMain($Background) {
+        $this->ReIndex(SS_MAIN_INDEX,$Background);
         parent::Update(SS_SUCCESS, 'ServicePollTask', 'IndexMain');
-        parent::Update(SS_SUCCESS, 'IndexerMainLast', time());
+        parent::Update(SS_SUCCESS, 'IndexerMainLast', now());
     }
 
-    public function ReIndexDelta() {
-        $this->ReIndex(SS_DELTA_INDEX);
+    public function ReIndexDelta($Background) {
+        $this->ReIndex(SS_DELTA_INDEX,$Background);
         parent::Update(SS_SUCCESS, 'ServicePollTask', 'IndexDelta');
-        parent::Update(SS_SUCCESS, 'IndexerDeltaLast', time());
+        parent::Update(SS_SUCCESS, 'IndexerDeltaLast', now());
     }
 
-    public function ReIndexStats() {
-        $this->ReIndex(SS_STATS_INDEX);
+    public function ReIndexStats($Background) {
+        $this->ReIndex(SS_STATS_INDEX,$Background);
         parent::Update(SS_SUCCESS, 'ServicePollTask', 'IndexStats');
-        parent::Update(SS_SUCCESS, 'IndexerStatsLast', time());
+        parent::Update(SS_SUCCESS, 'IndexerStatsLast', now());
     }
 
 }

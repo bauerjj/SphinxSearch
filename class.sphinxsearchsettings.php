@@ -52,11 +52,12 @@ class SphinxSearchSettings {
     public function GetWizardSettings() {
         $Wizard = array(
             'Plugin.SphinxSearch.StartWizard' => FALSE,
-            'Plugin.SphinxSearch.Connection' => FALSE,
-            'Plugin.SphinxSearch.Detection' => FALSE,
-            'Plugin.SphinxSearch.Detected' => FALSE,
-            'Plugin.SphinxSearch.Running' => FALSE,
-            'Plugin.SphinxSearch.Installed' => FALSE,
+            'Plugin.SphinxSearch.Config' => FALSE,
+            'Plugin.SphinxSearch.Connection' => FALSE, //step 1
+            'Plugin.SphinxSearch.Detection' => FALSE, //step 2
+            'Plugin.SphinxSearch.Installed' => FALSE, //end of wizard
+            'Plugin.SphinxSearch.AutoDetected' => FALSE,
+            'Plugin.SphinxSearch.ManaulDetected' => FALSE,
             'Plugin.SphinxSearch.Task' => FALSE,
             'Plugin.SphinxSearch.ServicePollTask' => FALSE,
         );
@@ -97,7 +98,6 @@ class SphinxSearchSettings {
     }
 
     public function GetInstall() {
-
         $Install = array(
             'Plugin.SphinxSearch.ServicePollTask' => FALSE,
             'Plugin.SphinxSearch.Host' => 'localhost',
@@ -110,6 +110,10 @@ class SphinxSearchSettings {
             'Plugin.SphinxSearch.ManualIndexerPath' => '',
             'Plugin.SphinxSearch.ManualSearchdPath' => '',
             'Plugin.SphinxSearch.ManualConfPath' => '',
+            'Plugin.SphinxSearch.LogPath' => '',
+            'Plugin.SphinxSearch.QueryPath' => '',
+            'Plugin.SphinxSearch.PIDPath' => '',
+            'Plugin.SphinxSearch.DataPath' => '',
         );
         foreach ($Install as $Name => $Default) {
             $Val = explode('.', $Name);

@@ -121,42 +121,50 @@ if (!defined('APPLICATION'))
     echo '</ul>';
     ?>
 </div>
-
-<h1><?php echo $this->Data('Title') . ' - Install Wizard'; ?></h1>
-
+<h1><?php echo T($this->Data['Title']) . ' - ' . $this->Data['PluginVersion']; ?></h1>
+<div class="Info">
+    <?php echo T($this->Data['PluginDescription']); ?>
+</div>
+<h3><?php echo 'Quick Links'; ?></h3>
+<div class="Info">
+    <ul>
+        <li><?php echo Anchor('Back To Control Panel', 'plugin/sphinxsearch'); ?></li>
+    </ul>
+</div>
+<h3>Install Wizard</h3>
+<br/>
+<br/>
 <?php
 echo $this->Form->Open();
 echo $this->Form->Errors();
+$Settings = $this->Data('Settings');
 ?>
 <br/>
 <div class="FilterMenu">
-    <?php echo Anchor('Back To Main Settings', 'plugin/sphinxsearch'); ?>
-    <br/>
-    <br/>
     <?php
-    $ToggleName = C('Plugin.SphinxSearch.StartWizard') == TRUE ? T('Close Wizard') : T('Start Wizard');
+    $ToggleName = $Settings['Wizard']->StartWizard == TRUE ? T('Close Wizard') : T('Start Wizard');
     echo '<div id="ToggleWizard">' . Wrap(Anchor($ToggleName, 'plugin/sphinxsearch/installwizard/' . Gdn::Session()->TransientKey() . '?action=ToggleWizard', 'SmallButton')) . "</div>";
     echo '<br/>Current Action: <b>' . $this->Data['NextAction'] . '</b>';
     ?>
 </div>
-<?php if (C('Plugin.SphinxSearch.StartWizard', FALSE)) : ?>
+<?php if ($Settings['Wizard']->StartWizard) : ?>
     <?php $Disabled = $this->Data['NextAction'] != 'Detection' ? array('Disabled' => 'Disabled') : array(); ?>
     <h1>Step 1: </h1>
     <ul>
         <li><?php
     echo $this->Form->Label('Configuration Prefix:', 'Plugin.SphinxSearch.Prefix');
-    echo $this->Form->Textbox('Plugin.SphinxSearch.Prefix', array_merge($Disabled, array('value' => C('Plugin.SphinxSearch.Prefix'))));
+    echo $this->Form->Textbox('Plugin.SphinxSearch.Prefix', array_merge($Disabled, array('value' => $Settings['Install']->Prefix)));
     ?></li>
         <li><?php
         echo $this->Form->Label('Port', 'Plugin.SphinxSearch.Port');
-        echo $this->Form->Textbox('Plugin.SphinxSearch.Port', array_merge($Disabled, array($Disabled, 'value' => C('Plugin.SphinxSearch.Port'))));
+        echo $this->Form->Textbox('Plugin.SphinxSearch.Port', array_merge($Disabled, array($Disabled, 'value' => $Settings['Install']->Port)));
     ?></li>
     </ul>
 
 <?php endif ?>
-<?php if (C('Plugin.SphinxSearch.Connection')) : ?>
+<?php if ($Settings['Wizard']->Connection) : ?>
     <?php $Disabled = $this->Data['NextAction'] != 'Install' ? array('Disabled' => 'Disabled') : array(); ?>
-    <?php $DisabledExisting = C('Plugin.SphinxSearch.Detected', FALSE) == FALSE ? array('Disabled' => 'Disabled', 'Default' => 'NotDetected') : array(); ?>
+    <?php $DisabledExisting = $Settings['Wizard']->AutoDetected == FALSE ? array('Disabled' => 'Disabled', 'Default' => 'NotDetected') : array(); ?>
     <?php $InstallColor = $DisabledExisting == array() ? 'green' : 'red'; ?>
     <h1>Step 2: </h1>
     <div id="MainWrapper">
@@ -180,35 +188,35 @@ echo $this->Form->Errors();
                     ?>
                     <li><?php
                 echo $this->Form->Label('Detected Indexer Path:', 'Plugin.SphinxSearch.IndexerPath');
-                echo $this->Form->Textbox('Plugin.SphinxSearch.IndexerPath', array_merge($Disabled, $DisabledExisting, array('value' => C('Plugin.SphinxSearch.IndexerPath'))));
+                echo $this->Form->Textbox('Plugin.SphinxSearch.IndexerPath', array_merge($Disabled, $DisabledExisting, array('value' => $Settings['Install']->IndexerPath)));
                     ?></li>
                     <li><?php
                     echo $this->Form->Label('Detected Searchd Path', 'Plugin.SphinxSearch.SearchdPath');
-                    echo $this->Form->Textbox('Plugin.SphinxSearch.SearchdPath', array_merge($Disabled, $DisabledExisting, array('value' => C('Plugin.SphinxSearch.SearchdPath'))));
+                    echo $this->Form->Textbox('Plugin.SphinxSearch.SearchdPath', array_merge($Disabled, $DisabledExisting, array('value' => $Settings['Install']->SearchdPath)));
                     ?></li>
                     <li><?php
                     echo $this->Form->Label('Detected Conf Path', 'Plugin.SphinxSearch.ConfPath');
-                    echo $this->Form->Textbox('Plugin.SphinxSearch.ConfPath', array_merge($Disabled, array(), array('value' => C('Plugin.SphinxSearch.ConfPath'))));
+                    echo $this->Form->Textbox('Plugin.SphinxSearch.ConfPath', array_merge($Disabled, $DisabledExisting, array('value' => $Settings['Install']->ConfPath)));
                     ?></li>
 
                     <li><br/>
                         <?php
-                        echo $this->Form->RadioList('Plugin.SphinxSearch.Detected', array('Manual' => '* Manually locate paths'), array_merge($Disabled, array('Default' => 'NotDetected')));
+                        echo $this->Form->RadioList('Plugin.SphinxSearch.Detected', array('Manual' => '* Install using manually located paths'), array_merge($Disabled, array('Default' => 'NotDetected')));
                         ?>
                     </li>
                     <li>
                         <?php
                         //never disable this option
                         echo $this->Form->Label('Manual Indexer Path:', 'Plugin.SphinxSearch.ManualIndexerPath');
-                        echo $this->Form->Textbox('Plugin.SphinxSearch.ManualIndexerPath', array_merge($Disabled, array(), array('value' => C('Plugin.SphinxSearch.ManualIndexerPath'))));
+                        echo $this->Form->Textbox('Plugin.SphinxSearch.ManualIndexerPath', array_merge($Disabled, array(), array('value' => $Settings['Install']->ManualIndexerPath)));
                         ?></li>
                     <li><?php
                     echo $this->Form->Label('Manual Searchd Path', 'Plugin.SphinxSearch.ManualSearchdPath');
-                    echo $this->Form->Textbox('Plugin.SphinxSearch.ManualSearchdPath', array_merge($Disabled, array(), array('value' => C('Plugin.SphinxSearch.ManualSearchdPath'))));
+                    echo $this->Form->Textbox('Plugin.SphinxSearch.ManualSearchdPath', array_merge($Disabled, array(), array('value' => $Settings['Install']->ManualSearchdPath)));
                         ?></li>
                     <li><?php
                     echo $this->Form->Label('Manual Conf Path', 'Plugin.SphinxSearch.ManualConfPath');
-                    echo $this->Form->Textbox('Plugin.SphinxSearch.ManualConfPath', array_merge($Disabled, array(), array('value' => C('Plugin.SphinxSearch.ManualConfPath'))));
+                    echo $this->Form->Textbox('Plugin.SphinxSearch.ManualConfPath', array_merge($Disabled, array(), array('value' => $Settings['Install']->ManualConfPath)));
                         ?></li>
 
 
@@ -222,7 +230,7 @@ echo $this->Form->Errors();
 
                     <li><?php
                 echo $this->Form->Label(T('Install Path'), 'Plugin.SphinxSearch.InstallPath');
-                echo $this->Form->Textbox('Plugin.SphinxSearch.InstallPath', array_merge($Disabled, array('value' => C('Plugin.SphinxSearch.InstallPath'))));
+                echo $this->Form->Textbox('Plugin.SphinxSearch.InstallPath', array_merge($Disabled, array('value' => $Settings['Install']->InstallPath)));
                     ?>
                         <span style="font-style:italic">Without the trailing slash</span>
                     </li>
@@ -233,7 +241,7 @@ echo $this->Form->Errors();
 
             <?php endif ?>
             <br/>
-            <?php if (C('Plugin.SphinxSearch.StartWizard') && !C('Plugin.SphinxSearch.Config')) : //don't put this in if wizard not started' ?>
+            <?php if ($Settings['Wizard']->StartWizard && !$Settings['Wizard']->Config) : //don't put this in if wizard not started' ?>
                 <input type="hidden" id="Form_NextAction" name="Configuration/NextAction" value="<?php echo $this->Data['NextAction'] ?>" />
                 <?php
                 echo $this->Form->Close('Save and Continue');
@@ -241,7 +249,7 @@ echo $this->Form->Errors();
             <?php endif ?>
         </div>
     </div>
-    <?php if (C('Plugin.SphinxSearch.Config')) : ?>
+    <?php if ($Settings['Wizard']->Config) : ?>
         <div style="clear: both"></div>
         <h1>Step 3: </h1>
         <br/>
@@ -251,26 +259,26 @@ echo $this->Form->Errors();
         <br/>
     <?php endif ?>
 
-    <?php if (C('Plugin.SphinxSearch.Installed')) : ?>
+    <?php if ($Settings['Wizard']->Installed) : ?>
         <h3>FINISH</h3>
         <div class="Data">
             <br/>
             <span class="Finish"><?php echo T('Congraduations  Sphinx has been installed successfully!') ?></span>
             <br/>
             <ul>
-                <li><?php echo Anchor('*View my custom Sphinx.conf file', 'plugin/sphinxsearch/viewfile/' . Gdn::Session()->TransientKey() . '?action=ViewFile&file=conf'); ?></li>
-                <li><?php echo Anchor('View my custom main cron file', 'plugin/sphinxsearch/viewfile/' . Gdn::Session()->TransientKey() . '?action=ViewFile&file=main'); ?></li>
-                <li><?php echo Anchor('View my custom delta cron file', 'plugin/sphinxsearch/viewfile/' . Gdn::Session()->TransientKey() . '?action=ViewFile&file=delta'); ?></li>
+                <li><?php echo Anchor('*View my custom Sphinx.conf file', 'plugin/sphinxsearch/viewfile/' . Gdn::Session()->TransientKey() . '?action=viewfile&file=conf'); ?></li>
+                <li><?php echo Anchor('View my custom main cron file', 'plugin/sphinxsearch/viewfile/' . Gdn::Session()->TransientKey() . '?action=viewfile&file=maincron'); ?></li>
+                <li><?php echo Anchor('View my custom delta cron file', 'plugin/sphinxsearch/viewfile/' . Gdn::Session()->TransientKey() . '?action=viewfile&file=deltacron'); ?></li>
 
                 <li><span style="font-style:italic">* Contains your database username/password</span></li>
             </ul>
         </div>
     <?php endif ?>
 
-    <?php if (C('Plugin.SphinxSearch.StartWizard') && C('Plugin.SphinxSearch.Config')) : //don't put this in if wizard not started' ?>
+    <?php if ($Settings['Wizard']->StartWizard && $Settings['Wizard']->Config) : //don't put this in if wizard not started' ?>
         <input type="hidden" id="Form_NextAction" name="Configuration/NextAction" value="<?php echo $this->Data['NextAction'] ?>" />
         <?php
-        if (!C('Plugin.SphinxSearch.Installed'))
+        if (!$Settings['Wizard']->Installed)
             echo $this->Form->Close('Save and Continue'); else
             echo '<div class="Finish">' . Wrap(Anchor('Return to Settings', 'plugin/sphinxsearch', 'SmallButton')) . "</div>";
         ?>

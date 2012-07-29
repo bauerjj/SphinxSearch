@@ -282,19 +282,6 @@ abstract class Widgets {
         return '@* ' . $Query;
     }
 
-    protected function _SearchUserName($Input) {
-        $SearchField = 'UserName';
-        $this->SphinxSearchModel->SphinxReset();
-        $this->SphinxSearchModel->SphinxSetMatch(SPH_MATCH_EXTENDED2); //use this since using boolean operators
-        $this->SphinxSearchModel->SetSelect('UserName'); //only need the username
-        $this->SphinxSearchModel->SphinxSetSort(SPH_SORT_RELEVANCE);
-        $this->SphinxSearchModel->SphinxSetGroupDistinct($SearchField); //only want one unique username
-        $this->SphinxSearchModel->SphinxSetGrouping($SearchField, SPH_GROUPBY_ATTR);
-        $this->SphinxSearchModel->SphinxSetLimits($Offset = 0, $Limit = 15); //limit to 15 autocompletes
-        $Result = $this->SphinxSearchModel->SphinxSearch('@(UserName) ' . $Input, $index = 'vanilla'); //perform the search
-        return $this->_JsonEncode($Result['Records'], 'username');
-    }
-
     /**
      * validate the POST from the main search fields
      *

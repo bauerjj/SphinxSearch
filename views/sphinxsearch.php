@@ -55,6 +55,10 @@ if (!defined('APPLICATION'))
     .new{ }
     .error{ background-color:#992E36;}
 
+    #Content form ul{
+        padding: 2px;
+    }
+
     ol, ul {
         list-style: upper-roman;
         margin-left: 50px;
@@ -109,14 +113,14 @@ if (!defined('APPLICATION'))
 </style>
 
 <?php echo $this->Form->Errors(); ?>
+<?php echo $this->Form->Open(array('method' => 'post')); ?>
 <?php $Settings = $this->Data['Settings'] //Grab all sphinx related settings/status ?>
 
 <div class="Help Aside">
     <?php
     echo '<h2>', T('Need More Help?'), '</h2>';
     echo '<ul>';
-    echo '<li>', Anchor(T('Install FAQ'), 'plugin/sphinxfaq'), '</li>';
-    echo '<li>', Anchor(T('Vanilla Forums Install Thread'), ''), '</li>';
+    echo '<li>', Anchor(T('FAQ'), 'plugin/sphinxfaq'), '</li>';
     echo '<li>', Anchor(T('Offical Sphinx Documentation'), 'http://sphinxsearch.com/docs/current.html'), '</li>';
     echo '</ul>';
     ?>
@@ -129,24 +133,30 @@ if (!defined('APPLICATION'))
 
 <h3><?php echo 'Quick Links'; ?></h3>
 <div class="Info">
-    <ul>
+    <ol>
         <li><?php echo Anchor('Install Wizard', 'plugin/sphinxsearch/installwizard'); ?></li>
         <li><?php echo Anchor('Settings', 'plugin/sphinxsearch/settings'); ?></li>
-        <li><?php echo Anchor('Install FAQ', 'plugin/sphinxsearch/installwizard'); ?></li>
-        <li><?php echo Anchor('Vanilla Plugin Website', 'plugin/sphinxsearch/installwizard'); ?></li>
-    </ul>
+        <li><?php echo Anchor('FAQ', 'plugin/sphinxsearch/faq'); ?></li>
+    </ol>
 </div>
 <h3>Requirements</h3>
-<ol>
-    <li>Linux Only!</li>
-    <li>PHP >= 5.3.0</li>
-    <li>Shell Access</li>
-    <li>Spawn a Daemon (searchd)</li>
-    <li>Port Forwarding</li>
-</ol>
-<br/>
+<div class="Info">
+    <ol>
+        <li>Linux Only!</li>
+        <li>PHP >= 5.3.0</li>
+        <li>Shell Access</li>
+        <li>Spawn a Daemon (searchd)</li>
+        <li>Port Forwarding</li>
+    </ol>
+</div>
 <h3>Control Panel</h3>
 <br/>
+<?php echo $this->Form->Label('Run in background: ','Background'); ?>
+<?php echo $this->Form->RadioList('Background', array(TRUE=>'True', FALSE => 'False'), array('list' => FALSE, 'default' => 'False')) ?>
+<ul class="Settings">
+        <li class="FootNote">This lets all of the index commands to run in the background. Useful for long operations. Recommend to NOT run in background for first time users</li>
+        <li class="FootNote">If running in background, terminal output is presented below in the black box</li>
+    </ul>
 <table class="CPanel Overall">
     <tbody>
         <tr>
@@ -162,8 +172,8 @@ if (!defined('APPLICATION'))
         </tr>
         <tr>
             <td class="Desc">Status: </td>
-            <td><?php if ($Settings['Status']->IndexerFound) Success('Installed'); else Fail('Not Installed'); ?></td>
-            <td><?php if ($Settings['Status']->SearchdFound) Success('Installed'); else Fail('Not Installed'); ?></td>
+            <td><?php if ($Settings['Status']->IndexerFound) Success('Found'); else Fail('Not Installed'); ?></td>
+            <td><?php if ($Settings['Status']->SearchdFound) Success('Found'); else Fail('Not Installed'); ?></td>
             <td><?php if ($Settings['Status']->ConfFound) Success('Found'); else Fail('Not Found'); ?></td>
             <td><?php echo Gdn_Format::Seconds($Settings['Status']->Uptime) ?></td>
             <td><?php echo Gdn_Format::BigNumber($Settings['Status']->TotalQueries) ?></td>
@@ -192,29 +202,36 @@ if (!defined('APPLICATION'))
             <tr>
                 <td class="Desc">Last Index Time:</td>
                 <td><?php echo $Settings['Status']->IndexerMainLast == '---' ? '----' : Gdn_Format::FuzzyTime($Settings['Status']->IndexerMainLast) ?></td>
-                <td><?php echo $Settings['Status']->IndexerDeltaLast == '---' ? '----' :  Gdn_Format::FuzzyTime($Settings['Status']->IndexerDeltaLast)?></td>
+                <td><?php echo $Settings['Status']->IndexerDeltaLast == '---' ? '----' : Gdn_Format::FuzzyTime($Settings['Status']->IndexerDeltaLast) ?></td>
                 <td><?php echo $Settings['Status']->IndexerStatsLast == '---' ? '----' : Gdn_Format::FuzzyTime($Settings['Status']->IndexerStatsLast) ?></td>
             </tr>
-            <td class="Desc">cron Files: </td>
-            <td><?php echo Anchor(T('cron file'), 'plugin/sphinxsearch/viewfile?action=viewfile&file=maincron')?></td>
-            <td><?php echo Anchor(T('cron file'), 'plugin/sphinxsearch/viewfile?action=viewfile&file=deltacron')?></td>
-            <td><?php echo Anchor(T('cron file'), 'plugin/sphinxsearch/viewfile?action=viewfile&file=maincron')?></td>
-            </tr>
-            <tr>
-                <td class="Desc">Actions:  </td>
-                <td>
-                    <?php echo Wrap(Anchor('Index Main', 'plugin/sphinxsearch/service?Action=IndexMain', 'SmallButton')) ?>
-                    <?php echo Wrap(Anchor('Reload Count', 'plugin/sphinxsearch/service?Action=ReloadMain', 'SmallButton')) ?>
-                </td>
-                <td>
-                    <?php echo Wrap(Anchor('Index delta', 'plugin/sphinxsearch/service?Action=IndexDelta', 'SmallButton')) ?>
-                    <?php echo Wrap(Anchor('Reload Count', 'plugin/sphinxsearch/serviceservice?Action=ReloadDelta', 'SmallButton')) ?>
-                </td>
-                <td>
-                    <?php echo Wrap(Anchor('Index stats', 'plugin/sphinxsearch/service?Action=IndexStats', 'SmallButton')) ?>
-                    <?php echo Wrap(Anchor('Reload Count', 'plugin/sphinxsearch/service?Action=ReloadStats', 'SmallButton')) ?>
-                </td>
-            </tr>
+        <td class="Desc">cron Files: </td>
+        <td><?php echo Anchor(T('cron file'), 'plugin/sphinxsearch/viewfile/' . Gdn::Session()->TransientKey() . '?action=viewfile&file=maincron') ?>
+            <?php echo $this->Form->Button('Action', array('class' => 'SmallButton', 'value' => 'Write Main Cron')); ?>
+
+        </td>
+        <td><?php echo Anchor(T('cron file'), 'plugin/sphinxsearch/viewfile/' . Gdn::Session()->TransientKey() . '?action=viewfile&file=deltacron') ?>
+            <?php echo $this->Form->Button('Action', array('class' => 'SmallButton', 'value' => 'Write Delta Cron')); ?>
+
+        </td>
+        <td><?php echo Anchor(T('cron file'), 'plugin/sphinxsearch/viewfile/' . Gdn::Session()->TransientKey() . '?action=viewfile&file=statscron') ?>
+            <?php echo $this->Form->Button('Action', array('class' => 'SmallButton', 'value' => 'Write Stats Cron')); ?></td>
+        </tr>
+        <tr>
+            <td class="Desc">Actions:  </td>
+            <td>
+                <?php echo $this->Form->Button('Action', array('class' => 'SmallButton', 'value' => 'Index Main')); ?>
+                <?php echo $this->Form->Button('Action', array('class' => 'SmallButton', 'value' => 'Reload Main')); ?>
+            </td>
+            <td>
+                <?php echo $this->Form->Button('Action', array('class' => 'SmallButton', 'value' => 'Index Delta')); ?>
+                <?php echo $this->Form->Button('Action', array('class' => 'SmallButton', 'value' => 'Reload Delta')); ?>
+            </td>
+            <td>
+                <?php echo $this->Form->Button('Action', array('class' => 'SmallButton', 'value' => 'Index Stats')); ?>
+                <?php echo $this->Form->Button('Action', array('class' => 'SmallButton', 'value' => 'Reload Stats')); ?>
+            </td>
+        </tr>
 
         </tbody>
     </table>
@@ -239,23 +256,36 @@ if (!defined('APPLICATION'))
             </tr>
             <tr>
                 <td class="Desc">Actions: </td>
-                <td><?php echo "<span>" . Wrap(Anchor('Start searchd', 'plugin/sphinxsearch/service/?Action=StartSearchd', 'SmallButton')) . "</span>"; ?>
-                    <?php echo "<span>" . Wrap(Anchor('Stop searchd', 'plugin/sphinxsearch/service/?Action=StopSearchd', 'SmallButton')) . "</span>"; ?>
-                </td>
-                <td> <?php echo Wrap(Anchor('Check Port', 'plugin/sphinxsearch/service/?Action=CheckPort', 'SmallButton')) ?></td>
-                <td><?php echo Wrap(Anchor('Reload', 'plugin/sphinxsearch/service/?Action=ReloadConnnections' . Gdn::Session()->TransientKey(), 'SmallButton')) ?></td>
+                <td> <?php echo $this->Form->Button('Action', array('class' => 'SmallButton', 'value' => 'Start Searchd')); ?>
+                    <?php echo $this->Form->Button('Action', array('class' => 'SmallButton', 'value' => 'Stop Searchd')); ?>
+                <td> <?php echo $this->Form->Button('Action', array('class' => 'SmallButton', 'value' => 'Check Port')); ?></td>
+                <td><?php echo $this->Form->Button('Action', array('class' => 'SmallButton', 'value' => 'Reload Connections')); ?></td>
             </tr>
 
         </tbody>
     </table>
+    <br/>
+    <table class="CPanel Searchd">
+        <tbody>
+            <tr>
+                <th class="Desc">Config: </th>
+                <th>Configuration </th>
+            </tr>
+            <tr>
+                <td>Actions:</td>
+                <td> <?php echo Anchor('config file', 'plugin/sphinxsearch/viewfile/' . Gdn::Session()->TransientKey() . '?action=viewfile&file=conf'); ?>
+                    <?php echo $this->Form->Button('Action', array('class' => 'SmallButton', 'value' => 'Write Config')); ?>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
 
 
 </div>
 <br/>
-<br/>
-<br/>
-    <div id="Status">Status: Idle
-                </div>
+<div id="Status">Status: Idle
+</div>
 <div id="messages">
     <div class="msg">
         Command Line Output
@@ -272,6 +302,8 @@ if (!defined('APPLICATION'))
     <li>Initial Release</li>
 </ol>
 <br/>
+
+<?php echo $this->Form->Close() ?>
 
 <?php
 

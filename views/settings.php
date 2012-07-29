@@ -23,9 +23,7 @@
 <h3><?php echo 'Quick Links'; ?></h3>
 <div class="Info">
     <ul>
-        <li><?php echo Anchor('Back To Main Settings', 'plugin/sphinxsearch'); ?></li>
-        <li><?php echo Anchor('Generate a new config file', 'plugin/sphinxsearch'); ?></li>
-        <li><?php echo Anchor('View my config file', 'plugin/sphinxsearch/viewfile?action=viewfile&file=conf'); ?></li>
+        <li><?php echo Anchor('Back To Control Panel', 'plugin/sphinxsearch'); ?></li>
     </ul>
 </div>
 <h3>Settings</h3>
@@ -178,7 +176,7 @@ echo $this->Form->Errors();
                     <?php echo $this->Form->Label('Number of results that pop up when adding a new discussion (0 to disable)', 'Plugin.SphinxSearch.LimitRelatedThreadsPost'); ?>
                 </td>
                 <td>
-                    <?php echo $this->Form->DropDown('Plugin.SphinxSearch.RelatedThreadsPostFormat', array('simple' => 'simple', 'full' =>'full', 'sleak' => 'sleak', 'table' => 'table')) ?>
+                    <?php echo $this->Form->DropDown('Plugin.SphinxSearch.RelatedThreadsPostFormat', array('simple' => 'simple', 'full' => 'full', 'sleak' => 'sleak', 'table' => 'table')) ?>
                 </td>
             </tr>
             <tr>
@@ -189,7 +187,7 @@ echo $this->Form->Errors();
                     <?php echo $this->Form->Label('Number of related threads on the bottom of each discussion thread (0 to disable)', 'Plugin.SphinxSearch.LimitRelatedThreadsBottomDiscussion'); ?>
                 </td>
                 <td>
-                    <?php echo $this->Form->DropDown('Plugin.SphinxSearch.RelatedThreadsBottomDiscussionFormat', array('simple' => 'simple', 'full' =>'full', 'sleak' => 'sleak', 'table' => 'table')) ?>
+                    <?php echo $this->Form->DropDown('Plugin.SphinxSearch.RelatedThreadsBottomDiscussionFormat', array('simple' => 'simple', 'full' => 'full', 'sleak' => 'sleak', 'table' => 'table')) ?>
                 </td>
             </tr>
         </tbody>
@@ -271,7 +269,7 @@ echo $this->Form->Errors();
         </tr>
         <tr>
             <td class="Input">
-                <?php echo $this->Form->DropDown('Plugin.SphinxSearch.Workers',array('none','fork','prefork','threads')); ?>
+                <?php echo $this->Form->DropDown('Plugin.SphinxSearch.Workers', array('none', 'fork', 'prefork', 'threads')); ?>
             </td>
             <td>
                 <?php echo $this->Form->Label('Workers', 'Plugin.SphinxSearch.Workers'); ?>
@@ -302,9 +300,9 @@ echo $this->Form->Errors();
             </td>
         </tr>
 
-       </tbody>
+    </tbody>
 </table>
-    <table class="AltRows">
+<table class="AltRows">
     <thead>
         <tr>
             <th> Indexer - Settings</th>
@@ -352,7 +350,7 @@ echo $this->Form->Errors();
                 <?php echo $this->Form->Label('Maximum file field adaptive buffer size, bytes. File field buffer is used to load files referred to from sql_file_field columns. This buffer is adaptive, starting at 1 MB at first allocation, and growing in 2x steps until either file contents can be loaded, or maximum buffer size, specified by max_file_field_buffer directive, is reached', 'Plugin.SphinxSearch.MaxFileBuffer'); ?>
             </td>
         </tr>
-       </tbody>
+    </tbody>
 </table>
 <table class="AltRows">
     <thead>
@@ -386,7 +384,7 @@ echo $this->Form->Errors();
                 <?php echo $this->Form->Label("Highlight matching words in discussion titles", 'Plugin.SphinxSearch.BuildExcerptsTitleEnable'); ?>
             </td>
         </tr>
-         <tr>
+        <tr>
             <td class="Input">
                 <?php echo $this->Form->Checkbox('Plugin.SphinxSearch.BuildExcerptsBodyEnable', 'Highlight body text Enable'); ?>
             </td>
@@ -409,7 +407,7 @@ echo $this->Form->Errors();
     <tbody>
         <tr>
             <td class="Input">
-                <?php echo $this->Form->DropDown('Plugin.SphinxSearch.Morphology',array('none','stem_en','stem_ru','stem_enru','stem_cz','soundex','metaphone')); ?>
+                <?php echo $this->Form->DropDown('Plugin.SphinxSearch.Morphology', array('none', 'stem_en', 'stem_ru', 'stem_enru', 'stem_cz', 'soundex', 'metaphone')); ?>
             </td>
             <td>
                 <?php echo $this->Form->Label('preprocessors can be applied to the words being indexed to replace different forms of the same word with the base, normalized form. For instance, English stemmer will normalize both "dogs" and "dog" to "dog", making search results for both searches the same. ', 'Plugin.SphinxSearch.Morphology'); ?>
@@ -417,7 +415,7 @@ echo $this->Form->Errors();
         </tr>
         <tr>
             <td class="Input">
-                <?php echo $this->Form->DropDown('Plugin.SphinxSearch.Dict',array('crc','dict')); ?>
+                <?php echo $this->Form->DropDown('Plugin.SphinxSearch.Dict', array('crc', 'dict')); ?>
             </td>
             <td>
                 <?php echo $this->Form->Label('Essentially, keywords and CRC dictionaries represent the two different trade-off substring searching decisions. You can choose to either sacrifice indexing time and index size in favor of top-speed worst-case searches (CRC dictionary), or only slightly impact indexing time but sacrifice worst-case searching time when the prefix expands into very many keywords (keywords dictionary). ', 'Plugin.SphinxSearch.Dict'); ?>
@@ -468,7 +466,7 @@ echo $this->Form->Errors();
                 <?php echo $this->Form->Textbox('Plugin.SphinxSearch.MinInfixLen'); ?>
             </td>
             <td>
-                <?php echo $this->Form->Label("Minimum infix prefix length to index. Infix indexing allows to implement wildcard searching by 'start*', '*end', and '*middle*' wildcards (refer to enable_star option for details on wildcard syntax). When mininum infix length is set to a positive number, indexer will index all the possible keyword infixes (ie. substrings) in addition to the keywords themselves.".' For instance, indexing a keyword "test" with min_infix_len=2 will result in indexing "te", "es", "st", "tes", "est" infixes along with the word itself. Searches against such index for "es" will match documents that contain "test" word, even if they do not contain "es" on itself. However, indexing infixes will make the index grow significantly (because of many more indexed keywords), and will degrade both indexing and searching times.', 'Plugin.SphinxSearch.MinInfixLen'); ?>
+                <?php echo $this->Form->Label("Minimum infix prefix length to index. Infix indexing allows to implement wildcard searching by 'start*', '*end', and '*middle*' wildcards (refer to enable_star option for details on wildcard syntax). When mininum infix length is set to a positive number, indexer will index all the possible keyword infixes (ie. substrings) in addition to the keywords themselves." . ' For instance, indexing a keyword "test" with min_infix_len=2 will result in indexing "te", "es", "st", "tes", "est" infixes along with the word itself. Searches against such index for "es" will match documents that contain "test" word, even if they do not contain "es" on itself. However, indexing infixes will make the index grow significantly (because of many more indexed keywords), and will degrade both indexing and searching times.', 'Plugin.SphinxSearch.MinInfixLen'); ?>
             </td>
         </tr>
         <tr>
@@ -497,7 +495,7 @@ echo $this->Form->Errors();
         </tr>
         <tr>
             <td class="Input">
-                <?php echo $this->Form->Checkbox('Plugin.SphinxSearch.OnDiskDictEnable','On Disk Dict Enable'); ?>
+                <?php echo $this->Form->Checkbox('Plugin.SphinxSearch.OnDiskDictEnable', 'On Disk Dict Enable'); ?>
             </td>
             <td>
                 <?php echo $this->Form->Label('Whether to keep the dictionary file (.spi) for this index on disk, or precache it in RAM. The dictionary (.spi) can be either kept on RAM or on disk. The default is to fully cache it in RAM. That improves performance, but might cause too much RAM pressure, especially if prefixes or infixes were used. Enabling ondisk_dict results in 1 additional disk IO per keyword per query, but reduces memory footprint. ', 'Plugin.SphinxSearch.OnDiskDictEnable'); ?>
@@ -527,7 +525,7 @@ echo $this->Form->Errors();
                 <?php echo $this->Form->Label('RT index keeps some data in memory (so-called RAM chunk) and also maintains a number of on-disk indexes (so-called disk chunks). This directive lets you control the RAM chunk size. Once theres too much data to keep in RAM, RT index will flush it to disk, activate a newly created disk chunk, and reset the RAM chunk. ', 'Plugin.SphinxSearch.RTMemLimit'); ?>
             </td>
         </tr>
-       </tbody>
+    </tbody>
 </table>
 
 

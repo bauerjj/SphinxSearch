@@ -40,14 +40,16 @@ class SphinxStatusLogger implements SplObserver {
             $Msg = GetValue('Message', $Latest);
             //If an error, must handle this immidiatl to stop program flow from continuing
             if (isset($Msg))
-                $this->Sender->Form->AddError($Msg);
+                $this->Sender->Form->AddError($Msg, $Name);
             else {
                 $this->Sender->Form->AddError('An error has occured in ' . $ClassName);
             }
             if (is_null($this->Sender))
                 throw new Exception($Msg);
-            else
+            else{
                 $this->Sender->Render($this->View);
+                DIE; //this is important
+            }
         }
     }
 

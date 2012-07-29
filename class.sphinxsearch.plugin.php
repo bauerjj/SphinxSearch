@@ -35,6 +35,7 @@ $PluginInfo['SphinxSearch'] = array(
 
 class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
 
+    private $PostPrefix = 'Configuration/'; //not sure why this is inside of the $_POST.....
     public $AlreadySent; //hack to workaround lack of handlers to hook into for rendering this
     public $Started = FALSE;
     public $Handle = '';
@@ -46,6 +47,7 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
     public $_Storage = array(); //storage of objects that are subscribed
 
     public function __construct() {
+        //@todo for testing
         error_reporting(E_ALL);
 
         ////////////////////////////////////////////////
@@ -159,10 +161,15 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
         ///////////////////////////////////////////////////////
 
         $this->Update($Results, $Sender); //update the widgets notifiying of results
+        //get the updated settings
+        $Settings = SphinxFactory::BuildSettings();
+        $this->Settings = $Settings->GetAllSettings();
         $Sender->SetData('Settings', $this->Settings);
     }
 
     private function RunSearch($Sender = FALSE) {
+        //@todo check if running first
+
         $FinalResults = array();
         $Results = $this->SphinxClient->RunQueries(); //perform all of the queries
         //print_r($Results); die;
@@ -218,23 +225,32 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
      */
     public function Controller_ViewFile($Sender) {
         $Sender->Permission('Garden.Settings.Manage');
-        if (isset($_GET['action'])) {
-            if ($_GET['action'] == 'viewfile') {
-                if ($_GET['file'] == 'conf')
-                    $File = C('Plugin.SphinxSearch.InstallPath') . DS . 'sphinx' . DS . 'etc' . DS . 'sphinx.conf';
-                else if ($_GET['file'] == 'maincron')
-                    $File = PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'cron' . DS . 'cron.reindex.main.php';
-                else if ($_GET['file'] == 'deltacron')
-                    $File = PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'cron' . DS . 'cron.reindex.delta.php';
-                if (!file_exists($File))
-                    echo ('File does not exist here: ' . $File);
-                else {
-                    echo nl2br(file_get_contents($File));
+        if (Gdn::Session()->ValidateTransientKey(GetValue(1, $Sender->RequestArgs))) {
+            if (isset($_GET['action'])) {
+                if ($_GET['action'] == 'viewfile') {
+                    if ($_GET['file'] == 'conf')
+                        $File = C('Plugin.SphinxSearch.ConfPath');
+                    else if ($_GET['file'] == 'maincron')
+                        $File = PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'cron' . DS . 'cron.reindex.main.php';
+                    else if ($_GET['file'] == 'deltacron')
+                        $File = PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'cron' . DS . 'cron.reindex.delta.php';
+                    if (!isset($File)) {
+                        echo 'An error has occured';
+                        return;
+                    }
+                    if (isset($File) && !file_exists($File))
+                        echo ('File does not exist here: ' . $File);
+                    else {
+                        echo nl2br(file_get_contents($File));
+                    }
                 }
             }
         }
     }
 
+    /**
+     * enter here when viewing indexing status
+     */
     public function Controller_ServicePoll() {
         $Return = array();
         $Output = file_get_contents(PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'install' . DS . 'output.txt');
@@ -265,8 +281,8 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
             if ($Return['Status'] != 'Idle')
                 $Return['Status'] .= ' - Finished!';
             else {
-                SphinxSearchGeneral::ClearLogFiles();
-                $Return['Terminal'] = 'Ready';
+                //SphinxSearchGeneral::ClearLogFiles();
+                //$Return['Terminal'] = 'Ready';
             }
             SaveToConfig('Plugin.SphinxSearch.ServicePollTask', 'Idle');
         }
@@ -277,7 +293,7 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
     /**
      * Entry point to request status on any commands running in the background
      *
-     * This is used
+     * This is used in the wizard installer
      */
     public function Controller_InstallPoll() {
         $Return = array();
@@ -295,7 +311,8 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
             if ($Task == 'FinishLibraries' && ($Task == FALSE || !file_exists($InstallPath) || !is_dir($Dir))) //check if paths are OK
                 $Return['Terminal'] .= '<span class="TermWarning">Error locating install folders </span>';
             else {
-                $Wizard = new SphinxSearchInstall();
+                $Settings = SphinxFactory::BuildSettings();
+                $Wizard = new SphinxSearchInstall($Settings->GetAllSettings());
                 switch ($Task) {
                     case 'Idle':
                         $Return['Status'] = 'Idling';
@@ -321,11 +338,11 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
                         SaveToConfig('Plugin.SphinxSearch.Task', 'Make Install');
                         break;
                     case 'Make Install':
-                        if (!$Wizard->CheckIndexer($InstallPath . DS . 'sphinx' . DS . 'bin')) {
+                        if (!is_file($InstallPath . DS . 'sphinx' . DS . 'bin' . DS . 'indexer')) {
                             $Return['Terminal'] .= '<span class="TermWarning">Unable to Find instance of Indexer</span> <br/>';
                             break;
                         }
-                        if (!$Wizard->CheckSearchd($InstallPath . DS . 'sphinx' . DS . 'bin')) {
+                        if (!is_file($InstallPath . DS . 'sphinx' . DS . 'bin' . DS . 'searchd')) {
                             $Return['Terminal'] .= '<span class="TermWarning">Unable to Find instance of Searchd</span> <br/>';
                             break;
                         }
@@ -356,62 +373,85 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
         echo json_encode($Return);
     }
 
+    /**
+     * main entry point for control panel as well as to poll the status of sphinx such
+     * as reindexing/start/stop/rotate/etc
+     *
+     * @param object $Sender
+     */
     public function Controller_Index($Sender) {
         $Sender->Permission('Vanilla.Settings.Manage');
 
         $Sender->SetData('PluginDescription', $this->GetPluginKey('Description'));
         $Sender->SetData('PluginVersion', $this->GetPluginKey('Version'));
+        $SphinxAdmin = SphinxFactory::BuildSphinx($Sender, $this->getview('sphinxsearch.php'));
 
-        $Sphinx = SphinxFactory::BuildSphinx($Sender, $this->getview('sphinxsearch.php'));
-        //$test->ReIndexMain();
-        //$test->Stop();
-        //$test->Start();
-        $Sphinx->Status();
-        $Sender->SetData('Settings', $Sphinx->GetSettings());
+        if ($Sender->Form->AuthenticatedPostBack() === TRUE) {
+            if (Gdn::Session()->ValidateTransientKey(GetIncomingValue('Form/TransientKey'))) {
+                $Background = GetIncomingValue('Form/Background');
+                $Action = str_replace(' ', '', GetIncomingValue('Form/Action'));
+                switch ($Action) {
+                    case 'IndexMain':
+                        $SphinxAdmin->ValidateInstall();
+                        $SphinxAdmin->ReIndexMain($Background);
+                        break;
+                    case 'IndexDelta':
+                        $SphinxAdmin->ValidateInstall();
+                        $SphinxAdmin->ReIndexDelta($Background);
+                        break;
+                    case 'IndexStats':
+                        $SphinxAdmin->ValidateInstall();
+                        $SphinxAdmin->ReIndexStats($Background);
+                        break;
+                    case 'StartSearchd':
+                        $SphinxAdmin->ValidateInstall();
+                        $SphinxAdmin->Start();
+                        break;
+                    case 'StopSearchd':
+                        $SphinxAdmin->ValidateInstall();
+                        $SphinxAdmin->Stop();
+                    case 'WriteConfig':
+                        //don't validate install here since not using sphinx...just writing new configuration
+                        $SphinxAdmin->WriteConfigFile();
+                        break;
+                    case 'WriteDeltaCron':
+                    case 'WriteMainCron':
+                    case 'WriteStatsCron':
+                        //don't need to validate install
+                        $SphinxAdmin->SetupCron();
+                        break;
+                    case 'ReloadMain':
+                    case 'ReloadDelta':
+                    case 'ReloadStats':
+                        if($Action == 'ReloadMain')
+                            $Index = SS_MAIN_INDEX;
+                        else if($Action == 'ReloadDelta')
+                            $Index = SS_DELTA_INDEX;
+                        else
+                            $Index = SS_STATS_INDEX;
+                        $Stats = new WidgetStats($this->SphinxClient, $this->Settings);
+                        $ReloadTotalDocFound = $Stats->AddQuery($Sender, array('Index' => $Index));
+                        $this->Queries = $ReloadTotalDocFound;
+                        $Results = $this->RunSearch();
+                        $this->Update($Results, $Sender);
+                    default:
+                        break;
+                }
+            }
+        }
+        $SphinxAdmin->Status();
+        $Sender->SetData('Settings', $SphinxAdmin->GetSettings());
         $Sender->Render($this->getview('sphinxsearch.php'));
     }
 
-    public function Controller_SphinxFAQ($Sender) {
+    public function Controller_FAQ($Sender) {
         // Prevent non-admins from accessing this page
         $Sender->Permission('Vanilla.Settings.Manage');
 
         $Sender->SetData('PluginDescription', $this->GetPluginKey('Description'));
-        $Sender->Render($this->GetView('faq.php'));
-    }
-
-    /**
-     * main entry point to poll the status of sphinx such
-     * as reindexing/start/stop/rotate/etc
-     *
-     * @param object $Sender
-     */
-    public function Controller_Service($Sender) {
-        $Sender->Permission('Vanilla.Settings.Manage');
-        $Sender->SetData('PluginDescription', $this->GetPluginKey('Description'));
         $Sender->SetData('PluginVersion', $this->GetPluginKey('Version'));
 
-        $Sphinx = SphinxFactory::BuildSphinx($Sender, $this->getview('sphinxsearch.php'));
-        $Sphinx->ValidateInstall();
-        switch ($_GET['Action']) {
-            case 'IndexMain':
-                $Sphinx->ReIndexMain();
-                break;
-            case 'IndexDelta':
-                $Sphinx->ReIndexDelta();
-                break;
-            case 'IndexStats':
-                $Sphinx->ReIndexStats();
-                break;
-            case 'StartSearchd':
-                $Sphinx->Start();
-                break;
-            case 'StopSearchd':
-                $Sphinx->Stop();
-                break;
-        }
-        $Sphinx->Status();
-        $Sender->SetData('Settings', $Sphinx->GetSettings());
-        $Sender->Render($this->getview('sphinxsearch.php'));
+        $Sender->Render($this->GetView('faq.php'));
     }
 
     /**
@@ -420,12 +460,92 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
      * @param type $Sender
      */
     public function Controller_InstallWizard($Sender) {
-        include_once(PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'class.sphinxsearchinstallwizard.php');
-        $Wizard = new SphinxSearchInstallWizard($Sender, $this->GetView('wizard.php'));
-        $Wizard->Index();
+        include_once(PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'class.sphinxsearchinstallwizard.php'); //include the install wizard
+        $SphinxAdmin = SphinxFactory::BuildSphinx($Sender, $this->getview('wizard.php'));
+
+        $Sender->SetData('PluginDescription', $this->GetPluginKey('Description'));
+        $Sender->SetData('PluginVersion', $this->GetPluginKey('Version'));
+
+        //create validation
+        $Validation = new Gdn_Validation();
+        $this->ConfigurationModel = new Gdn_ConfigurationModel($Validation);
+        $this->ConfigurationModel->SetField(array(
+                //validate individual fields depending on what step they are on
+        ));
+        $Sender->Form->SetModel($this->ConfigurationModel);   //set model on form
+        $Sender->SetData('NextAction', 'Detection');
+        $Sender->SetData('InstallSphinx', FALSE);
+        $Sender->Form->SetData($this->ConfigurationModel->Data);
+
+        //Wizard State Machine (SM)
+        if (GetIncomingValue('NextAction')) {
+            SaveToConfig('Plugin.SphinxSearch.Config', TRUE); //next action
+            $Sender->SetData('NextAction', 'Config');
+        }
+        if ((GetIncomingValue('action') == 'ToggleWizard')) {
+            if (Gdn::Session()->ValidateTransientKey(GetValue(1, $Sender->RequestArgs))) {
+                $SphinxAdmin->ToggleWizard();             //stop/start wizard
+                redirect('plugin/sphinxsearch/installwizard'); //load the wizard page again
+            }
+        } else if (isset($_POST[$this->PostPrefix . 'NextAction'])) {
+            switch ($_POST[$this->PostPrefix . 'NextAction']) {
+                case 'Detection':
+                    $Sender->SetData('NextAction', 'Detection'); //next step
+                    $SphinxAdmin->Detect();
+                    $this->ConfigurationModel->Validation->ApplyRule('Plugin.SphinxSearch.Prefix', 'Required');
+                    $this->ConfigurationModel->Validation->ApplyRule('Plugin.SphinxSearch.Port', 'Required');
+                    $this->ConfigurationModel->Validation->ApplyRule('Plugin.SphinxSearch.Port', 'Integer'); //mut be an int
+                    if ($Sender->Form->Save()) {
+                        $Sender->StatusMessage = T("Your changes have been saved.");
+                        SaveToConfig('Plugin.SphinxSearch.Connection', TRUE); //complete this step
+                        $Sender->SetData('NextAction', 'Install');
+                    }
+                    else
+                        SaveToConfig('Plugin.SphinxSearch.Connection', FALSE); //don't continue
+                    break;
+                case 'Install':              //Install Sphinx
+                    $Sender->SetData('NextAction', 'Install');
+                    $InstallAction = GetValue($this->PostPrefix . 'Plugin-dot-SphinxSearch-dot-Detected', $_POST);
+                    if ($InstallAction == 'Manual') { //use manual
+                        $this->ConfigurationModel->Validation->ApplyRule('Plugin.SphinxSearch.ManualSearchdPath', 'Required');
+                        $this->ConfigurationModel->Validation->ApplyRule('Plugin.SphinxSearch.ManualIndexerPath', 'Required');
+                        $this->ConfigurationModel->Validation->ApplyRule('Plugin.SphinxSearch.ManualConfPath', 'Required');
+                    } else if ($InstallAction == 'Detected') { //use auto detected
+                        $this->ConfigurationModel->Validation->ApplyRule('Plugin.SphinxSearch.SearchdPath', 'Required');
+                        $this->ConfigurationModel->Validation->ApplyRule('Plugin.SphinxSearch.IndexerPath', 'Required');
+                        $this->ConfigurationModel->Validation->ApplyRule('Plugin.SphinxSearch.ConfPath', 'Required');
+                    } else if ($InstallAction == 'NotDetected') //use prepackaged
+                        $this->ConfigurationModel->Validation->ApplyRule('Plugin.SphinxSearch.InstallPath', 'Required');
+                    if ($Sender->Form->Save()) {
+                        //refresh settings after save by getting new instance @todo pretty janky
+                        $SphinxAdmin = SphinxFactory::BuildSphinx($Sender, $this->getview('wizard.php'));
+                        $SphinxAdmin->InstallAction($InstallAction); //install if using package sphinx, if using manual, verify that paths exist and read info from sphinx.conf
+                        SaveToConfig('Plugin.SphinxSearch.Config', TRUE); //next step
+                        //$this->Sender->SetData('NextAction', 'Detection'); //something failed
+                    } else {
+                        //return FALSE;
+                    }
+                    break;
+                case 'Config':
+                    $SphinxAdmin->InstallConfig();
+                    $Sender->SetData('NextAction', 'Finish');
+                    SaveToConfig('Plugin.SphinxSearch.Installed', TRUE); //complete this step
+                    break;
+                default:
+                    break;
+            }
+        }
+        if ($this->Settings['Wizard']->Config == TRUE) {
+            $Sender->SetData('NextAction', 'Config');
+        }
+        //get new settins that may have changed
+        $Sender->SetData('Settings', $SphinxAdmin->GetSettings());
+        $Sender->Render($this->GetView('wizard.php')); //render wizard view
     }
 
     /**
+     * enter here when enterin a new discussion. sphinx will attempt to find
+     * related threads and post them above the proposed discussion title
      *
      * @return type
      */
@@ -447,6 +567,14 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
         echo json_encode($Return);
     }
 
+    /**
+     * Enter here to interrupt the normal search page from showing.
+     *
+     * First checks if sphinx is running. If it is, then continue with sphinx stuff. If not, then
+     * load up the typical search engine that is shipped with Vanilla
+     *
+     * @param type $Sender
+     */
     public function SearchController_Render_Before($Sender) {
         //In order for the default search engine not to run, we will kill PHP from processing
         //after the sphinx view is loaded
@@ -478,8 +606,6 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
                     } else {
                         $Sender->SetData('Tags', ''); //empty
                     }
-
-
 
                     $Sender->Render($this->GetView('search' . DS . 'search.php'));
                 } else {
@@ -523,8 +649,6 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
         // include $Sender->FetchViewLocation('QnAPost', '', 'plugins/QnA');
     }
 
-
-
     /**
      * Enter here when polling for username on main search page
      */
@@ -544,13 +668,11 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
     }
 
     /**
-     * Enable/Disable Flagging.
+     * Enable/Disable certain settings
      */
     public function Controller_Toggle($Sender) {
-
-        // Enable/Disable Content Flagging
         if (Gdn::Session()->ValidateTransientKey(GetValue(1, $Sender->RequestArgs))) {
-            $Option = $_GET['action'];
+            $Option = GetValue('action', $_GET);
             switch ($Option) {
                 case 'mainsearch':
                     if ($this->Settings['Admin']->MainSearchEnable) {
@@ -592,6 +714,11 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
         }
     }
 
+    /**
+     * enter here to view settings file
+     *
+     * @param type $Sender
+     */
     public function Controller_Settings($Sender) {
         $Sender->Permission('Vanilla.Settings.Manage');
         $Sender->SetData('PluginDescription', $this->GetPluginKey('Description'));
@@ -624,7 +751,6 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
             }
             $Saved = $Sender->Form->Save();
             if ($Saved) {
-                //print_r($SettingsInt); die;
                 foreach ($SettingsInt as $Name => $Value) {
                     if (is_int($Value)) {
                         SaveToConfig($Name, intval(C($Name)));
@@ -637,7 +763,9 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
     }
 
     /**
-     * Populates the dropdown list for searching in certain categories
+     * Populates the dropdown list for searching in certain categories -direct copy pretty
+     * much out of the core of vanilla
+     *
      * @param string $FieldName
      * @param mixed $Options
      * @return mixed dropdown list
