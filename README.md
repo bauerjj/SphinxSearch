@@ -5,6 +5,14 @@ This is a advanced search plugin for Vanilla Forums  >= v2.0.18.4 . It is based 
 
 Live Demo: http://mcuhq.com/mcuhq/vanilla/search?tar=srch
 
+
+####How it Works
+For nitty gritty details behind sphinx, you should look at their main documentation: http://sphinxsearch.com/docs/current.html
+
+Basically, it indexes (optinally can store) the fields listed above and then stores some attributes that are used to filter the results down such as comment count, category name, etc. Sphinx then returns a document ID which is then used in a typicall MYSQL query to retrieve the meat and potatoes of it such as last comment ID, category URL code, etc. Almost all searches are returned instantly (<12ms). 
+
+The plugin connects to searchd and queries it using the shpinx API. You should notice a significant speed increase and search relevance. 
+
 ##Install
 To enable the plugin, simply download it from the plugin portal and move it to your plugin's folder. Enable it from the dashboard. Some files need to be given write permissions by the installer:
   * pid/log/error.txt
@@ -43,8 +51,9 @@ Provides a backend to manage essentially everything related to sphinx.
 All of the widgets that display a discussion/thread title will have a tooltip that will display the first xxx amount of words from the original text. To show this text, simply hover over the title for a second to see the discussion body text. 
 
 As of v1.0, the following are a list of widgets
-######Advanced Search Page
-This overrides the current search algorithm and substitues a more advanced search option. This will automatically revert to the default search engine if it detects that sphinx is not running. This will happend during indexing. All of the existing search queries will still be valid, but the advanced options will have no effect on the results. 
+######Advanced Search & result Page
+This overrides the current search algorithm and substitues a more advanced search option. This will automatically revert to the default search engine if it detects that sphinx is not running. This will happend during indexing. All of the existing search queries will still be valid, but the advanced options will have no effect on the results. The number of results shown on each page is configurable in the admin settings. The view format can be set by the user (classic, table, simple, sleak)
+
 
 ######Post Searches
 Much like on stackoverflow, any new discussion that is being typed into the title box will start sphinx looking for related threads in reference to the new potential thread. A box will appear the input box showing some relevant threads.
@@ -66,6 +75,11 @@ Simply shows how to use the extended search syntax in the left side panel on the
 
 ######Related Discussion Threads
 For each discussion, a list of related threads in reference to the currently viewed one can be either shown in the sidepanel or below/above each discussion. 
+
+
+####Developers
+This plugin was built to encourage others to add to its functionality. The widgets are implemented in such a way to make a new addition relativly easy. To learn how to do so, look at an existing widget. All of them extend the abstract class, *widgets*, which provides common generic routines used by all of the widgets. All of the settings related to sphinx and the sphinx client are passed as construct parameters. This is important!! Only one instance of the sphinx API should be used since only **1** query is made. The widgets add a query to main batch which is then run before each rendered view. An exception to this rule are things that need to be executed from a handler inside of Vanilla such as the PostSearch
+
 
 
 
