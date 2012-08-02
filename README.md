@@ -24,7 +24,7 @@ The plugin connects to searchd and queries it using the shpinx API. You should n
  5. Port Forwarding
 
 Sphinx does work on windows, it's just that I have not built the installer for windows as of yet. Maybe you can help!
-
+Shared hosting probably won't work, but you can try. 
 
 ##Install
 No backend knowledge is required to install this! Everything is done for you via the install wizard. It comes bundled with the build of the sphinx search engine. To install, run the install wizard and complete the **3** step process. If the wizard encounters any errors, it will tell you. If the installer package does not work on your server, you can perform a manual installation via your distro's package manager and then tell the wizard where to find your installed files. 
