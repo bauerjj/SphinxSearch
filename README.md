@@ -3,6 +3,8 @@ SphinxSearch
 
 This is a advanced search plugin for Vanilla Forums  >= v2.0.18.4 . It is based on the Sphinx Search engine v2.0.5
 
+Live Demo: http://mcuhq.com/mcuhq/vanilla/search?tar=srch
+
 ##Install
 To enable the plugin, simply download it from the plugin portal and move it to your plugin's folder. Enable it from the dashboard. Some files need to be given write permissions by the installer:
   * pid/log/error.txt
