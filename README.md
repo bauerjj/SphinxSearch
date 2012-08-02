@@ -90,12 +90,12 @@ Simply shows how to use the extended search syntax in the left side panel on the
 For each discussion, a list of related threads in reference to the currently viewed one can be either shown in the sidepanel or below/above each discussion. 
 
 
-####Developers
+##Developers
 This plugin was built to encourage others to add to its functionality. The widgets are implemented in such a way to make a new addition relativly easy. 
 
 To learn how to do so, look at an existing widget. All of them extend the abstract class, *widgets*, which provides common generic routines used by all of the widgets. All of the settings related to sphinx and the sphinx client are passed as construct parameters. This is important!! Only one instance of the sphinx API should be used since only **1** query is made. The widgets add a query to main batch which is then run before each rendered view. An exception to this rule are things that need to be executed from a handler inside of Vanilla such as the PostSearch
 
-####Improvements
+##Improvements
 There are multiple improvements that can be made. Here are a list of widgets that can be done, but I have lost track of time:
 
    *  'Did you Mean' feature on the main search
@@ -105,7 +105,7 @@ There are multiple improvements that can be made. Here are a list of widgets tha
    *  Improve the autocompete fields and speed of the jquery UI POST. For some reason, it is very slow and I woud like to incorporate the stock Vanilla Forum's autocomplete magic, but I had problems doing so....
 
 
-####FAQ
+##FAQ
 Below is the FAQ:
 
 
