@@ -40,11 +40,33 @@ Provides a backend to manage essentially everything related to sphinx.
   * Install FAQ 
 
 ####Widgets
-As of v1.0, the following are a list of widgets
-######Advanced Search Landing Page
-This overrides the current search algorithm and substitues 
+All of the widgets that display a discussion/thread title will have a tooltip that will display the first xxx amount of words from the original text. To show this text, simply hover over the title for a second to see the discussion body text. 
 
-######Releated Searches
-  * 
+As of v1.0, the following are a list of widgets
+######Advanced Search Page
+This overrides the current search algorithm and substitues a more advanced search option. This will automatically revert to the default search engine if it detects that sphinx is not running. This will happend during indexing. All of the existing search queries will still be valid, but the advanced options will have no effect on the results. 
+
+######Post Searches
+Much like on stackoverflow, any new discussion that is being typed into the title box will start sphinx looking for related threads in reference to the new potential thread. A box will appear the input box showing some relevant threads.
+
+######Related Main Threads
+For each main search, the side panel will include a list of related threads based on the query. 
+
+######Related Main Searches
+For each main search, the side panel will include a list of full search phrases that match the current one.
+
+######Top Keywords
+The plugin will keep a list of all search queries and display the top xx amount of keywords in the panel on the advanced search landing page. 
+
+######Top Searches
+Sidepanel displays the top searches in the panel on the advanced search landing page
+
+######Search Help
+Simply shows how to use the extended search syntax in the left side panel on the advanced search landing page
+
+######Related Discussion Threads
+For each discussion, a list of related threads in reference to the currently viewed one can be either shown in the sidepanel or below/above each discussion. 
+
+
 
 
