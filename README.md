@@ -64,29 +64,29 @@ Provides a backend to manage essentially everything related to sphinx.
 All of the widgets that display a discussion/thread title will have a tooltip that will display the first xxx amount of words from the original text. To show this text, simply hover over the title for a second to see the discussion body text. 
 
 As of v1.0, the following are a list of widgets
-######Advanced Search & result Page
+#####Advanced Search & result Page
 This overrides the current search algorithm and substitues a more advanced search option. This will automatically revert to the default search engine if it detects that sphinx is not running. This will happend during indexing. All of the existing search queries will still be valid, but the advanced options will have no effect on the results. The number of results shown on each page is configurable in the admin settings. The view format can be set by the user (classic, table, simple, sleak)
 
 
-######Post Searches
+#####Post Searches
 Much like on stackoverflow, any new discussion that is being typed into the title box will start sphinx looking for related threads in reference to the new potential thread. A box will appear the input box showing some relevant threads.
 
-######Related Main Threads
+#####Related Main Threads
 For each main search, the side panel will include a list of related threads based on the query. 
 
-######Related Main Searches
+#####Related Main Searches
 For each main search, the side panel will include a list of full search phrases that match the current one.
 
-######Top Keywords
+#####Top Keywords
 The plugin will keep a list of all search queries and display the top xx amount of keywords in the panel on the advanced search landing page. 
 
-######Top Searches
+#####Top Searches
 Sidepanel displays the top searches in the panel on the advanced search landing page
 
-######Search Help
+#####Search Help
 Simply shows how to use the extended search syntax in the left side panel on the advanced search landing page
 
-######Related Discussion Threads
+#####Related Discussion Threads
 For each discussion, a list of related threads in reference to the currently viewed one can be either shown in the sidepanel or below/above each discussion. 
 
 
@@ -122,39 +122,39 @@ Anytime sphinx is indexing, it will shut down all searches temporary (unless you
 #####What is the indexer and searchd?
 These are two seperate entities that work together. Indexer indexes your database fields and searchd listens on your server for search requests to query the indexer
 
-How does Sphinx work?
+#####How does Sphinx work?
 Sphinx indexes your discussion titles, body, and author names, making them easily searchable
 It does not store your text, but rather uses a special data structure to optimize searching
 Sphinx is as dedicated indexing/query engine, and therefore can do it a lot better, rather than MYSQL/MyISAM
 
-Run in Background?
+#####Run in Background?
 This lets all of the index and install commands to run in the background. The progress is then printed onto your screen (black terminal look-a-alike). The benefit of this is that you can see the progress in real time. A benefit of NOT running in background is that you can spot errors easier, although your browser will be waiting for each task to complete and it will appear that the website has frozen. This is not the case...let it finish.
 
-What's the deal with the cron files?
+#####What's the deal with the cron files?
 Sphinx needs to reindex your database here and there to stay current. The 'Main' and 'Delta' index work together to achieve optimal results
 You should index 'Main' once in a while, depending on the activity of your forum. Delta should be updated more frequent since it should only update much less than the Main index
 Use the cron files to update sphinx during low peak times. Remember, reindex delta often, and main seldom. More info, see section 3.12 of the main sphinx documenation
 
-How do I get rid of some of the top searches/tags?
+#####How do I get rid of some of the top searches/tags?
 Add the words to your stoplist.txt found in the assests folder of this plugin and then reindex. Over time, you should see these dissappear
 Future versions may let you censor this easier, but for now be sure to enable the stopwords feature
 
-Error xxxx Permission denied
+#####Error xxxx Permission denied
 This error mostly occurs when NOT using pre packaged sphinx installer. You have to give sphinx read/write permission to all log and data temp files by using CHMOD
 
-Control Panel says 10 queries were made, but I only made 1 search?
+#####Control Panel says 10 queries were made, but I only made 1 search?
 Total Queries does not mean 'Total Searches'(i.e 12 queries != 12 individual searches on your site.
 For each search, there are other numerous searches being processed such as related threads and top searches
 
-You get a "stop: kill() on pid xxxx failed: Operation not permitted Sphinx"
+#####You get a "stop: kill() on pid xxxx failed: Operation not permitted Sphinx"
 This is because you started sphinx from the Command line or some other means and now there are user permission problems...stop searchd through the same means you started it with
 
-fsockopen(): unable to connect to localhost::xxxx ....
+#####fsockopen(): unable to connect to localhost::xxxx ....
 First try to start searchd and then check the port again
 
-"Failed to open log/pid file".
+#####"Failed to open log/pid file".
 You should kill all instances of searchd by using 'ps' in the command line. If that does not work, delete all files in your ../sphinx/var/log folder and reboot
 
-My indexes are reindexed through my cron job, but the index time is incorrect
+#####My indexes are reindexed through my cron job, but the index time is incorrect
 Yea, I know...this is only updated if you index through the control panel
 
