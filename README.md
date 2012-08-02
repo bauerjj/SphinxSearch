@@ -24,10 +24,10 @@ The install process allows you to run long tasks, such as *./configure* and *./m
 
 After installation, do the following in the control panel:
 
-1. Start searchd on the control panel
-2. index 'Main' through the control panel
-3. index 'Delta' through the control panel
-4. index 'Stats' through the control panel
+1. Start searchd 
+2. index 'Main' 
+3. index 'Delta' 
+4. index 'Stats' 
 5. Stop and then start searchd again
 6. Search for something on your forums through the usual means
 7. Setup a cron job to run the three cron files
