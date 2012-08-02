@@ -14,11 +14,23 @@ Basically, it indexes (optinally can store) the fields listed above and then sto
 The plugin connects to searchd and queries it using the shpinx API. You should notice a significant speed increase and search relevance. 
 
 ##Install
-To enable the plugin, simply download it from the plugin portal and move it to your plugin's folder. Enable it from the dashboard. Some files need to be given write permissions by the installer:
+No backend knowledge is required to install this! Everything is done for you via the install wizard. It comes bundled with the build of the sphinx search engine. To install, run the install wizard and complete the **3** step process. If the wizard encounters any errors, it will tell you. If the installer package does not work on your server, you can perform a manual installation via your distro's package manager and then tell the wizard where to find your installed files. 
+
+To enable the plugin, simply download it from Vanilla Forum's plugin portal and move it to your webserver's plugin folder. Enable it from the dashboard. Some files need to be given write permissions by the installer:
   * pid/log/error.txt
   * ~SphinxSearch/Install 
 
 The install process allows you to run long tasks, such as *./configure* and *./make* in the background. While this is going on, the terminal output will be presented to you. This is also possible to do while indexing your indexes, which may take a long time depending on the amount of documents in the database.
+
+After installation, do the following in the control panel:
+
+1. Start searchd on the control panel
+2. index 'Main' through the control panel
+3. index 'Delta' through the control panel
+4. index 'Stats' through the control panel
+5. Stop and then start searchd again
+6. Search for something on your forums through the usual means
+7. Setup a cron job to run the three cron files
 
 ##Features
 ####Search
@@ -88,6 +100,7 @@ There are multiple improvements that can be made. Here are a list of widgets tha
    *  Include some of the advanced search options on the result page...maybe a javascript toggle div
    *  Locales other than English
    *  More filter options
+   *  Improve the autocompete fields and speed of the jquery UI POST. For some reason, it is very slow and I woud like to incorporate the stock Vanilla Forum's autocomplete magic, but I had problems doing so....
 
 
 
