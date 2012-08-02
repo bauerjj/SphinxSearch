@@ -11,6 +11,8 @@ For nitty gritty details behind sphinx, you should look at their main documentat
 
 Basically, it indexes (optinally can store) the fields listed above and then stores some attributes that are used to filter the results down such as comment count, category name, etc. Sphinx then returns a document ID which is then used in a typicall MYSQL query to retrieve the meat and potatoes of it such as last comment ID, category URL code, etc. Almost all searches are returned instantly (<12ms). 
 
+Sphinx requires indexing, which is why cron tasks should be used on your server to run periodically. You can always manually index in the control panel for testing purposes. The 'Main' index will read the discussions and comments table in your database. The 'Delta' will do the same thing, except it will only pickup the ones since the last index was performed. And so, you should index 'Delta' frequently and 'Main' during non-peak hours. 
+
 The plugin connects to searchd and queries it using the shpinx API. You should notice a significant speed increase and search relevance. 
 
 ##Install
