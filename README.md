@@ -17,8 +17,7 @@ The plugin connects to searchd and queries it using the shpinx API. You should n
 To enable the plugin, simply download it from the plugin portal and move it to your plugin's folder. Enable it from the dashboard. Some files need to be given write permissions by the installer:
   * pid/log/error.txt
   * ~SphinxSearch/Install 
-  * 
-  * 
+
 The install process allows you to run long tasks, such as *./configure* and *./make* in the background. While this is going on, the terminal output will be presented to you. This is also possible to do while indexing your indexes, which may take a long time depending on the amount of documents in the database.
 
 ##Features
