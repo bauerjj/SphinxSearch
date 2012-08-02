@@ -105,4 +105,56 @@ There are multiple improvements that can be made. Here are a list of widgets tha
    *  Improve the autocompete fields and speed of the jquery UI POST. For some reason, it is very slow and I woud like to incorporate the stock Vanilla Forum's autocomplete magic, but I had problems doing so....
 
 
+####FAQ
+Below is the FAQ:
+
+
+#####Will this work for me?
+Depends...are you on a shared host? If so, this is probably not for you, but talk to your hosting provider about having a daemon run on your server.
+Windows support may come in later releases if there is enough demand. If the auto installer does not work for you, try installing using your distro's package manger and then telling the plugin where the requested files are.
+
+#####Can't find indexer at path: Not Detected
+You will encounter this at the control panel if sphinx is not properly installed. The control will not respond to anything until these paths are resolved by using the install wizard
+
+#####What if sphinx is indexing and it shuts down searchd...now what?
+Anytime sphinx is indexing, it will shut down all searches temporary (unless you have another instance of searchd setup). The default search will be in effect immidiatly until searchd is running again. This is done automatically for you
+
+#####What is the indexer and searchd?
+These are two seperate entities that work together. Indexer indexes your database fields and searchd listens on your server for search requests to query the indexer
+
+How does Sphinx work?
+Sphinx indexes your discussion titles, body, and author names, making them easily searchable
+It does not store your text, but rather uses a special data structure to optimize searching
+Sphinx is as dedicated indexing/query engine, and therefore can do it a lot better, rather than MYSQL/MyISAM
+
+Run in Background?
+This lets all of the index and install commands to run in the background. The progress is then printed onto your screen (black terminal look-a-alike). The benefit of this is that you can see the progress in real time. A benefit of NOT running in background is that you can spot errors easier, although your browser will be waiting for each task to complete and it will appear that the website has frozen. This is not the case...let it finish.
+
+What's the deal with the cron files?
+Sphinx needs to reindex your database here and there to stay current. The 'Main' and 'Delta' index work together to achieve optimal results
+You should index 'Main' once in a while, depending on the activity of your forum. Delta should be updated more frequent since it should only update much less than the Main index
+Use the cron files to update sphinx during low peak times. Remember, reindex delta often, and main seldom. More info, see section 3.12 of the main sphinx documenation
+
+How do I get rid of some of the top searches/tags?
+Add the words to your stoplist.txt found in the assests folder of this plugin and then reindex. Over time, you should see these dissappear
+Future versions may let you censor this easier, but for now be sure to enable the stopwords feature
+
+Error xxxx Permission denied
+This error mostly occurs when NOT using pre packaged sphinx installer. You have to give sphinx read/write permission to all log and data temp files by using CHMOD
+
+Control Panel says 10 queries were made, but I only made 1 search?
+Total Queries does not mean 'Total Searches'(i.e 12 queries != 12 individual searches on your site.
+For each search, there are other numerous searches being processed such as related threads and top searches
+
+You get a "stop: kill() on pid xxxx failed: Operation not permitted Sphinx"
+This is because you started sphinx from the Command line or some other means and now there are user permission problems...stop searchd through the same means you started it with
+
+fsockopen(): unable to connect to localhost::xxxx ....
+First try to start searchd and then check the port again
+
+"Failed to open log/pid file".
+You should kill all instances of searchd by using 'ps' in the command line. If that does not work, delete all files in your ../sphinx/var/log folder and reboot
+
+My indexes are reindexed through my cron job, but the index time is incorrect
+Yea, I know...this is only updated if you index through the control panel
 
