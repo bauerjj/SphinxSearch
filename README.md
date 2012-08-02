@@ -6,7 +6,7 @@ This is a advanced search plugin for Vanilla Forums  >= v2.0.18.4 . It is based 
 Live Demo: http://mcuhq.com/mcuhq/vanilla/search?tar=srch
 
 
-####How it Works
+##How it Works
 For nitty gritty details behind sphinx, you should look at their main documentation: http://sphinxsearch.com/docs/current.html
 
 Basically, it indexes (optinally can store) the fields listed above and then stores some attributes that are used to filter the results down such as comment count, category name, etc. Sphinx then returns a document ID which is then used in a typicall MYSQL query to retrieve the meat and potatoes of it such as last comment ID, category URL code, etc. Almost all searches are returned instantly (<12ms). 
@@ -14,6 +14,17 @@ Basically, it indexes (optinally can store) the fields listed above and then sto
 Sphinx requires indexing, which is why cron tasks should be used on your server to run periodically. You can always manually index in the control panel for testing purposes. The 'Main' index will read the discussions and comments table in your database. The 'Delta' will do the same thing, except it will only pickup the ones since the last index was performed. And so, you should index 'Delta' frequently and 'Main' during non-peak hours. 
 
 The plugin connects to searchd and queries it using the shpinx API. You should notice a significant speed increase and search relevance. 
+
+##Requirements
+
+ 1. Linux Only!
+ 2. PHP >= 5.3.0
+ 3. Shell Access
+ 4. Spawn a Daemon (searchd)
+ 5. Port Forwarding
+
+Sphinx does work on windows, it's just that I have not built the installer for windows as of yet. Maybe you can help!
+
 
 ##Install
 No backend knowledge is required to install this! Everything is done for you via the install wizard. It comes bundled with the build of the sphinx search engine. To install, run the install wizard and complete the **3** step process. If the wizard encounters any errors, it will tell you. If the installer package does not work on your server, you can perform a manual installation via your distro's package manager and then tell the wizard where to find your installed files. 
@@ -89,6 +100,8 @@ Simply shows how to use the extended search syntax in the left side panel on the
 #####Related Discussion Threads
 For each discussion, a list of related threads in reference to the currently viewed one can be either shown in the sidepanel or below/above each discussion. 
 
+#####HitBox
+For each search, there is a hitbox that will detail the number of documents that matched each word and number of hits total. A caveat of this is that the analysis of each word comes **BEFORE** any filtering, so the results may differ than what the hitbox says. For instance, 26 documents in the document for the word, *vanilla*, may only result in 8 threads/comments with that same word due to filtering or post processing. 
 
 ##Developers
 This plugin was built to encourage others to add to its functionality. The widgets are implemented in such a way to make a new addition relativly easy. 
@@ -106,8 +119,6 @@ There are multiple improvements that can be made. Here are a list of widgets tha
 
 
 ##FAQ
-Below is the FAQ:
-
 
 #####Will this work for me?
 Depends...are you on a shared host? If so, this is probably not for you, but talk to your hosting provider about having a daemon run on your server.
