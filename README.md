@@ -77,9 +77,17 @@ For each discussion, a list of related threads in reference to the currently vie
 
 
 ####Developers
-This plugin was built to encourage others to add to its functionality. The widgets are implemented in such a way to make a new addition relativly easy. To learn how to do so, look at an existing widget. All of them extend the abstract class, *widgets*, which provides common generic routines used by all of the widgets. All of the settings related to sphinx and the sphinx client are passed as construct parameters. This is important!! Only one instance of the sphinx API should be used since only **1** query is made. The widgets add a query to main batch which is then run before each rendered view. An exception to this rule are things that need to be executed from a handler inside of Vanilla such as the PostSearch
+This plugin was built to encourage others to add to its functionality. The widgets are implemented in such a way to make a new addition relativly easy. 
 
+To learn how to do so, look at an existing widget. All of them extend the abstract class, *widgets*, which provides common generic routines used by all of the widgets. All of the settings related to sphinx and the sphinx client are passed as construct parameters. This is important!! Only one instance of the sphinx API should be used since only **1** query is made. The widgets add a query to main batch which is then run before each rendered view. An exception to this rule are things that need to be executed from a handler inside of Vanilla such as the PostSearch
 
+####Improvements
+There are multiple improvements that can be made. Here are a list of widgets that can be done, but I have lost track of time:
+
+   *  'Did you Mean' feature on the main search
+   *  Include some of the advanced search options on the result page...maybe a javascript toggle div
+   *  Locales other than English
+   *  More filter options
 
 
 
