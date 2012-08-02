@@ -3,9 +3,15 @@ SphinxSearch
 
 This is a advanced search plugin for Vanilla Forums  >= v2.0.18.4 . It is based on the Sphinx Search engine v2.0.5
 
-Includes the following features:
+##Install
+To enable the plugin, simply download it from the plugin portal and move it to your plugin's folder. Enable it from the dashboard. Some files need to be given write permissions by the installer:
+  * pid/log/error.txt
+  * ~SphinxSearch/Install 
+
+##Features
 
 ####Admin
+Provides a backend to manage essentially everything related to sphinx. 
   * Linux installer for the prepackaged tarball. Can also use existing system binaries if installed already
   * Control panel for managing the indexer and search daemon
   * Automatically generated configuration and cron files
