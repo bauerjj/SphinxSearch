@@ -51,6 +51,7 @@ The follwing fields are indexed and thus searchable:
    * Thread title
    * Body text
    * Author name
+
 The following is a list of search filters:
   * By Username
   * Titles only
