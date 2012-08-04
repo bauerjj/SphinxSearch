@@ -114,9 +114,9 @@ There are multiple improvements that can be made. Here are a list of widgets tha
 
    *  'Did you Mean' feature on the main search
    *  Include some of the advanced search options on the result page...maybe a javascript toggle div
-   *  Locales other than English
    *  Add a nice javascript dropdown menu to all of the search boxes that show some quick advanced search options
    *  More filter options
+   *  Add more widgets related to top searches (maybe top searches for this month, week, year, etc)
    *  Improve the autocompete fields and speed of the jquery UI POST. For some reason, it is very slow and I woud like to incorporate the stock Vanilla Forum's autocomplete magic, but I had problems doing so....
 
 
