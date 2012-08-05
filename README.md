@@ -5,6 +5,17 @@ SphinxSearch
 
 [Live Demo](http://mcuhq.com/mcuhq/vanilla/search?tar=srch)
 
+Table of contents
+-----------------
+
+1. [How it Works](#How it Works)
+2. [Requirements](#requirements)
+3. [Installation](#installation)
+4. [Features](#features)
+ 1. [Styling](#styling)
+	1. [Bootswatches](#bootswatches)
+	2. [Embedding](#embedding)
+5. [Compatibility](#compatibility)
 
 ##How it Works
 For nitty gritty details behind sphinx, you should look at their main documentation: http://sphinxsearch.com/docs/current.html
