@@ -24,6 +24,8 @@ class WidgetMember extends Widgets implements SplObserver {
             $this->SphinxClient->SetGroupDistinct(SS_ATTR_USERID); //only want one unique username
             $this->SphinxClient->SetGroupBy(SS_ATTR_USERID, SPH_GROUPBY_ATTR);
 
+            //not limits
+
             $Query = $MemberName;
 
             $Search = $this->FieldSearch($Query, array(SS_FIELD_USERNAME));
@@ -32,8 +34,6 @@ class WidgetMember extends Widgets implements SplObserver {
             $this->Queries[] = array(
                 'Name' => $this->Name,
                 'Index' => $QueryIndex,
-                'Highlight' => FALSE,
-                'IgnoreFirst' => FALSE,
             );
 
             return $this->Queries;

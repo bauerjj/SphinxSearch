@@ -4,7 +4,7 @@ class WidgetMain extends Widgets implements SplObserver {
 
     private $Sanitized = ''; //
     private $Queries = array(); //keep track of query offset
-    private $Name = 'MainSearch';
+    private $Name = 'MainSearch'; //also used in the widget hitbox
 
     public function __construct($SphinxClient, $Settings) {
         parent::__construct($SphinxClient, $Settings);
@@ -14,8 +14,6 @@ class WidgetMain extends Widgets implements SplObserver {
         $Status = $Subject->getStatus(); //retrieve status array
         $Results = $Status['Results'];
         $Sender = $Status['Sender'];
-
-        //print_r($Results); die;
 
         if (isset($Results[$this->Name])) {
             if ($this->Settings['Admin']->MainSearchEnable) {
@@ -30,7 +28,7 @@ class WidgetMain extends Widgets implements SplObserver {
                     $Total = 0;
                 else
                     $Total = $Results[$this->Name]['total_found'];
-                    $this->BuildPager($Sender, $Total);
+                $this->BuildPager($Sender, $Total);
             }
         }
     }
@@ -44,17 +42,17 @@ class WidgetMain extends Widgets implements SplObserver {
 
     private function BuildPager($Sender, $Total) {
         $Sanitized = $this->ValidateInputs(); //get offset
-        $GETString = urldecode($_SERVER['QUERY_STRING']) . '&tar=srch'; //use this to providea link back to search - be sure to append the '&tar=srch' to tell to load the main search page
+        $GETString = '?' . Gdn_Url::QueryString() . '&tar=srch'; //use this to providea link back to search - be sure to append the '&tar=srch' to tell to load the main search page
         $GETString = str_replace('p=search&', 'search?', $GETString);
         $Limit = $this->Settings['Admin']->LimitResultsPage;
         $Offset = (($Sanitized['Offset'] - 1) * $Limit); //limit per page
-        //substr
+
         $Pos = strpos($GETString, '&pg');
         if (!$Pos == FALSE) {
             $Url = substr($GETString, 0, $Pos); //strip the page number if it exists
         }
         else
-            $Url = $GETString;
+            $Url = str_replace('&tar=srch', '', $GETString); //don't want to load adv search page when clicking page numbers
 
         $PagerFactory = new Gdn_PagerFactory();
         $Sender->Pager = $PagerFactory->GetPager('Pager', $Sender);
@@ -91,14 +89,21 @@ class WidgetMain extends Widgets implements SplObserver {
                 $this->SphinxClient->SetFilter('CatID', $Categories); //no children required, just get whatever was posted
             }
         }
+        if (!empty($Sanitized['TagList'])) {
+            if (Gdn::Structure()->TableExists('TagDiscussion')) { //check to see if tagging plugin is enabled
+                $TagIDs = $this->GetTagIDs($Sanitized['TagList']);
+                if (sizeof($TagIDs) > 0) //maybe someone input an invalid tag string that does not match any in the database...
+                    $this->SphinxClient->SetFilter('TagID', $TagIDs);
+            }
+        }
         if (!empty($Sanitized['MemberList'])) {      //filter by member
-           // $String = $this->OperatorOrSearch($Sanitized['MemberList']);
-           // $SubQuery .= $this->FieldSearch($String, array(SS_FIELD_USERNAME));
+            // $String = $this->OperatorOrSearch($Sanitized['MemberList']);
+            // $SubQuery .= $this->FieldSearch($String, array(SS_FIELD_USERNAME));
         }
         if (!empty($Sanitized['WithReplies'])) {      //only return threads that have comments
             $this->SphinxClient->SetFilterRange(SS_ATTR_COUNTCOMENTS, 1, 1, TRUE); //exclude documents with exactly 0 comments (the first topic post counts as 1)
         }
-        if ($Sanitized['Date'] != 'All') {
+        if (isset($Sanitized['Date']) && $Sanitized['Date'] != 'All') { //don't filter by date if the whole query string is gone
             $Time = $this->SetTime($Sanitized['Date']);
             $this->SphinxClient->SetFilterRange(SS_ATTR_DOCDATEINSERTED, $Time, now());
         }
@@ -122,12 +127,10 @@ class WidgetMain extends Widgets implements SplObserver {
 
         //echo $Query; die;
 
-        $QueryIndex = $this->SphinxClient->AddQuery($Query, $index = SS_INDEX_DIST, $this->Name);
+        $QueryIndex = $this->SphinxClient->AddQuery($Query, SS_INDEX_DIST, $this->Name);
         $this->Queries[] = array(
             'Name' => $this->Name,
             'Index' => $QueryIndex,
-            'Highlight' => TRUE,
-            'IgnoreFirst' => FALSE,
         );
     }
 
@@ -147,6 +150,12 @@ class WidgetMain extends Widgets implements SplObserver {
                 return now();
                 break;
         }
+    }
+
+    private function GetTagIDs($TagList) {
+        $SQL = Gdn::SQL();
+        $IDs = $SQL->Select('TagID')->From('Tag')->WhereIn('Name', $TagList)->Get()->ResultArray();
+        return ConsolidateArrayValuesByKey($IDs, 'TagID'); //make a single array of the IDs for sphinx to filter on
     }
 
     /**

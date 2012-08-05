@@ -8,7 +8,7 @@ if (!defined('APPLICATION'))
  * This will peform a POST to your server asking for related threads as the user
  * types in his/her title
  *
- * @todo make it faster
+ * @todo make it faster and work with Vanilla's default jquery autocomplete and NOT jqueryUI
  */
 ?>
 
@@ -65,7 +65,7 @@ if (!defined('APPLICATION'))
 
 <style>
     #Search h4{
-        margin: auto;
+/*        margin: auto;*/
         max-width: 800px;
     }
     #Search_Container{

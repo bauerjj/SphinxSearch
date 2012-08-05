@@ -34,6 +34,14 @@ class SphinxSearchAdmin {
         $this->Wizard->ToggleWizard();
     }
 
+    /**
+     *Checks if the pid/error/output.txt files are both read/writeable for any tasks to be run in the background require
+     * that their status can be written to
+     */
+    public function CheckDebugFiles(){
+        $this->Install->CheckDebugFiles();
+    }
+
     public function Detect() {
         $this->Wizard->DetectionAction();    //attempt to find prescense of sphinx
     }
@@ -57,16 +65,16 @@ class SphinxSearchAdmin {
     }
 
     public function InstallConfig(){
-        //First check if sphinx is installed
-        $this->Service->ValidateInstall();
+        //Get here when indexer and searchd have been installed...don't check if sphinx.conf exists just yet!
         $this->Install->InstallWriteConfig();
+        $this->Service->ValidateInstall();  //now check if sphinx is installed
         $this->SetupCron();
     }
 
-    public function InstallAction($InstallAction){
+    public function InstallAction($InstallAction, $Background ){
         if($this->CheckSphinxRunning())
             $this->Stop(); //stop if it is running before a new install is made
-        return $this->Wizard->InstallAction($InstallAction, $this->Service, $this->Install);
+        return $this->Wizard->InstallAction($InstallAction, $Background , $this->Service, $this->Install);
     }
 
     public function CheckSphinxRunning() {

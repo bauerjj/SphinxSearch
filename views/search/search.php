@@ -21,14 +21,6 @@
         }
     )
 
-        $('.ui-menu-item').click(function(){
-            $("#SearchMatchButton .ui-button-text").text($(this).text());
-            jQuery.fx.off = true; //disable animation for this
-            $("#SearchMatchDropdown").toggle('showOrHide');
-            jQuery.fx.off = false; //enable again
-        });
-
-
         $("#rerun").button().click(function() {
         })
         .next()
@@ -131,44 +123,29 @@
 
     });
 </script>
-<?php //print_r($this->Assets); die; ?>
-<?php echo $this->RenderAsset('LeftPanel'); //make the left panel?>
+<?php
+//print_r($this->Assets); die;
+$this->Settings = $this->Data['Settings'];
+?>
+<?php echo $this->RenderAsset('LeftPanel'); //make the left panel ?>
+<!-- Column 1 start (center) -->
 <?php
 echo $this->Form->Open(array('method' => 'get', 'action' => ''));
 echo $this->Form->Errors();
-
-$this->Settings = $this->Data['Settings'];
 ?>
-<!-- Column 1 start (center) -->
 <div id="SearchMenu">
     <dl>
         <dt>
-        <div id="SearchTop">
-            <span class="SearchHelp">[ <?php echo Anchor('Help', 'help', array('class' => 'Popup')) ?> ]</span>
-            <div style="display: inline">
-                <button id="rerun">Search</button>
-                <!--                                    <button id="SearchMatchButton">Any</button>-->
-            </div>
-        </div>
-        <!--                            <div style="display: none;" id="SearchMatchDropdown">
-                                        <ul class="ui-menu ui-widget ui-widget-content ui-corner-all ui-dropdown">
-                                            <li class="ui-menu-item">
-                                                <a class="ui-corner-all" tabindex="-1">All</a>
-                                            </li>
-                                            <li class="ui-menu-item">
-                                                <a class="ui-corner-all" tabindex="-1">Boolean</a>
-                                            </li>
-
-                                        </ul>
-                                    </div>-->
+        <span class="SearchHelp">[ <?php echo Anchor(T('Help'), 'plugin/sphinxsearch/help', array('class' => 'Popup')) ?> ]</span>
+        <button>Search</button>
         </dt>
         <dd>
             <ul><li>
                     <?php echo $this->Form->Textbox('Search', array('id' => 'SearchInput')); ?>
                 </li>
                 <li>
-                    <?php echo $this->Form->Checkbox('titles', 'Search titles only'); ?>
-                    <?php echo $this->Form->Checkbox('WithReplies', 'Threads with replies only'); ?>
+                    <?php echo $this->Form->Checkbox('titles', T('Titles only')); ?>
+                    <?php echo $this->Form->Checkbox('WithReplies', T('Threads with replies only')); ?>
                 </li>
             </ul>
         </dd>
@@ -176,7 +153,7 @@ $this->Settings = $this->Data['Settings'];
     </dl>
     <dl>
         <dt>
-        <?php echo $this->Form->Label('Phrase Match: ', 'match'), ' '; ?>
+        <?php echo $this->Form->Label(T('Phrase Match:'), 'match'), ' '; ?>
         </dt>
         <dd>
             <?php echo $this->Form->Dropdown('match', $this->Settings['SearchOptions']->Match, array('id' => 'match')) ?>
@@ -184,12 +161,12 @@ $this->Settings = $this->Data['Settings'];
     </dl>
     <dl>
         <dt>
-        <?php echo $this->Form->Label('Search in Forums: ', 'forums'), ' '; ?>
+        <?php echo $this->Form->Label(T('Search in Forums:'), 'forums'), ' '; ?>
         </dt>
         <dd>
             <ul>
                 <li>
-                    <?php echo SphinxSearchPlugin::CategoryDropDown('forums[]', array('Value' => GetValue('forums', $_GET))); ?>
+                    <?php echo SphinxSearchPlugin::CategoryDropDown('forums[]', array('Value' => ArrayValue('forums',$_GET) == '' ? array(0) : ArrayValue('forums',$_GET)  )); ?>
                 </li>
                 <li>
                     <?php echo $this->Form->Checkbox('child', 'Search child forums'); ?>
@@ -199,7 +176,7 @@ $this->Settings = $this->Data['Settings'];
     </dl>
     <dl>
         <dt>
-        <?php echo $this->Form->Label('Containing Tags:', 'tag'), ' '; ?>
+        <?php echo $this->Form->Label(T('Containing Tags:'), 'tag'), ' '; ?>
         </dt>
         <dd>
             <?php echo $this->Form->Textbox('tag', array('id' => 'tags')); ?>
@@ -207,7 +184,7 @@ $this->Settings = $this->Data['Settings'];
     </dl>
     <dl>
         <dt>
-        <?php echo $this->Form->Label('Newer Than: ', 'date'), ' '; ?>
+        <?php echo $this->Form->Label(T('Newer Than:'), 'date'), ' '; ?>
         </dt>
         <dd>
             <?php echo $this->Form->RadioList('date', $this->Settings['SearchOptions']->Time, array('list' => FALSE, 'listclass' => 'SearchOrderLeft', 'default' => $this->Settings['SearchOptions']->Time['All'])) ?>
@@ -216,7 +193,7 @@ $this->Settings = $this->Data['Settings'];
     <dl>
 
         <dt>
-        <?php echo $this->Form->Label('Order By:', 'or'), ' '; ?>
+        <?php echo $this->Form->Label(T('Order By:'), 'or'), ' '; ?>
         </dt>
         <dd>
             <table>
@@ -233,7 +210,7 @@ $this->Settings = $this->Data['Settings'];
     </dl>
     <dl>
         <dt>
-        <?php echo $this->Form->Label('Posted by Member: ', 'mem'), ' '; ?>
+        <?php echo $this->Form->Label(T('Posted by Member:'), 'mem'), ' '; ?>
         </dt>
         <dd>
             <?php echo $this->Form->Textbox('mem', array('id' => 'SearchMember')); ?>
@@ -241,15 +218,15 @@ $this->Settings = $this->Data['Settings'];
     </dl>
     <dl>
         <dt>
-        <?php echo $this->Form->Label('Display Results as:', 'res'), ' '; ?>
+        <?php echo $this->Form->Label(T('Display Results as:'), 'res'), ' '; ?>
         </dt>
         <dd>
-            <?php echo $this->Form->RadioList('res', $this->Settings['SearchOptions']->ResultFormat, array('list' => FALSE, 'default' => $this->Settings['SearchOptions']->ResultFormat['Full'])) ?>
+            <?php echo $this->Form->RadioList('res', $this->Settings['SearchOptions']->ResultFormat, array('list' => FALSE, 'default' => $this->Settings['SearchOptions']->ResultFormat['Classic'])) ?>
         </dd>
     </dl>
 </div>
 <?php echo $this->Form->Hidden('pg', array('value' => 'p1')); //add this here so it direts to first page and the pager picks this up?>
 <?php echo $this->Form->Close(); ?>
-<?php echo $this->RenderAsset('BottomPanel'); //make the left panel?>
+<?php echo $this->Form->Hidden('TagsInput', array('id' => 'TagsInput', 'value' => $this->Data['Tags'])); //add tags - but don't put this inside of the form's open/close since don't want this to be searched against'?>
 <?php
-echo $this->Form->Hidden('TagsInput', array('id' => 'TagsInput', 'value' => $this->Data['Tags'])); //add tags?>
+//echo $this->RenderAsset('BottomPanel'); //make the left panel?>

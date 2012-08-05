@@ -151,12 +151,12 @@ if (!defined('APPLICATION'))
 </div>
 <h3>Control Panel</h3>
 <br/>
-<?php echo $this->Form->Label('Run in background: ','Background'); ?>
-<?php echo $this->Form->RadioList('Background', array(TRUE=>'True', FALSE => 'False'), array('list' => FALSE, 'default' => 'False')) ?>
+<?php echo $this->Form->Label('Run in background: ', 'Background'); ?>
+<?php echo $this->Form->RadioList('Background', array(TRUE => 'True', FALSE => 'False'), array('list' => FALSE, 'default' => 'False')) ?>
 <ul class="Settings">
-        <li class="FootNote">This lets all of the index commands to run in the background. Useful for long operations. Recommend to NOT run in background for first time users</li>
-        <li class="FootNote">If running in background, terminal output is presented below in the black box</li>
-    </ul>
+    <li class="FootNote">This lets all of the index commands to run in the background. Useful for long operations and identifying warnings</li>
+    <li class="FootNote">If running in background, terminal output is presented below in the black box</li>
+</ul>
 <table class="CPanel Overall">
     <tbody>
         <tr>
@@ -194,10 +194,19 @@ if (!defined('APPLICATION'))
                 <th>Stats</th>
             </tr>
             <tr>
-                <td class="Desc"># of Docs:</td>
-                <td><?php echo Gdn_Format::BigNumber($Settings['Status']->IndexerMainTotal) ?></td>
-                <td><?php echo Gdn_Format::BigNumber($Settings['Status']->IndexerDeltaTotal) ?></td>
-                <td><?php echo Gdn_Format::BigNumber($Settings['Status']->IndexerStatsTotal) ?></td>
+                <td class="Desc">Count of Docs:</td>
+                <td>
+                    <?php echo Gdn_Format::BigNumber($Settings['Status']->IndexerMainTotal) ?>
+                    <?php echo $this->Form->Button('Action', array('class' => 'SmallButton', 'value' => 'Reload Main')); ?>
+                </td>
+                <td>
+                    <?php echo Gdn_Format::BigNumber($Settings['Status']->IndexerDeltaTotal) ?>
+                    <?php echo $this->Form->Button('Action', array('class' => 'SmallButton', 'value' => 'Reload Delta')); ?>
+                </td>
+                <td>
+                    <?php echo Gdn_Format::BigNumber($Settings['Status']->IndexerStatsTotal) ?>
+                    <?php echo $this->Form->Button('Action', array('class' => 'SmallButton', 'value' => 'Reload Stats')); ?>
+                </td>
             </tr>
             <tr>
                 <td class="Desc">Last Index Time:</td>
@@ -206,30 +215,27 @@ if (!defined('APPLICATION'))
                 <td><?php echo $Settings['Status']->IndexerStatsLast == '---' ? '----' : Gdn_Format::FuzzyTime($Settings['Status']->IndexerStatsLast) ?></td>
             </tr>
         <td class="Desc">cron Files: </td>
-        <td><?php echo Anchor(T('cron file'), 'plugin/sphinxsearch/viewfile/' . Gdn::Session()->TransientKey() . '?action=viewfile&file=maincron') ?>
+        <td><?php echo Anchor(T('cron file'), 'plugin/sphinxsearch/viewfile/' . Gdn::Session()->TransientKey() . '?action=viewfile&file=maincron', array('target'=>'_blank')) ?>
             <?php echo $this->Form->Button('Action', array('class' => 'SmallButton', 'value' => 'Write Main Cron')); ?>
 
         </td>
-        <td><?php echo Anchor(T('cron file'), 'plugin/sphinxsearch/viewfile/' . Gdn::Session()->TransientKey() . '?action=viewfile&file=deltacron') ?>
+        <td><?php echo Anchor(T('cron file'), 'plugin/sphinxsearch/viewfile/' . Gdn::Session()->TransientKey() . '?action=viewfile&file=deltacron', array('target'=>'_blank')) ?>
             <?php echo $this->Form->Button('Action', array('class' => 'SmallButton', 'value' => 'Write Delta Cron')); ?>
 
         </td>
-        <td><?php echo Anchor(T('cron file'), 'plugin/sphinxsearch/viewfile/' . Gdn::Session()->TransientKey() . '?action=viewfile&file=statscron') ?>
+        <td><?php echo Anchor(T('cron file'), 'plugin/sphinxsearch/viewfile/' . Gdn::Session()->TransientKey() . '?action=viewfile&file=statscron', array('target'=>'_blank')) ?>
             <?php echo $this->Form->Button('Action', array('class' => 'SmallButton', 'value' => 'Write Stats Cron')); ?></td>
         </tr>
         <tr>
             <td class="Desc">Actions:  </td>
             <td>
                 <?php echo $this->Form->Button('Action', array('class' => 'SmallButton', 'value' => 'Index Main')); ?>
-                <?php echo $this->Form->Button('Action', array('class' => 'SmallButton', 'value' => 'Reload Main')); ?>
             </td>
             <td>
                 <?php echo $this->Form->Button('Action', array('class' => 'SmallButton', 'value' => 'Index Delta')); ?>
-                <?php echo $this->Form->Button('Action', array('class' => 'SmallButton', 'value' => 'Reload Delta')); ?>
             </td>
             <td>
                 <?php echo $this->Form->Button('Action', array('class' => 'SmallButton', 'value' => 'Index Stats')); ?>
-                <?php echo $this->Form->Button('Action', array('class' => 'SmallButton', 'value' => 'Reload Stats')); ?>
             </td>
         </tr>
 
@@ -273,7 +279,7 @@ if (!defined('APPLICATION'))
             </tr>
             <tr>
                 <td>Actions:</td>
-                <td> <?php echo Anchor('config file', 'plugin/sphinxsearch/viewfile/' . Gdn::Session()->TransientKey() . '?action=viewfile&file=conf'); ?>
+                <td> <?php echo Anchor('config file', 'plugin/sphinxsearch/viewfile/' . Gdn::Session()->TransientKey() . '?action=viewfile&file=conf', array('target'=>'_blank')); ?>
                     <?php echo $this->Form->Button('Action', array('class' => 'SmallButton', 'value' => 'Write Config')); ?>
                 </td>
             </tr>

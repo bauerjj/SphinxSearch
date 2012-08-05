@@ -176,7 +176,7 @@ echo $this->Form->Errors();
                     <?php echo $this->Form->Label('Number of results that pop up when adding a new discussion (0 to disable)', 'Plugin.SphinxSearch.LimitRelatedThreadsPost'); ?>
                 </td>
                 <td>
-                    <?php echo $this->Form->DropDown('Plugin.SphinxSearch.RelatedThreadsPostFormat', array('simple' => 'simple', 'full' => 'full', 'sleak' => 'sleak', 'table' => 'table')) ?>
+                    <?php echo $this->Form->DropDown('Plugin.SphinxSearch.RelatedThreadsPostFormat', array('simple' => 'simple', 'classic' => 'classic', 'sleak' => 'sleak', 'table' => 'table')) ?>
                 </td>
             </tr>
             <tr>
@@ -187,7 +187,7 @@ echo $this->Form->Errors();
                     <?php echo $this->Form->Label('Number of related threads on the bottom of each discussion thread (0 to disable)', 'Plugin.SphinxSearch.LimitRelatedThreadsBottomDiscussion'); ?>
                 </td>
                 <td>
-                    <?php echo $this->Form->DropDown('Plugin.SphinxSearch.RelatedThreadsBottomDiscussionFormat', array('simple' => 'simple', 'full' => 'full', 'sleak' => 'sleak', 'table' => 'table')) ?>
+                    <?php echo $this->Form->DropDown('Plugin.SphinxSearch.RelatedThreadsBottomDiscussionFormat', array('simple' => 'simple', 'classic' => 'classic', 'sleak' => 'sleak', 'table' => 'table')) ?>
                 </td>
             </tr>
         </tbody>
@@ -269,7 +269,7 @@ echo $this->Form->Errors();
         </tr>
         <tr>
             <td class="Input">
-                <?php echo $this->Form->DropDown('Plugin.SphinxSearch.Workers', array('none', 'fork', 'prefork', 'threads')); ?>
+                <?php echo $this->Form->DropDown('Plugin.SphinxSearch.Workers', array('none' => 'none', 'fork' => 'fork', 'prefork' => 'prefork', 'threads' => 'threads')); ?>
             </td>
             <td>
                 <?php echo $this->Form->Label('Workers', 'Plugin.SphinxSearch.Workers'); ?>
@@ -407,7 +407,7 @@ echo $this->Form->Errors();
     <tbody>
         <tr>
             <td class="Input">
-                <?php echo $this->Form->DropDown('Plugin.SphinxSearch.Morphology', array('none', 'stem_en', 'stem_ru', 'stem_enru', 'stem_cz', 'soundex', 'metaphone')); ?>
+                <?php echo $this->Form->DropDown('Plugin.SphinxSearch.Morphology', array('none' => 'none', 'stem_en' => 'stem_en', 'stem_ru' => 'stem_ru', 'stem_enru' => 'stem_enru', 'stem_cz' => 'stem_cz', 'soundex' =>'soundex', 'metaphone' => 'metaphone')); ?>
             </td>
             <td>
                 <?php echo $this->Form->Label('preprocessors can be applied to the words being indexed to replace different forms of the same word with the base, normalized form. For instance, English stemmer will normalize both "dogs" and "dog" to "dog", making search results for both searches the same. ', 'Plugin.SphinxSearch.Morphology'); ?>
@@ -415,7 +415,7 @@ echo $this->Form->Errors();
         </tr>
         <tr>
             <td class="Input">
-                <?php echo $this->Form->DropDown('Plugin.SphinxSearch.Dict', array('crc', 'dict')); ?>
+                <?php echo $this->Form->DropDown('Plugin.SphinxSearch.Dict', array('crc' => 'crc', 'dict' => 'dict')); ?>
             </td>
             <td>
                 <?php echo $this->Form->Label('Essentially, keywords and CRC dictionaries represent the two different trade-off substring searching decisions. You can choose to either sacrifice indexing time and index size in favor of top-speed worst-case searches (CRC dictionary), or only slightly impact indexing time but sacrifice worst-case searching time when the prefix expands into very many keywords (keywords dictionary). ', 'Plugin.SphinxSearch.Dict'); ?>

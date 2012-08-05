@@ -1,0 +1,336 @@
+/*
+    Document   : sphinxsearchresult
+    Created on : Apr 8, 2012, 2:25:02 AM
+    Author     : Justin
+    Description:
+        Purpose of the stylesheet follows.
+*/
+
+/**
+Tool tip
+
+src; http://stackoverflow.com/questions/5683364/how-to-make-pure-css-floating-tooltips-absolutely-positioned-span-dynamically
+*/
+.ShowToolTip {
+    background-color: black;
+    color: white;
+    padding:5px;
+    margin-top: 1.3em;
+    position: absolute;
+    max-width: 200px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+    z-index: 999;
+    font-size: 12px;
+    font-style: none;
+}
+.HasToolTip .ToolTip {
+    display:none;
+}
+
+/* End ToolTip */
+
+/* Classic searchd
+ - This mirrors the search results as shown on vanillaforums.org/search
+
+*/
+#SphinxResults .ProfilePhotoSmall{
+    vertical-align: bottom; /* Align with the rest of the META text */
+}
+#SphinxResults .MItem {
+    margin-left: 8px;
+    margin-right: 8px;
+    white-space: nowrap;
+}
+#SphinxResults .MItem:first-child {
+    margin-left: 0;
+}
+#SphinxResults .Message {
+    font-size: 100%;
+    line-height: 140%;
+    margin-top: 5px;
+    word-wrap: break-word;
+}
+#SphinxResults .DataList .Excerpt {
+    margin: 5px 0;
+}
+
+/* End Classic Search */
+
+/* For the side panel modules  -overrides stye.css */
+.Box .DataList .Item{
+    border: none; /* no border for these list items */
+    position: inherit; /* or else errors in tooltip */
+    padding: 0px;
+}
+.Box .DataList .Title a{
+    font-size: 100%;
+}
+/* End side box */
+
+
+/** For the Table **/
+#RelatedDiscussion .Bottom { /* makes a nice banner if placing below discussion ..directly out of the main style.css */
+    background: none repeat scroll 0 0 #38ABE3;
+    border-bottom: 1px solid #3DB9E5;
+    color: #FFFFFF;
+    font-size: 120%;
+    font-weight: bold;
+    margin-bottom: 0;
+    padding: 6px 9px 4px;
+}
+#RelatedDiscussion table {
+    font-size: 11px; /* make text small so easy to fit on small resolutions */
+}
+.SphinxSearch table th{
+    border: 1px solid white;
+    color: black;
+    background: none repeat scroll 0 0 #38ABE3;
+    border-width: 2px;
+    padding: 0px 0px 0px 2px;
+    text-align: center !important; /* so the 'Latest' header does not align to the right */
+}
+#SphinxResults .Table .Toggle{
+    cursor: pointer;
+}
+#SphinxResults .Table .ExpandText{
+}
+
+#SphinxResults .Table .PlusImage{
+    background: url("plus.gif") no-repeat 0 center; /* only for the results table */
+    width: 16px;
+    height: 16px;
+    display: inline-block; /* so title and image fit side-by-side */
+}
+#SphinxResults .Table .MinusImage{
+    background: url("minus.gif") no-repeat 0 center; /* only for the results table */
+    width: 16px;
+    height: 16px;
+    display: inline-block; /* so title and image fit side-by-side */
+}
+
+.SphinxSearch .Alt{
+    background-color: #E3F4FF;
+}
+.SphinxSearch  table{
+    border-spacing: 2px;
+    border-collapse: collapse; /* so to add row spacing */
+}
+.SphinxSearch  td{
+    padding-left: 4px;
+    padding-top: 7px;
+    border: 1px solid white;
+}
+.SphinxSearch  table{
+    table-layout: fixed;
+    width: 100%; /* stretch for full effect */
+}
+
+.SphinxSearch  table td{
+    vertical-align: middle;
+}
+.SphinxSearch table .InfoCount{
+    width: 60px;
+    text-align: center;
+    padding: 0px;
+    font-size: smaller;
+}
+.SphinxSearch  table .Forum{
+    width: 100px;
+}
+.SphinxSearch  table .Starter{
+    width: 100px;
+}
+.SphinxSearch  table .Latest{
+    width: 25%;
+    text-align: right;
+    padding-right: 4px;
+    padding-left: 0px;
+}
+
+
+#ReleatedSearches{
+    margin-top: 10px;
+    border-top: 1px dotted #555555;
+    padding-top: 5px;
+}
+/* End Table */
+
+
+/* General Search Result Info stuff */
+.SphinxSearch{ /* for all function */
+    clear: both;
+    margin-top: 5px;
+}
+#MoreOptions{
+    height: 115px;
+    position: relative;
+    width: 100%;
+    padding: 0px 2px;
+}
+
+#SphinxResults #Options {
+    float: right;
+    font-size: smaller;
+}
+#MoreOptions dt{
+    color: #797979;
+    font: bold 15px/18px Arial;
+}
+#SphinxResults #NavBar{
+    clear: both;
+}
+#SphinxResults #SearchQuery{
+    font-size: 22px;
+    color: #646464;
+}
+#SphinxResults #SearchDetail{
+    font-size: 18px;
+    color: #555555;
+}
+#SphinxResults  #TitleBar{
+    margin-left: 9px;
+}
+#SphinxResults  #SearchAgain,
+#SphinxResults .NoResults{
+    margin-left: 9px;
+    float: left;
+}
+#SphinxResults .NoResults{
+    clear: both;
+}
+#SphinxResults #Time{
+    float: left;
+    color: #555555;
+    margin-left: 5px;
+}
+/* End Search Info stuff */
+
+
+
+
+
+
+
+/* sleak layout*/
+.SphinxSearch div.DiscussionInfo{
+    margin-left: 29px;
+    line-height: 15px;
+}
+.SphinxSearch  .UserInfo{
+    clear: both;
+    float: left;
+    height: auto !important;
+    padding: 0.5em 0;
+    width: 100%;
+}
+.SphinxSearch .Contact{
+    display: inline-block;
+    height: auto !important;
+    clear: right;
+    display: block;
+    float: left;
+    position: relative;
+    width: 70%;
+}
+.SphinxSearch .UserNameContainer img{
+    float: left;
+}
+.SphinxSearch  .UserNameContainer{
+    clear: right;
+    display: block;
+    float: left;
+    margin-left: 4px;
+}
+.SphinxSearch .StatsBlock d1{
+    float: right;
+    font-size: 11px;
+    text-align: right;
+    width: 300px;
+}
+.SphinxSearch .Stats{
+    float: right;
+    width: 100px;
+    line-height: 15px;
+    font-size: 10px;
+    margin-top: -5px;
+}
+.SphinxSearch  .Stats dd{
+    margin-right: 10px;
+}
+.SphinxSearch  .Stats .Views{
+    border-top: 1px solid #555555;
+}
+.SphinxSearch  .StatsBlock dt{
+    display: block;
+    float: left;
+    margin-right: 5px;
+    text-align: right;
+    color: #555555;
+}
+.SphinxSearch .StatsBlock dd{
+    padding: 1px 0px;
+}
+.SphinxSearch .StatsBlock{
+    float: right;
+    font-size: 11px;
+    text-align: right;
+    width: 100px;
+}
+/* End sleak */
+
+
+/* Hit Box */
+#HitBox table{
+    overflow: hidden;
+    width: 100%;
+}
+#HitBox table td{
+    font-size: smaller;
+    vertical-align: middle;
+}
+#HitBox td.Docs,
+#HitBox td.Hits{
+    text-align: center;
+}
+#HitBox table th{
+    border-right: 1px solid white;
+    border-bottom: 1px solid white;
+
+}
+#HitBox table th:last-child {
+    border-right: medium none;
+}
+#HitBox th.Docs,
+#HitBox th.Hits{
+    padding-left: 3px;
+}
+#HitBox td.Word{
+    width: 100px;
+}
+/* End Hit Box */
+
+/** Releated Threads box */
+.RelatedThread{
+    font-size: 90%;
+    line-height: 120%;
+    margin-top: 8px;
+}
+
+/** end related threads box */
+
+
+
+
+/* Excerpts */
+.Message .SphinxExcerpts{
+    font-weight: bold;
+    background-color: yellow;
+}
+.Title .SphinxExcerpts{
+    font-weight: bold;
+    font-size: 16px;
+    background-color: yellow;
+}
+/* end excerpts */

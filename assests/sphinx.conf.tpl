@@ -34,7 +34,7 @@ source {ss_prefix}main_comment
 \
             INNER JOIN {db_prefix}Discussion as d ON c.DiscussionID = d.DiscussionID\
             INNER JOIN {db_prefix}User as u ON c.InsertUserID = u.UserID\
-			INNER JOIN {db_prefix}Category as cat ON d.CategoryID = cat.CategoryID\
+	    INNER JOIN {db_prefix}Category as cat ON d.CategoryID = cat.CategoryID\
 \
             WHERE (c.CommentID +1) <=( SELECT max_doc_id FROM {db_prefix}sph_counter WHERE counter_id=1 )\
 
@@ -43,6 +43,8 @@ source {ss_prefix}main_comment
 	sql_attr_uint = UserID
 	sql_attr_uint = docid
 	sql_attr_uint = catid
+
+        {tag_attr}
 
 	sql_attr_timestamp = docdateinserted
     sql_attr_uint = CountViews
@@ -70,7 +72,7 @@ source {ss_prefix}delta_comment : {ss_prefix}main_comment
 \
             INNER JOIN {db_prefix}Discussion as d ON c.DiscussionID = d.DiscussionID\
             INNER JOIN {db_prefix}User as u ON c.InsertUserID = u.UserID\
-			INNER JOIN {db_prefix}Category as cat ON d.CategoryID = cat.CategoryID\
+            INNER JOIN {db_prefix}Category as cat ON d.CategoryID = cat.CategoryID\
 \
             WHERE (c.CommentID +1) > (SELECT max_doc_id FROM {db_prefix}sph_counter WHERE counter_id=1)\
 
@@ -113,6 +115,8 @@ source {ss_prefix}main_discussion
 	sql_attr_uint = UserID
 	sql_attr_uint = docid
 	sql_attr_uint = catid
+
+        {tag_attr}
 
 	sql_attr_timestamp = docdateinserted
     sql_attr_uint = CountViews
@@ -191,8 +195,8 @@ index {ss_prefix}stats
 	source	= {ss_prefix}stats
 	path	= {data_path}{ss_prefix}stats
 	docinfo	= extern
-	morphology	= stem_enru
-	html_strip		= 1
+
+
 }
 
 index vanilla
@@ -200,11 +204,36 @@ index vanilla
     type            =  distributed
     local           =  {ss_prefix}main
     local           =  {ss_prefix}delta
+
+
+    #index settings
+    morphology      = {morphology}
+    dict            = {dict}
+    min_stemming_len = {min_stemming_len}
+    stopwords       = {stopwords} #path to text file if enabled, else empty
+    wordforms       = {wordforms}
+    min_word_len    = {min_word_len}
+    min_prefix_len  = {min_prefix_len}
+    min_infix_len   = {min_infix_len}
+    enable_star     = {enable_star}
+    ngram_len       = {ngram_len}
+    html_strip      = {html_strip}
+    ondisk_dict     = {ondisk_dict}
+    inplace_enable  = {inplace_enable}
+    expand_keywords = {expand_keywords}
+    rt_mem_limit    = {rt_mem_limit}
+
+
 }
 
 indexer
 {
+    #indexer settings
     mem_limit       = {mem_limit}
+    max_iops        = {max_iops}
+    max_iosize      = {max_iosize}
+    write_buffer    = {write_buffer}
+    max_file_field_buffer = {max_file_field_buffer}
 }
 
 searchd
@@ -212,10 +241,19 @@ searchd
     port            = {searchd_port}
     log             = {log_path}
     query_log       = {query_path}
-    read_timeout    = 5
-    max_children    = 30
     pid_file        = {PID_path}
+
+
+    #settings
+    read_timeout    = {read_timeout}
+    client_timeout  = {client_timeout}
+    max_children    = {max_children}
     max_matches     = {max_matches}
+    read_buffer     = {read_buffer}
+    workers         = {workers}
+    thread_stack    = {thread_stack}
+    expansion_limit = {expansion_limit}
+    prefork_rotation_throttle = {prefork_rotation_throttle}
 
     compat_sphinxql_magics = 0 # the future is now
 }

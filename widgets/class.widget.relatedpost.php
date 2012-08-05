@@ -1,38 +1,42 @@
 <?php
 
 /**
- * Displays recent threads either above or below the currently viewed topic
- *
- * The handler to hook onto are the following:
- * - DiscussionController_BeforeDiscussion_Handler
- * - DiscussionController_AfterDiscussion_Handler
+ * Displays related threads above new topic discussions on the postcontroller
  *
  */
 class WidgetRelatedPost extends Widgets implements SplObserver {
 
     public $Results = array();
     private $Queries = array();
+    private $Name = 'RelatedPost';
 
     public function __construct($SphinxClient, $Settings) {
         parent::__construct($SphinxClient, $Settings);
     }
 
     public function Update(SplSubject $Subject) {
-
+        //do nothing
     }
 
+    /**
+     * @todo fix this so the update function does something here
+     *
+     * @param type $Sender
+     * @param type $Options
+     * @return boolean
+     */
     public function AddQuery($Sender, $Options = FALSE) {
-        if ($Sender->ControllerName == 'postcontroller') {
+        $Thread = GetValue('Query', $Options); //get the discussion name (thread topic) to search against
+        if ($Options) { //call this directly from handler: Controller_newdiscussion
             $this->SphinxClient->ResetFilters();
             $this->SphinxClient->ResetGroupBy();
-            $Thread = $Options['Query']; //get the discussion name (thread topic) to search against
-            $Query = $this->RelatedThreads($Thread, $this->Settings['Admin']->LimitRelatedPost);
-            $QueryIndex = $this->SphinxClient->AddQuery($Query, $Index = SPHINX_INDEX_DIST, 'Related Post');
+            $this->SphinxClient->SetLimits(0, $this->Settings['Admin']->LimitRelatedThreadsPost);
+
+            $Query = $this->FieldSearch($this->OperatorOrSearch($Thread), array(SS_FIELD_TITLE));
+            $QueryIndex = $this->SphinxClient->AddQuery($Query, $Index = SS_INDEX_DIST, $this->Name);
             $this->Queries[] = array(
-                'Name' => 'Related_Post',
+                'Name' => $this->Name,
                 'Index' => $QueryIndex,
-                'Highlight' => FALSE,
-                'IgnoreFirst' => FALSE,
             );
             return $this->Queries;
         }
@@ -40,13 +44,14 @@ class WidgetRelatedPost extends Widgets implements SplObserver {
             return FALSE;
     }
 
-    public function ToString($Results) {
+    public function ToString($Results, $Query) {
+        $Matches = $this->GetSQLData($this->Settings['Admin']->RelatedThreadsPostFormat, GetValue('matches',$Results)); //get SQL data
+        $Results = $this->HighLightResults($Matches, $Query, $this->Settings['Admin']->BuildExcerptsTitleEnable, $this->Settings['Admin']->BuildExcerptsBodyEnable);
         $String = '';
         if ($Results == 0) {
             return; //return an empty string if no results
         }
-        // $String .= '<h4 id="Header_Related">Related Discussions</h4>';
-        $String .= WriteTable($Results);
+        $String .= WriteResults($this->Settings['Admin']->RelatedThreadsPostFormat, $Results);
 
         return $String;
     }

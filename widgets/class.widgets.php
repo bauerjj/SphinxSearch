@@ -13,9 +13,13 @@ abstract class Widgets {
         $this->Connect();
     }
 
+    /**
+     * @todo why 'SetRetries' causes sphinx to not run any queries.....
+     */
     private function Connect() {
         $this->SphinxClient->SetServer($this->Settings['Install']->Host, (int) $this->Settings['Install']->Port); //must start searchd in order to connect...or else conection will be refused
         $this->SphinxClient->SetMaxQueryTime((int) $this->Settings['Admin']->MaxQueryTime); // Sets maximum search query time, in milliseconds. Default valus is 0 which means "do not limit".
+        //$this->SphinxClient->SetRetries((int) $this->Settings['Admin']->RetriesCount, (int)$this->Settings['Admin']->RetriesDelay );
         $this->SphinxClient->SetMatchMode(SPH_MATCH_EXTENDED2); //use this since using boolean operators
     }
 
@@ -24,12 +28,14 @@ abstract class Widgets {
         $Discussions = array();
         $Offset = 0; //keep the order of sphinx result
 
-        foreach ($SphinxMatches as $Row) { //
-            if ($Row->iscomment)
-                $Comments [$Offset] = $Row->docid; //comments are offset by taking the max of discussion and adding it
-            else
-                $Discussions [$Offset] = $Row->docid;
-            $Offset++;
+        if (is_array($SphinxMatches) && sizeof($SphinxMatches) > 0) {
+            foreach ($SphinxMatches as $Row) { //
+                if ($Row->iscomment)
+                    $Comments [$Offset] = $Row->docid; //comments are offset by taking the max of discussion and adding it
+                else
+                    $Discussions [$Offset] = $Row->docid;
+                $Offset++;
+            }
         }
 
         return array('Comment' => $Comments, 'Discussion' => $Discussions);
@@ -50,15 +56,15 @@ abstract class Widgets {
             case 'sleak':
                 $Result = $this->PrepareSleak($Matches);
                 break;
-            case 'full':
-                $Result = $this->PrepareFull($Matches);
-                break;
             case 'table':
                 $Result = $this->PrepareTable($Matches);
                 break;
             case 'simple':
-            default:
                 $Result = $this->PrepareSimple($Matches);
+                break;
+            case 'classic':
+            default:
+                $Result = $this->PrepareClassic($Matches);
                 break;
         }
         return $Result;
@@ -66,13 +72,13 @@ abstract class Widgets {
 
     protected function PrepareSleak($Matches) {
 
-        return $this->PrepareFull($Matches);
+        return $this->PrepareClassic($Matches);
     }
 
     protected function PrepareSimple($Matches) {
         $SQL = Gdn::SQL();
         $Comment = $SQL->Select('c.DiscussionID')
-                ->Select('d.Name as Title, c.Body as Body, d.Body as DiscussionBody')
+                ->Select('d.Name as Title, c.Body as Body, d.Body as DiscussionBody, c.CommentID as CommentID, d.CountComments, 1 as IsComment')
                 ->From('Comment as c')
                 ->Join('Discussion as d', 'c.DiscussionID = d.DiscussionID')
                 ->WhereIn('c.CommentID', $Matches['Comment'])
@@ -80,7 +86,7 @@ abstract class Widgets {
                 ->Result()
         ;
         $Discussion = $SQL->Select('d.DiscussionID')
-                ->Select('d.Name as Title, d.Body as Body, d.Body as DiscussionBody')
+                ->Select('d.Name as Title, d.Body as Body, d.Body as DiscussionBody, d.DiscussionID as CommentID, d.CountComments, 0 as IsComment')
                 ->From('Discussion as d')
                 ->WhereIn('d.DiscussionID', $Matches['Discussion'])
                 ->Get()
@@ -94,48 +100,47 @@ abstract class Widgets {
     protected function PrepareTable($Matches) {
         //print_r($Matches); die;
         $SQL = Gdn::SQL();
-        $WhereIn = $this->WhereIn('c.DiscussionID', $Matches['Comment']);
+        $Prefix = C('Database.Prefix', 'GDN_');
+        $WhereIn = $this->WhereIn('c.CommentID', $Matches['Comment']);
         //This query checks if the LastUserID and LastCommentID are Null.
         $Comment = $SQL->Query('
-            select c.DiscussionID as `DiscussionID`, c.InsertUserID as `InsertUserID`, c.DateInserted as `DateInserted`, c.Body as Body,
+            select c.CommentID as CommentID, c.DiscussionID as `DiscussionID`, c.InsertUserID as `InsertUserID`, c.DateInserted as `DateInserted`, c.Body as Body, 1 as IsComment,
             IF(d.LastCommentUserID IS NULL, d.InsertUserID, d.LastCommentUserID) as `LastCommentUserID`, d.DateLastComment as `DateLastComment`, if(d.LastCommentID is NULL, d.DiscussionID, d.LastCommentID) as `LastCommentID`,
             d.CountComments as `CountComments`, d.CountViews as `CountViews`, d.Name as `Title`,d.Body as DiscussionBody,
             u.Name as `UserName`, u.UserID as `UserID`,
             Lu.Name as `LastUserName`, Lu.UserID as `LastUserID`,
             cat.Name as `CatName`, cat.UrlCode as `CatUrlCode`
-            from GDN_Comment c
-            inner join GDN_Discussion d on d.DiscussionID = c.DiscussionID
-            left join GDN_User Lu on Lu.UserID = (IF(d.LastCommentUserID IS NULL, d.InsertUserID, d.LastCommentUserID))
-            left join GDN_User u on u.UserID = d.InsertUserID
-            inner join GDN_Category cat on cat.CategoryID = d.CategoryID
+            from ' . $Prefix . 'Comment c
+            inner join ' . $Prefix . 'Discussion d on d.DiscussionID = c.DiscussionID
+            left join ' . $Prefix . 'User Lu on Lu.UserID = (IF(d.LastCommentUserID IS NULL, d.InsertUserID, d.LastCommentUserID))
+            left join ' . $Prefix . 'User u on u.UserID = d.InsertUserID
+            inner join ' . $Prefix . 'Category cat on cat.CategoryID = d.CategoryID
             where ' . $WhereIn . '
             ')->Result();
-
-
 
         $WhereIn = $this->WhereIn('d.DiscussionID', $Matches['Discussion']); //only retrieving discussions
         //This query checks if the LastUserID and LastCommentID are Null.
         $Discussion = $SQL->Query('
-            select d.DiscussionID as `DiscussionID`, d.InsertUserID as `InsertUserID`, d.DateInserted as `DateInserted`, IF(d.LastCommentUserID IS NULL, d.InsertUserID, d.LastCommentUserID) as `LastCommentUserID`, d.DateLastComment as `DateLastComment`, if(d.LastCommentID is NULL, d.DiscussionID, d.LastCommentID) as `LastCommentID`,
-            d.CountComments as `CountComments`, d.CountViews as `CountViews`, d.Name as `Title`, d.Body as Body, d.Body as DiscussionBody,
+            select d.DiscussionID as CommentID, d.DiscussionID as `DiscussionID`, d.InsertUserID as `InsertUserID`, d.DateInserted as `DateInserted`, IF(d.LastCommentUserID IS NULL, d.InsertUserID, d.LastCommentUserID) as `LastCommentUserID`, d.DateLastComment as `DateLastComment`, if(d.LastCommentID is NULL, d.DiscussionID, d.LastCommentID) as `LastCommentID`,
+            d.CountComments as `CountComments`, d.CountViews as `CountViews`, d.Name as `Title`, d.Body as Body, d.Body as DiscussionBody, 0 as IsComment,
             u.Name as `UserName`, u.UserID as `UserID`,
             Lu.Name as `LastUserName`, Lu.UserID as `LastUserID`,
             cat.Name as `CatName`, cat.UrlCode as `CatUrlCode`
-            from GDN_Discussion d
-            left join GDN_User Lu on Lu.UserID = (IF(d.LastCommentUserID IS NULL, d.InsertUserID, d.LastCommentUserID))
-            left join GDN_User u on u.UserID = d.InsertUserID
-            inner join GDN_Category cat on cat.CategoryID = d.CategoryID
+            from ' . $Prefix . 'Discussion d
+            left join ' . $Prefix . 'User Lu on Lu.UserID = (IF(d.LastCommentUserID IS NULL, d.InsertUserID, d.LastCommentUserID))
+            left join ' . $Prefix . 'User u on u.UserID = d.InsertUserID
+            inner join ' . $Prefix . 'Category cat on cat.CategoryID = d.CategoryID
             where ' . $WhereIn . '
             ')->Result();
         return $this->SortTableResults($Matches, $Comment, $Discussion);
     }
 
-    protected function PrepareFull($Matches) {
+    protected function PrepareClassic($Matches) {
         //print_r($Matches); die;
         $SQL = Gdn::SQL();
         $WhereIn = $this->WhereIn('c.CommentID', $Matches['Comment']); //only retrieving comments and the title of the discussion
 
-        $Comment = $SQL->Select('c.DiscussionID, c.InsertUserID, c.Body, c.DateInserted')
+        $Comment = $SQL->Select('c.DiscussionID, c.InsertUserID, c.Body, c.DateInserted, c.CommentID as CommentID, 1 as IsComment')
                 ->Select('d.CountComments, d.CountViews, d.Name as Title,d.Body as DiscussionBody')
                 ->Select('u.Name as UserName, u.Photo as UserPhoto, u.UserID')
                 ->Select('cat.Name as CatName, cat.UrlCode as CatUrlCode')
@@ -147,7 +152,7 @@ abstract class Widgets {
                 ->Get()
                 ->Result()
         ;
-        $Discussion = $SQL->Select('d.DiscussionID, d.InsertUserID, d.Body, d.DateInserted, d.LastCommentUserID')
+        $Discussion = $SQL->Select('d.DiscussionID, d.InsertUserID, d.Body, d.DateInserted, d.LastCommentUserID, d.DiscussionID as CommentID, 0 as IsComment')
                 ->Select('d.CountComments, d.CountViews, d.Name as Title, d.Body as DiscussionBody')
                 ->Select('u.Name as UserName, u.Photo as UserPhoto, u.UserID')
                 ->Select('cat.Name as CatName, cat.UrlCode as CatUrlCode')
@@ -161,17 +166,29 @@ abstract class Widgets {
         return $this->SortTableResults($Matches, $Comment, $Discussion);
     }
 
+    /**
+     *
+     *
+     * @param type $Matches
+     * @param type $Comment
+     * @param type $Discussion
+     * @return type
+     */
     protected function SortTableResults($Matches, $Comment, $Discussion) {
         $Offset = 0;
         $Return = array();
         foreach ($Matches['Comment'] as $Rating => $ID) {
-            $Return[$Rating] = $Comment[$Offset];
-            $Offset++;
+            if (array_key_exists($Offset, $Comment)) { //make sure the ID that sphinx returned is still a valid ID in the database
+                $Return[$Rating] = $Comment[$Offset];
+                $Offset++;
+            }
         }
         $Offset = 0;
         foreach ($Matches['Discussion'] as $Rating => $ID) {
-            $Return[$Rating] = $Discussion[$Offset];
-            $Offset++;
+            if (array_key_exists($Offset, $Discussion)) {//make sure the ID that sphinx returned is still a valid ID in the database
+                $Return[$Rating] = $Discussion[$Offset];
+                $Offset++;
+            }
         }
         ksort($Return); //sort them back in their original ratings again
 
@@ -204,9 +221,9 @@ abstract class Widgets {
         $BodyArray = array(); //use this array to pass to sphinx
         foreach ($Results as $Row) {
             if (isset($Row->Body))
-                $BodyArray[] = $Row->Body;
+                $BodyArray[] = Gdn_Format::Text($Row->Body); //format text here to the special <span> are in tact later
             if (isset($Row->Title))
-                $TitleArray[] = $Row->Title;
+                $TitleArray[] = Gdn_Format::Text($Row->Title);
         }
         if ($HighlightBody)
             $BodyArray = $this->SphinxClient->BuildExcerpts($BodyArray, SS_INDEX_MAIN, $Query, $BuildExcerptsSettings); //build excerpts
@@ -308,7 +325,7 @@ abstract class Widgets {
         $WithReplies = (filter_input(INPUT_GET, 'WithReplies', FILTER_SANITIZE_NUMBER_INT) == 1 ? 1 : 0); //checkbox - bool
         $Match = filter_input(INPUT_GET, 'match', FILTER_SANITIZE_STRING);
         $Child = (filter_input(INPUT_GET, 'child', FILTER_SANITIZE_NUMBER_INT) == 1 ? 1 : 0); //checkbox - bool
-        if (isset($_GET['forums'])) {
+        if (isset($_GET['forums']) && is_array($_GET['forums'])) {
             foreach ($_GET['forums'] as $Forum) {
                 if (is_numeric($Forum)) //check if int
                     $ForumList[] = $Forum;

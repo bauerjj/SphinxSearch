@@ -14,10 +14,10 @@ class WidgetHitBox extends Widgets implements SplObserver {
         $Results = $Status['Results'];
         $Sender = $Status['Sender'];
 
-        if ($Sender->ControllerName == 'searchcontroller' && isset($Results['Main']['words']) && !(empty($_GET) || isset($_GET['tar']))) {
+        if ($Sender->ControllerName == 'searchcontroller' && isset($Results['MainSearch']['words']) && !(empty($_GET) || isset($_GET['tar']))) {
             if ($this->Settings['Admin']->MainHitBoxEnable > 0) { //is the hitbox enabled?
-                if (sizeof($Results['Main']['words']) > 0) {
-                    $Module = new HitBoxModule($Results['Main']['words']);
+                if (sizeof($Results['MainSearch']['words']) > 0) {
+                    $Module = new HitBoxModule($Results['MainSearch']['words']);
                     $Sender->AddModule($Module);
                 }
             }

@@ -32,15 +32,15 @@ class WidgetRelatedDiscussion extends Widgets implements SplObserver {
 
             if (!isset($Results[$this->Name])) { // the '!' is important here
                 if ($this->Settings['Admin']->LimitRelatedThreadsBottomDiscussion > 0) { //put it on the bottom
-                    $Matches = $this->GetSQLData($this->Settings['Admin']->RelatedThreadsBottomDiscussionFormat, $Results['matches']);
+                    $Matches = $this->GetSQLData($this->Settings['Admin']->RelatedThreadsBottomDiscussionFormat, GetValue('matches',$Results));
                     $String = $this->ToString($Matches);
                     echo $String;
                 }
             } else {
                 if ($this->Settings['Admin']->LimitRelatedThreadsSidebarDiscussion > 0) { //put it on the sidebar
-                    //$Matches = $this->GetSQLData('simple', $Results[$this->Name]['matches']);
-                    //$Module = new RelatedDiscussionModule(WriteSimple($Matches));
-                    //$Sender->AddModule($Module);
+                    $Matches = $this->GetSQLData('simple', GetValue('matches',$Results[$this->Name]));
+                    $Module = new RelatedDiscussionModule($this->ToString($Matches, TRUE));
+                    $Sender->AddModule($Module);
                 }
 
                 //first time seeing this after 'base_render_before'...must set the data on the view
@@ -55,7 +55,7 @@ class WidgetRelatedDiscussion extends Widgets implements SplObserver {
             $this->SphinxClient->ResetGroupBy();
             $this->SphinxClient->SetSortMode(SPH_SORT_RELEVANCE);
             $this->SphinxClient->SetRankingMode(SPH_RANK_WORDCOUNT);
-            $this->SphinxClient->SetLimits(0, $this->Settings['Admin']->LimitRelatedThreadsSidebarDiscussion);
+            $this->SphinxClient->SetLimits(1, $this->Settings['Admin']->LimitRelatedThreadsSidebarDiscussion); //notice the offset of '1'. This is so don't select current viewed discussion as related
             $Thread = $Sender->Discussion->Name; //get the discussion name (thread topic) to search against
             $Query = $this->FieldSearch($this->OperatorOrSearch($Thread), array(SS_FIELD_TITLE));
             $QueryIndex = $this->SphinxClient->AddQuery($Query, $Index = SS_INDEX_DIST, $this->Name);
@@ -63,8 +63,6 @@ class WidgetRelatedDiscussion extends Widgets implements SplObserver {
             $this->Queries[] = array(
                 'Name' => $this->Name,
                 'Index' => $QueryIndex,
-                'Highlight' => FALSE,
-                'IgnoreFirst' => TRUE,
             );
             return $this->Queries;
         }
@@ -72,15 +70,45 @@ class WidgetRelatedDiscussion extends Widgets implements SplObserver {
             return FALSE;
     }
 
-    private function ToString($Results) {
+    /**
+     *
+     *
+     *
+     */
+    private function ToString($Results, $Panel = FALSE) {
         $String = '';
         if (sizeof($Results) == 0) {
             return; //return an empty string if no results
         }
-        $String .= '<h4 id="Header_Related">Related Discussions</h4>';
-        $String .= WriteResults('Table',$Results);
+        if (!$Panel) { //writing to the bottom of the discussion
+            ob_start();
+            ?>
 
-        return $String;
+          <div id="RelatedDiscussion" class="Box"><!--   Important to distinugish this from the one in the panel because of the h4 banner in mainsearch.css-->
+                <h4 class="Header Bottom">Related Discussions</h4>
+                <?php echo WriteResults($this->Settings['Admin']->RelatedThreadsBottomDiscussionFormat, $Results) ?>
+            </div>
+
+            <?php
+            $String = ob_get_contents();
+            @ob_end_clean();
+            return $String;
+        }
+        else{ //writing to the panel
+            ob_start();
+            ?>
+
+            <div id="RelatedDiscussion" class="Box">
+                <h4 class="Header">Related Discussions</h4>
+                <?php echo WriteResults('Simple',$Results, FALSE, TRUE) ?>
+            </div>
+
+            <?php
+            $String = ob_get_contents();
+            @ob_end_clean();
+            return $String;
+
+        }
     }
 
 }

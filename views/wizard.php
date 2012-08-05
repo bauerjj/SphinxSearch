@@ -116,7 +116,6 @@ if (!defined('APPLICATION'))
     echo '<h2>', T('Need More Help?'), '</h2>';
     echo '<ul>';
     echo '<li>', Anchor(T('Install FAQ'), 'plugin/sphinxsearch/sphinxfaq'), '</li>';
-    echo '<li>', Anchor(T('Vanilla Forums Install Thread'), ''), '</li>';
     echo '<li>', Anchor(T('Offical Sphinx Documentation'), 'http://sphinxsearch.com/docs/current.html'), '</li>';
     echo '</ul>';
     ?>
@@ -135,14 +134,14 @@ if (!defined('APPLICATION'))
 <br/>
 <br/>
 <?php
-echo $this->Form->Open();
+echo $this->Form->Open(array('id'=>'Form'));
 echo $this->Form->Errors();
 $Settings = $this->Data('Settings');
 ?>
 <br/>
 <div class="FilterMenu">
     <?php
-    $ToggleName = $Settings['Wizard']->StartWizard == TRUE ? T('Close Wizard') : T('Start Wizard');
+    $ToggleName = $Settings['Wizard']->StartWizard == TRUE ? T('Restart Wizard') : T('Start Wizard');
     echo '<div id="ToggleWizard">' . Wrap(Anchor($ToggleName, 'plugin/sphinxsearch/installwizard/' . Gdn::Session()->TransientKey() . '?action=ToggleWizard', 'SmallButton')) . "</div>";
     echo '<br/>Current Action: <b>' . $this->Data['NextAction'] . '</b>';
     ?>
@@ -170,6 +169,15 @@ $Settings = $this->Data('Settings');
     <div id="MainWrapper">
         <div id="RightWrapper">
             <div id="Right">
+                <div class="Info">
+                    <?php echo $this->Form->Label('Run in background: ', 'Background'); ?>
+                    <?php echo $this->Form->RadioList('Background', array(TRUE => 'True', FALSE => 'False'), array('list' => FALSE, 'default' => 'False')) ?>
+                    <ul class="Settings">
+                        <li class="FootNote">This lets all of the install commands to run in the background. Useful for long operations.If running in background, terminal output is presented below in the black box.</li>
+                        <li class="FootNote">Wizard will proceed automatically when finished when running in background!! Do NOT proceed manually!</li>
+                    </ul>
+                </div>
+
                 <div id="Status">
                 </div>
                 <div id="messages">
@@ -183,25 +191,9 @@ $Settings = $this->Data('Settings');
         <div id="Left">
             <div class="Inner">
                 <ul>
-                    <?php
-                    echo $this->Form->RadioList('Plugin.SphinxSearch.Detected', array('Detected' => '<span style="color: ' . $InstallColor . '">Install using Existing System Binaries</span>'), array_merge($DisabledExisting, $Disabled));
-                    ?>
-                    <li><?php
-                echo $this->Form->Label('Detected Indexer Path:', 'Plugin.SphinxSearch.IndexerPath');
-                echo $this->Form->Textbox('Plugin.SphinxSearch.IndexerPath', array_merge($Disabled, $DisabledExisting, array('value' => $Settings['Install']->IndexerPath)));
-                    ?></li>
-                    <li><?php
-                    echo $this->Form->Label('Detected Searchd Path', 'Plugin.SphinxSearch.SearchdPath');
-                    echo $this->Form->Textbox('Plugin.SphinxSearch.SearchdPath', array_merge($Disabled, $DisabledExisting, array('value' => $Settings['Install']->SearchdPath)));
-                    ?></li>
-                    <li><?php
-                    echo $this->Form->Label('Detected Conf Path', 'Plugin.SphinxSearch.ConfPath');
-                    echo $this->Form->Textbox('Plugin.SphinxSearch.ConfPath', array_merge($Disabled, $DisabledExisting, array('value' => $Settings['Install']->ConfPath)));
-                    ?></li>
-
-                    <li><br/>
+                    <li>
                         <?php
-                        echo $this->Form->RadioList('Plugin.SphinxSearch.Detected', array('Manual' => '* Install using manually located paths'), array_merge($Disabled, array('Default' => 'NotDetected')));
+                        echo $this->Form->RadioList('Plugin.SphinxSearch.Detected', array('Manual' => '* Use existing binaries'), array_merge($Disabled, array('Default' => 'NotDetected')));
                         ?>
                     </li>
                     <li>
@@ -266,9 +258,9 @@ $Settings = $this->Data('Settings');
             <span class="Finish"><?php echo T('Congraduations  Sphinx has been installed successfully!') ?></span>
             <br/>
             <ul>
-                <li><?php echo Anchor('*View my custom Sphinx.conf file', 'plugin/sphinxsearch/viewfile/' . Gdn::Session()->TransientKey() . '?action=viewfile&file=conf'); ?></li>
-                <li><?php echo Anchor('View my custom main cron file', 'plugin/sphinxsearch/viewfile/' . Gdn::Session()->TransientKey() . '?action=viewfile&file=maincron'); ?></li>
-                <li><?php echo Anchor('View my custom delta cron file', 'plugin/sphinxsearch/viewfile/' . Gdn::Session()->TransientKey() . '?action=viewfile&file=deltacron'); ?></li>
+                <li><?php echo Anchor('*View my custom Sphinx.conf file', 'plugin/sphinxsearch/viewfile/' . Gdn::Session()->TransientKey() . '?action=viewfile&file=conf', array('target'=>'_blank')); ?></li>
+                <li><?php echo Anchor('View my custom main cron file', 'plugin/sphinxsearch/viewfile/' . Gdn::Session()->TransientKey() . '?action=viewfile&file=maincron', array('target'=>'_blank')); ?></li>
+                <li><?php echo Anchor('View my custom delta cron file', 'plugin/sphinxsearch/viewfile/' . Gdn::Session()->TransientKey() . '?action=viewfile&file=deltacron', array('target'=>'_blank')); ?></li>
 
                 <li><span style="font-style:italic">* Contains your database username/password</span></li>
             </ul>
@@ -280,9 +272,8 @@ $Settings = $this->Data('Settings');
         <?php
         if (!$Settings['Wizard']->Installed)
             echo $this->Form->Close('Save and Continue'); else
-            echo '<div class="Finish">' . Wrap(Anchor('Return to Settings', 'plugin/sphinxsearch', 'SmallButton')) . "</div>";
+            echo '<div class="Finish">' . Wrap(Anchor('Return to Control Panel', 'plugin/sphinxsearch', 'SmallButton')) . "</div>";
         ?>
-        <?php
-
-     endif  ?>
-<br/>
+    <?php endif
+    ?>
+    <br/>

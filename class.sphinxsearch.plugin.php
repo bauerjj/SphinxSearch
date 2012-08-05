@@ -3,53 +3,41 @@
 if (!defined('APPLICATION'))
     exit();
 /*
- * This program is free software: you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation, either version 3 of the License, or
-  (at your option) any later version.
-
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
-
-  You should have received a copy of the GNU General Public License
-  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * This software is licensed under GPLv2 - see the license in the root of this folder
+ *
  *
  */
 
 $PluginInfo['SphinxSearch'] = array(
     'Name' => 'SphinxSearch',
-    'Description' => 'A much improved search experience based on the Sphinx Search Engine',
-    'Version' => '20120420',
-    'RequiredApplications' => array('Vanilla' => '2.0'),
+    'Description' => 'A much improved search experience with widgets based on the Sphinx Search Engine',
+    'Version' => '20120804',
+    'RequiredApplications' => array('Vanilla' => '2.0.18.4'),
     'RequiredTheme' => FALSE,
     'RequiredPlugins' => FALSE,
     'HasLocale' => TRUE,
     'SettingsUrl' => '/plugin/sphinxsearch',
     'SettingsPermission' => 'Garden.AdminUser.Only',
     'Author' => "mcuhq",
-    'AuthorEmail' => 'info@mcuhq.com',
-    'AuthorUrl' => 'http://mcuhq.com'
+    'AuthorEmail' => 'kapotchy@gmail.com',
+    'AuthorUrl' => 'http://mcuhq.com/forums'
 );
 
 class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
 
     private $PostPrefix = 'Configuration/'; //not sure why this is inside of the $_POST.....
     public $AlreadySent; //hack to workaround lack of handlers to hook into for rendering this
-    public $Started = FALSE;
-    public $Handle = '';
-    public $Widgets = array();
-    public $SphinxClient;
+    public $Started = FALSE;    //use this to interrupt main search from executing
+    public $Widgets = array();  //list of registered widgets
+    public $SphinxClient;       //only have one instance of this
     public $Queries = array(); //keep track of queries
-    public $Settings = array();
+    public $Settings = array(); //all settings related to sphinx are kept in here (READ ONLY)
     public $_Status = array(); //log of stuff that is happening
     public $_Storage = array(); //storage of objects that are subscribed
 
     public function __construct() {
         //@todo for testing
-        error_reporting(E_ALL);
-
+         //error_reporting(E_ALL);
         ////////////////////////////////////////////////
         //Sphinx plugin core modules
         /////////////////////////////////////////////////
@@ -70,15 +58,12 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
         //create subclasses
         $this->_Storage = new SplObjectStorage();
 
-//        foreach($this->Settings['Admin'] as $Name=>$Default){
-//            SaveToConfig('Plugin.SphinxSearch.'.$Name,$Default);
-//        }
-
-        if ($this->Settings['Status']->SearchdRunning && $this->Settings['Status']->SearchdPortStatus) { //check if sphinx is running
+        if ($this->Settings['Status']->SearchdRunning) { //check if sphinx is running
+            //If so, register the widgets
             $this->RegisterWidgets();
             $this->RegisterModules();
             $Service = new SphinxSearchService($this->Settings);
-            $Service->Status(); //update the status
+            $Service->Status(); //update the widgets
         }
     }
 
@@ -152,14 +137,13 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
     public function Base_Render_Before(&$Sender) {
         //'discussioncontroller','categoriescontroller','discussionscontroller','profilecontroller',
         //'activitycontroller','draftscontroller','messagescontroller', searchcontroller
-        $Sender->AddCssFile('/plugins/SphinxSearch/design/widgetrelateddiscussion.css'); //for the tooltip as well
+        $Sender->AddCssFile('/plugins/SphinxSearch/design/result.css'); //for the tooltip as well
         $this->QueryWidgets($Sender);
         $Sender->AddJsFile('jquery.hoverintent.js', 'plugins' . DS . 'SphinxSearch' . DS); //tooltip
         $Sender->AddJsFile('jquery.tooltip.js', 'plugins' . DS . 'SphinxSearch' . DS); //tooltip
         ///////////////This runs sphinx !!!////////////////////
         $Results = $this->RunSearch($Sender); //only 1 search call is made...use sphinxclient->AddQuery(...)
         ///////////////////////////////////////////////////////
-
         $this->Update($Results, $Sender); //update the widgets notifiying of results
         //get the updated settings
         $Settings = SphinxFactory::BuildSettings();
@@ -168,47 +152,49 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
     }
 
     private function RunSearch($Sender = FALSE) {
-        //@todo check if running first
-
         $FinalResults = array();
-        $Results = $this->SphinxClient->RunQueries(); //perform all of the queries
-        //print_r($Results); die;
-        if ($Results) {
-            foreach ($this->Queries as $Query) {
-                $ResultDocs = array();
-                $Index = $Query['Index'];
-                $Name = $Query['Name'];
-                $Highlight = $Query['Highlight'];
-                $IgnoreFirst = $Query['IgnoreFirst']; //useful for finding related content given the title (don't return the searched for title)
+        if (sizeof($this->Queries) == 0)
+            return $FinalResults; //don't run queries since no queries qued up
+        else if ($this->Settings['Status']->SearchdRunning) {
+            $Results = $this->SphinxClient->RunQueries(); //perform all of the queries
+            //print_r($Results); die;
+            if ($Results) {
+                foreach ($this->Queries as $Query) {
+                    $ResultDocs = array();
+                    $Index = $Query['Index'];
+                    $Name = $Query['Name'];
+                    $Result = $Results[$Index]; //get the individual query result from the results tree
 
-                $Result = $Results[$Index]; //get the individual query result from the results tree
-
-                if ($Result['error'] == FALSE && $Result['total_found'] != 0) { //no errors
-                    if ($IgnoreFirst)
-                        array_shift($Result['matches']);
-
-                    foreach ($Result['matches'] as $Id => $Info) { //preserve the returned Doc ID
-                        if (isset($Info['attrs']))
-                            $ResultDocs[$Id] = Gdn_Format::ArrayAsObject($Info['attrs']); //get the result documents
-                    }
-                    $Words = '';
-                    if (isset($Result['words'])) {
-                        foreach ($Result['words'] as $Word => $Info) {
-                            $Words.= $Word . ' '; //get the submitted input query
+                    if ($Result['error'] == FALSE && $Result['total_found'] != 0 && isset($Result['matches'])) { //no errors
+                        foreach ($Result['matches'] as $Id => $Info) { //preserve the returned Doc ID
+                            if (isset($Info['attrs']))
+                                $ResultDocs[$Id] = Gdn_Format::ArrayAsObject($Info['attrs']); //get the result documents
                         }
-                        $Results[$Index]['query'] = $Words; //add the query back into the resuls array
-                    }
+                        $Words = '';
+                        if (isset($Result['words'])) {
+                            foreach ($Result['words'] as $Word => $Info) {
+                                $Words.= $Word . ' '; //get the submitted input query
+                            }
+                            $Results[$Index]['query'] = $Words; //add the query back into the resuls array
+                        }
 
-                    $Results[$Index]['matches'] = $ResultDocs; //replace highlighted docs back into the main results array
+                        $Results[$Index]['matches'] = $ResultDocs; //replace highlighted docs back into the main results array
+                    }
+                    $FinalResults[$Name] = $Results[$Index];
                 }
-                //if ($Sender != FALSE)
-                //    $Sender->SetData($Name, $Results[$Index]);
-                // else
-                $FinalResults[$Name] = $Results[$Index];
             }
         }
-        //PRINT_R($Results); die;
+        //PRINT_R($FinalResults); die;
         return $FinalResults;
+    }
+
+    /**
+     * Enter here after clicking the little 'help' anchor next to the search button
+     * @param type $Sender
+     */
+    public function Controller_Help($Sender) {
+        $SearchHelpModule = new SearchHelpModule();
+        echo $SearchHelpModule->ToString(); //for now just print out same as the left sidebar
     }
 
     public function PluginController_SphinxSearch_Create($Sender) {
@@ -234,6 +220,8 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
                         $File = PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'cron' . DS . 'cron.reindex.main.php';
                     else if ($_GET['file'] == 'deltacron')
                         $File = PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'cron' . DS . 'cron.reindex.delta.php';
+                    else if ($_GET['file'] == 'statscron')
+                        $File = PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'cron' . DS . 'cron.reindex.stats.php';
                     if (!isset($File)) {
                         echo 'An error has occured';
                         return;
@@ -262,6 +250,7 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
 
         $Task = C('Plugin.SphinxSearch.ServicePollTask');
         switch ($Task) {
+            default:
             case 'Idle':
                 $Return['Status'] = 'Idle';
                 break;
@@ -316,13 +305,16 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
                 switch ($Task) {
                     case 'Idle':
                         $Return['Status'] = 'Idling';
+                        $Return['Terminal'] = 'Ready';
+                        SphinxSearchGeneral::ClearLogFiles();
+
                         break;
                     case 'Start':
                         if ($Error != '') {
                             $Return['Terminal'] .= '<span class="TermWarning">Unable to Proceed due to the following errors:</span> <br/>';
                             break;
                         }
-                        $Wizard->InstallConfigure($InstallPath . DS . 'sphinx', $Dir);
+                        $Wizard->InstallConfigure($InstallPath . DS . 'sphinx', $Dir, TRUE);
                         SaveToConfig('Plugin.SphinxSearch.Task', 'Configure');
                         break;
                     case 'Configure':
@@ -330,11 +322,11 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
                             $Return['Terminal'] .= '<span class="TermWarning">Unable to Proceed due to the above errors</span> <br/>';
                             break;
                         }
-                        $Wizard->InstallMake($Dir);
+                        $Wizard->InstallMake($Dir, TRUE);
                         SaveToConfig('Plugin.SphinxSearch.Task', 'Make');
                         break;
                     case 'Make':
-                        $Wizard->InstallMakeInstall($Dir);
+                        $Wizard->InstallMakeInstall($Dir, TRUE);
                         SaveToConfig('Plugin.SphinxSearch.Task', 'Make Install');
                         break;
                     case 'Make Install':
@@ -360,7 +352,7 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
                         if (C('Plugin.SphinxSearch.Installed'))
                             $Return['Status'] = '<span style="color: green"> Finished Installing libraries/config/cron for Sphinx!</span>';
                         else
-                            $Return['Status'] = 'Waiting to install configuration';
+                            $Return['Status'] = 'Waiting to install configuration - Proceed to step 3';
                         break;
                 }
                 if (C('Plugin.SphinxSearch.Task') == 'FinishLibraries')
@@ -406,6 +398,7 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
                     case 'StartSearchd':
                         $SphinxAdmin->ValidateInstall();
                         $SphinxAdmin->Start();
+                        $SphinxAdmin->CheckPort(); //see if searchd can be connected to
                         break;
                     case 'StopSearchd':
                         $SphinxAdmin->ValidateInstall();
@@ -423,9 +416,9 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
                     case 'ReloadMain':
                     case 'ReloadDelta':
                     case 'ReloadStats':
-                        if($Action == 'ReloadMain')
+                        if ($Action == 'ReloadMain')
                             $Index = SS_MAIN_INDEX;
-                        else if($Action == 'ReloadDelta')
+                        else if ($Action == 'ReloadDelta')
                             $Index = SS_DELTA_INDEX;
                         else
                             $Index = SS_STATS_INDEX;
@@ -434,9 +427,13 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
                         $this->Queries = $ReloadTotalDocFound;
                         $Results = $this->RunSearch();
                         $this->Update($Results, $Sender);
+                    case 'CheckPort':
+                        $SphinxAdmin->CheckPort();
+                        break;
                     default:
                         break;
                 }
+                $Sender->StatusMessage = T("Your action: " . $Action . ' has been executed succesfully');
             }
         }
         $SphinxAdmin->Status();
@@ -463,6 +460,8 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
         include_once(PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'class.sphinxsearchinstallwizard.php'); //include the install wizard
         $SphinxAdmin = SphinxFactory::BuildSphinx($Sender, $this->getview('wizard.php'));
 
+        //SaveToConfig('Plugin.SphinxSearch.SearchdPath', '/usr/bin/sphinx-searchd');
+
         $Sender->SetData('PluginDescription', $this->GetPluginKey('Description'));
         $Sender->SetData('PluginVersion', $this->GetPluginKey('Version'));
 
@@ -476,7 +475,8 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
         $Sender->SetData('NextAction', 'Detection');
         $Sender->SetData('InstallSphinx', FALSE);
         $Sender->Form->SetData($this->ConfigurationModel->Data);
-
+        $Sender->Form->InputPrefix = 'Configuration';
+        //print_r($_POST); die;
         //Wizard State Machine (SM)
         if (GetIncomingValue('NextAction')) {
             SaveToConfig('Plugin.SphinxSearch.Config', TRUE); //next action
@@ -488,40 +488,53 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
                 redirect('plugin/sphinxsearch/installwizard'); //load the wizard page again
             }
         } else if (isset($_POST[$this->PostPrefix . 'NextAction'])) {
+            $Background = GetIncomingValue($this->PostPrefix . 'Background');
             switch ($_POST[$this->PostPrefix . 'NextAction']) {
                 case 'Detection':
-                    $Sender->SetData('NextAction', 'Detection'); //next step
+                    $Sender->SetData('NextAction', 'Detection'); //in case it fails
                     $SphinxAdmin->Detect();
                     $this->ConfigurationModel->Validation->ApplyRule('Plugin.SphinxSearch.Prefix', 'Required');
                     $this->ConfigurationModel->Validation->ApplyRule('Plugin.SphinxSearch.Port', 'Required');
                     $this->ConfigurationModel->Validation->ApplyRule('Plugin.SphinxSearch.Port', 'Integer'); //mut be an int
                     if ($Sender->Form->Save()) {
+                        //@todo don't check port just yet
                         $Sender->StatusMessage = T("Your changes have been saved.");
                         SaveToConfig('Plugin.SphinxSearch.Connection', TRUE); //complete this step
-                        $Sender->SetData('NextAction', 'Install');
+                        $Sender->SetData('NextAction', 'Install'); //next step
                     }
                     else
                         SaveToConfig('Plugin.SphinxSearch.Connection', FALSE); //don't continue
                     break;
                 case 'Install':              //Install Sphinx
-                    $Sender->SetData('NextAction', 'Install');
+                    $Sender->SetData('NextAction', 'Install'); //in case it fails
                     $InstallAction = GetValue($this->PostPrefix . 'Plugin-dot-SphinxSearch-dot-Detected', $_POST);
                     if ($InstallAction == 'Manual') { //use manual
                         $this->ConfigurationModel->Validation->ApplyRule('Plugin.SphinxSearch.ManualSearchdPath', 'Required');
                         $this->ConfigurationModel->Validation->ApplyRule('Plugin.SphinxSearch.ManualIndexerPath', 'Required');
                         $this->ConfigurationModel->Validation->ApplyRule('Plugin.SphinxSearch.ManualConfPath', 'Required');
-                    } else if ($InstallAction == 'Detected') { //use auto detected
-                        $this->ConfigurationModel->Validation->ApplyRule('Plugin.SphinxSearch.SearchdPath', 'Required');
-                        $this->ConfigurationModel->Validation->ApplyRule('Plugin.SphinxSearch.IndexerPath', 'Required');
-                        $this->ConfigurationModel->Validation->ApplyRule('Plugin.SphinxSearch.ConfPath', 'Required');
                     } else if ($InstallAction == 'NotDetected') //use prepackaged
                         $this->ConfigurationModel->Validation->ApplyRule('Plugin.SphinxSearch.InstallPath', 'Required');
                     if ($Sender->Form->Save()) {
                         //refresh settings after save by getting new instance @todo pretty janky
                         $SphinxAdmin = SphinxFactory::BuildSphinx($Sender, $this->getview('wizard.php'));
-                        $SphinxAdmin->InstallAction($InstallAction); //install if using package sphinx, if using manual, verify that paths exist and read info from sphinx.conf
-                        SaveToConfig('Plugin.SphinxSearch.Config', TRUE); //next step
-                        //$this->Sender->SetData('NextAction', 'Detection'); //something failed
+                        //check if running in background - if so, requrie that these files are writable for poller
+                        $SphinxAdmin->CheckDebugFiles();
+                        $PID = explode("\n", trim(file_get_contents(PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'install' . DS . 'pid.txt'))); //Get the PID
+                        $PID = $PID[0]; //get only the first PID
+                        if (!SphinxSearchGeneral::isRunning($PID)) { //First check to make sure an existing installation is not running the background
+                            $SphinxAdmin->InstallAction($InstallAction, $Background); //install if using package sphinx, if using manual, verify that paths exist and read info from sphinx.conf
+                            if (!$Background && $InstallAction == 'NotDetected') {
+                                //If not running in background, proceed to next step immidatly after a succesfull install
+                                //If running background, must wait until the poll routine tells us when to proceeed
+                                SaveToConfig('Plugin.SphinxSearch.Config', TRUE); //next step
+                                $Sender->SetData('NextAction', 'Config'); //next step
+                            } else if ($InstallAction == 'Manual') {//manual install requires no polling...simply check if files exist and if sphinx.conf has info we need and move one
+                                SaveToConfig('Plugin.SphinxSearch.Config', TRUE); //next step
+                                $Sender->SetData('NextAction', 'Config'); //next step
+                            }
+
+                            $Sender->StatusMessage = T("Your changes have been saved.");
+                        }
                     } else {
                         //return FALSE;
                     }
@@ -538,8 +551,9 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
         if ($this->Settings['Wizard']->Config == TRUE) {
             $Sender->SetData('NextAction', 'Config');
         }
-        //get new settins that may have changed
-        $Sender->SetData('Settings', $SphinxAdmin->GetSettings());
+        //get new settings that may have changed
+        $Settings = SphinxFactory::BuildSettings();
+        $Sender->SetData('Settings', $Settings->GetAllSettings());
         $Sender->Render($this->GetView('wizard.php')); //render wizard view
     }
 
@@ -547,25 +561,24 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
      * enter here when enterin a new discussion. sphinx will attempt to find
      * related threads and post them above the proposed discussion title
      *
+     *
      * @return type
      */
     public function Controller_NewDiscussion() {
         $Return = array();
-        if (isset($_POST['Query']))
-            $Query = $_POST['Query'];
-        else
-            return;
+        $Query = GetIncomingValue('Query'); //grab the POSTED query
+        if ($Query) {
+            $RelatedPost = new WidgetRelatedPost($this->SphinxClient, $this->Settings);
+            $Related = $RelatedPost->AddQuery(null, array('Query' => $Query)); //now actually adding the query
+            $this->Queries = array_merge($this->Queries,$Related);
+            $Results = $this->RunSearch();
+            $Results = $Results['RelatedPost']; //name of related post query class name
+            $Return['Text'] = $RelatedPost->ToString($Results, $Query);
 
-        $RelatedPost = new SphinxWidgetRelatedPost($this->SphinxClient);
-        $Related = $RelatedPost->AddQuery(array('Query' => $Query)); //now actually adding the query
-        $this->Queries[] = $Related;
-        $Results = $this->RunSearch();
-
-        $Results = $Results['Related_Post'];
-        $Return['Text'] = $RelatedPost->ToString($Results);
-
-        echo json_encode($Return);
+            echo json_encode($Return);
+        }
     }
+
 
     /**
      * Enter here to interrupt the normal search page from showing.
@@ -578,7 +591,7 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
     public function SearchController_Render_Before($Sender) {
         //In order for the default search engine not to run, we will kill PHP from processing
         //after the sphinx view is loaded
-        if ($this->Settings['Status']->SearchdRunning && $this->Settings['Status']->SearchdPortStatus) { //exit if sphinx is not running
+        if ($this->Settings['Status']->SearchdRunning) { //exit if sphinx is not running
             if ($this->AlreadySent != 1) { //in order to elminate nesting this over and over again as well as allowing result page to render
                 $this->AlreadySent = 1;
 
@@ -592,8 +605,9 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
                     //Load main search page
                     $SearchHelpModule = new SearchHelpModule();
                     $Sender->AddAsset('LeftPanel', $SearchHelpModule, 'LeftPanel');
+
                     $Sender->AddAsset('BottomPanel', '', 'BottomPanel');
-                    $Sender->AddCssFile('/plugins/SphinxSearch/design/sphinxsearch.css');
+                    $Sender->AddCssFile('/plugins/SphinxSearch/design/mainsearch.css');
 
                     //Get list of tags
                     $SQL = Gdn::SQL();
@@ -610,7 +624,7 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
                     $Sender->Render($this->GetView('search' . DS . 'search.php'));
                 } else {
                     //Load results page
-                    $Sender->AddCssFile('/plugins/SphinxSearch/design/sphinxsearchresult.css');
+                    $Sender->AddCssFile('/plugins/SphinxSearch/design/result.css');
                     $Sender->Render($this->GetView('search' . DS . 'index.php'));
                 }
 
@@ -646,7 +660,6 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
      */
     public function PostController_BeforeFormInputs_Handler($Sender, $Args) {
         include_once(PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'widgets' . DS . 'views' . DS . 'relatedpost.php');
-        // include $Sender->FetchViewLocation('QnAPost', '', 'plugins/QnA');
     }
 
     /**
@@ -857,11 +870,15 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
      * These must correlate with class.sphinxsearchconfig.php
      */
     public function Setup() {
-        //@todo do this all in one sweep with $this->Settings
-        //admin settings
-        foreach ($this->Settings['Admin'] as $Name => $Default) {
-            SaveToConfig('Plugin.SphinxSearch.' . $Name, $Default);
+        //all of the settings
+        foreach ($this->Settings as $Type) {
+            foreach ($Type as $Name => $Default) {
+                if (is_array($Default))
+                    continue; //no arrays
+                SaveToConfig('Plugin.SphinxSearch.' . $Name, $Default);
+            }
         }
+
 
         //create shpinx table to tell the indexes what to index
         Gdn::Structure()
@@ -875,6 +892,7 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
         Gdn::Structure()
                 ->Table('sph_stats')
                 ->Column('id', 'int(11)', FALSE) //order matters here!
+                ->Column('mode', 'int(11)', FALSE)
                 ->Column('keywords', 'varchar(255)', FALSE, 'index')
                 ->Column('keywords_full', 'varchar(255)', FALSE)
                 ->Column('date_added', 'datetime', FALSE)
@@ -883,8 +901,12 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
     }
 
     public function OnDisable() {
-        foreach ($this->Settings['Admin'] as $Name => $Default) {
-            RemoveFromSettings($Name);
+        foreach ($this->Settings as $Type) {
+            foreach ($Type as $Name => $Default) {
+                if (is_array($Default))
+                    continue; //no arrays
+                RemoveFromConfig('Plugin.SphinxSearch.' . $Name);
+            }
         }
         Gdn::Structure()
                 ->Table('sph_counter')

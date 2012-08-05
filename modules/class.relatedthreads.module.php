@@ -21,8 +21,10 @@ class RelatedThreadsModule extends Gdn_Module {
         }
         ob_start();
         ?>
-        <h3 class="Header">Related Threads</h3>
-        <?php echo WriteResults('Simple',$this->RelatedThreads); ?>
+        <div id="RelatedThreads" class="Box RelatedThreads">
+            <h4 class="Header"><?php echo T('Related Threads') ?></h4>
+            <?php echo WriteResults('Simple', $this->RelatedThreads, FALSE, TRUE); ?>
+        </div>
         <?php
         $String .= ob_get_contents();
         @ob_end_clean();

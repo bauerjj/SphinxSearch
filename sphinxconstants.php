@@ -3,9 +3,10 @@
 define ('OUTPUT_FILE', PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'install' . DS . 'output.txt');
 define ('PID_FILE', PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'install' . DS . 'pid.txt');
 define ('ERROR_FILE', PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'install' . DS . 'error.txt');
+define ('STOP_WORDS_FILE', PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'assests'. DS .'stop_words.txt');
+define ('WORD_FORMS_FILE', PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'assests'. DS .'word_forms.txt');
 
-
-define ('SS_INSTALL_DIR', dirname(__FILE__).'/install'); //make sure this is inside of ../plugins/SphinxSearch
+define ('SS_INSTALL_DIR', PATH_PLUGINS . DS . 'SphinxSearch' . DS. 'install'); //install path if using packaged installer
 
 //error logs
 define ('SS_SUCCESS', 1);
@@ -13,7 +14,8 @@ define ('SS_WARNING', 2);
 define ('SS_FATAL_ERROR', 3);
 
 //@todo should be a setting
-define ('SS_BODY_LIMIT', 150);
+define ('SS_PREVIEW_BODY_LIMIT', 150); //tooltip hover preview limit
+define ('SS_BODY_LIMIT', 1000); //regular body text limit in main search
 
 
 

@@ -1,0 +1,139 @@
+/*
+    Document   : sphinxsearch
+    Created on : Apr 6, 2012, 1:39:40 AM
+    Author     : mcuhq
+    Description:
+        Sphinx Search Plugin .
+*/
+
+
+/*
+For the main search panel on the left
+
+*/
+#LeftPanel{
+    float: left;
+    width: 200px;
+    padding-left: 5px;
+}
+#LeftPanel ol li{
+    list-style-type: circle;
+    list-style: inside;
+}
+#LeftPanel ol, #LeftPanel ul{
+    margin: 8px 0px;
+}
+#LeftPanel {
+    color: black;
+}
+
+/* Pop-up menu */
+#Popup .SearchHelp{
+    width: 400px;
+    max-height: 600px;
+    overflow-y: auto;
+}
+div.Popup h4 { /* extend this to h4 */
+    background: none repeat scroll 0 0 #38ABE3;
+    border-bottom: 1px solid #3DB9E5;
+    color: #FFFFFF;
+    font-size: 120%;
+    font-weight: bold;
+    margin-bottom: 0;
+    padding: 6px 9px 4px;
+}
+
+/* End pop-up menu */
+
+/**
+ For the keywords tag cloud
+*/
+#Keywords{
+    word-wrap: break-word;
+}
+#Keywords .Space{
+    padding: 0px 5px;
+}
+#Keywords .largest{
+    font-size: larger;
+}
+#Keywords .large{
+    font-size: large;
+}
+#Keywords .medium{
+    font-size: medium;
+}
+#Keywords .small{
+    font-size: small;
+}
+#Keywords .smallest{
+    font-size: smaller;
+}
+
+/*Jquery UI overwrites*/
+.ui-widget {
+    font-size: 11px !important;
+}
+
+
+.FilterMenu{
+    vertical-align: middle;
+}
+.SearchCheckbox{
+    border-right: 1px solid grey;
+}
+#SearchInput{
+    width: 300px;
+    padding: 3px;
+}
+#SearchMenu{
+/*    margin-left: 80px;
+    width: 700px;*/
+    margin: auto;
+    float: right;
+}
+#SearchMenu dd, #SearchMenu dt{
+    padding: 3px 0px;
+}
+#SearchDropdown option{
+    width: 200px;
+}
+
+#SearchMenu input.InputBox {
+    padding: 0px;
+    border-radius: 5px 5px 5px 5px;
+}
+/** style sheet override from turing input boxes white **/
+#SearchMenu input.SmallInput:focus,
+#SearchMenu input.InputBox:focus,
+#SearchMenu  textarea:focus {
+    border: 1px solid #0070A6
+}
+
+
+#SearchMenu dt{
+    float: left;
+    width: 150px;  /*Careful with IE */
+    text-align: right;
+    margin-right: 10px;
+}
+#SearchMenu dd{
+    float: left;
+    width: 300px;
+}
+#SearchMenu d1{
+    clear: both;
+    content: ".";
+    display: block;
+    height: 0;
+    visibility: hidden;
+}
+#SearchMenu dd li{
+/*    padding-top: 5px;*/
+}
+#SearchMenu table{
+    width: 100%;
+}
+
+
+

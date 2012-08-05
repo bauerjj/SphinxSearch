@@ -1,10 +1,8 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ * tooltip that shows the discussion body text (orignal poster's text)
  */
 
 jQuery(document).ready(function($) {
-
 
         function hoverIntent() {
             var offset = $(this).offset();

@@ -12,7 +12,7 @@ class KeywordsCloudModule extends Gdn_Module {
     }
 
     public function AssetTarget() {
-        return 'BottomPanel'; //Add to the custom made BottomPanel @see search.php where this is rendered
+        return 'Panel'; //Add to the custom made BottomPanel @see search.php where this is rendered
     }
 
     /**
@@ -37,29 +37,41 @@ class KeywordsCloudModule extends Gdn_Module {
             return $String;
         else {
             //split words into 5 catagories (smallest, small, medium, large, largest)
-            //We want 25% of the words to fit into each catagory above
+            //We want 20% of the words to fit into each catagory above
 
-            $Limit = floor($Percentage * $Total); //per category
+            $Limit = ceil($Percentage * $Total); //per category - don't use floor since that will not include all of the keywords then
             foreach ($Words as $Word) {
-                $CssClass = $CssClasses[$Offset];
-                $Return []= Anchor($Word, 'search/results?q=' . ($Word), $CssClass).' ';
-                if (++$Count == $Limit) {
-                    $Count = 0;
-                    $Offset++;
+                if(key_exists($Offset, $CssClasses)) { //make sure the offset does not increment past 5
+                    $CssClass = GetValue($Offset,$CssClasses);
+                    $Return [] = Anchor($Word, 'search/results?Search=' . ($Word), $CssClass) . ' ';
+                    if (++$Count == $Limit) {
+                        $Count = 0;
+                        $Offset++;
+                    }
                 }
             }
             shuffle($Return); //randomaize
-            foreach($Return as $Anchor)
+            foreach ($Return as $Anchor)
                 $String .= $Anchor;
             return $String;
         }
     }
 
     public function ToString() {
-        $String = '<div id="BottomPanel">';
-        $String .= '<h3 class="Header">Tag Cloud</h3>';
-        $String .= $this->WriteKeywordsCloud($this->KeywordsArray);
-        return $String . '</div>';
+        ob_start();
+        ?>
+        <div id="Keywords" class="Box Keywords">
+            <h4 class="Header"><?php echo T('Keyword Cloud') ?></h4>
+            <ul class="PanelInfo PanelDiscussions">
+                <li class="Item">
+                    <?php echo $this->WriteKeywordsCloud($this->KeywordsArray) ?>
+                </li>
+            </ul>
+        </div>
+        <?php
+        $String = ob_get_contents();
+        @ob_end_clean();
+        return $String;
     }
 
 }

@@ -22,37 +22,39 @@ class HitBoxModule extends Gdn_Module {
         }
         ob_start();
         ?>
-        <h3 class="Header">HitBox</h3>
-        <table id="HitBox">
-            <thead>
-                <tr>
-                    <th class="Word">
-                        Word
-                    </th>
-                    <th class="Docs">
-                        Docs
-                    </th>
-                    <th class="Hits">
-                        Hits
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-        <?php foreach ($this->Words as $Word => $WordArray): ?>
+        <div id="HitBox" class="Box HitBox">
+            <h4 class="Header"><?php echo T('HitBox') ?></h4>
+            <table>
+                <thead>
                     <tr>
-                        <td class="Word">
-            <?php echo $Word ?>
-                        </td>
-                        <td class="Docs">
-            <?php echo Gdn_Format::BigNumber($WordArray['docs']) ?>
-                        </td>
-                        <td class="Hits">
-            <?php echo Gdn_Format::BigNumber($WordArray['hits']) ?>
-                        </td>
+                        <th class="Word">
+                            Word
+                        </th>
+                        <th class="Docs">
+                            Docs
+                        </th>
+                        <th class="Hits">
+                            Hits
+                        </th>
                     </tr>
-        <?php endforeach ?>
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    <?php foreach ($this->Words as $Word => $WordArray): ?>
+                        <tr>
+                            <td class="Word">
+                                <?php echo $Word ?>
+                            </td>
+                            <td class="Docs">
+                                <?php echo Gdn_Format::BigNumber($WordArray['docs']) ?>
+                            </td>
+                            <td class="Hits">
+                                <?php echo Gdn_Format::BigNumber($WordArray['hits']) ?>
+                            </td>
+                        </tr>
+                    <?php endforeach ?>
+                </tbody>
+            </table>
+        </div>
         <?php
         $String .= ob_get_contents();
         @ob_end_clean();

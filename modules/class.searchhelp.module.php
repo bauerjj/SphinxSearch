@@ -15,18 +15,18 @@ class SearchHelpModule extends Gdn_Module {
     public function ToString() {
         ob_start();
         ?>
-        <div id="LeftPanel">
+        <div id="LeftPanel" class="Box SearchHelp">
             <!-- Column 3 start (right) -->
-            <h3 class="Header">Search Help</h3>
-            <b>Fully Searchable Fields:</b>
-            <ol>
-                <li>Thread Title (@title) </li>
-                <li>Comment Body Text (@body)</li>
-                <li>Author Name (@user)</li>
-            </ol>
+            <h4 class="Header"><?php echo T('Search Help') ?></h4>
+            Fully Searchable Fields:
+            <ul class="PanelInfo PanelDiscussions">
+                <li><p class="SearchExamples">Thread Title (@title) </p></li>
+                <li><p class="SearchExamples">Comment Body (@body)</p></li>
+                <li><p class="SearchExamples">Author Name (@user)</p></li>
+            </ul>
 
-            <b>Special operators can be used:</b>
-            <ul>
+            Special operators:
+            <ul class="PanelInfo PanelDiscussions">
                 <li><span>Operator OR: </span>
                     <p class="SearchExamples">hello | world</p>
                 </li>

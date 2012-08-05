@@ -40,10 +40,10 @@ class SphinxSearchSettings {
 
     public function GetSearchOptions() {
         self::$SearchOptions = array(
-            'Match' => array('Any' => 'Any', 'All' => 'All', 'Extended' => 'Extended'), //Search Match Mode
-            'Order' => array('Relevance' => 'Relevance', 'MostRecent' => 'Most Recent', 'MostViews' => 'Most Views', 'MostReplies' => 'Most Replies'), //Search Order - the key corresponds to value on radio list
-            'Time' => array('All' => 'All', 'ThisWeek' => 'This Week', 'ThisMonth' => 'This Month', 'ThisYear' => 'This Year'), //t
-            'ResultFormat' => array('Full' => 'Full', 'Table' => 'Table', 'Sleak' => 'Sleak','Simple' => 'Simple'),
+            'Match' => array('Any' => T('Any'), 'All' => T('All'), 'Extended' => T('Extended')), //Search Match Mode
+            'Order' => array('Relevance' => T('Relevance'), 'MostRecent' => T('Most Recent'), 'MostViews' => T('Most Views'), 'MostReplies' => T('Most Replies')), //Search Order - the key corresponds to value on radio list
+            'Time' => array('All' => 'All', 'ThisWeek' => T('This Week'), 'ThisMonth' => T('This Month'), 'ThisYear' => T('Year')), //t
+            'ResultFormat' => array('Classic' => T('Classic'), 'Table' => T('Table'), 'Sleak' => T('Sleak'),'Simple' => T('Simple')),
         );
 
         return self::$SearchOptions;
@@ -58,7 +58,7 @@ class SphinxSearchSettings {
             'Plugin.SphinxSearch.Installed' => FALSE, //end of wizard
             'Plugin.SphinxSearch.AutoDetected' => FALSE,
             'Plugin.SphinxSearch.ManaulDetected' => FALSE,
-            'Plugin.SphinxSearch.Task' => FALSE,
+            'Plugin.SphinxSearch.Task' => 'Idle',
             'Plugin.SphinxSearch.ServicePollTask' => FALSE,
         );
         foreach ($Wizard as $Name => $Default) {
@@ -129,8 +129,7 @@ class SphinxSearchSettings {
      */
     public function GetAdminSettings() {
         $AdminSettings = array(
-            'Plugin.SphinxSearch.LimitResultsPage' => 20,
-            'Plugin.SphinxSearch.MainResultsFormat' => 'simple',
+            'Plugin.SphinxSearch.LimitResultsPage' => 30,
             'Plugin.SphinxSearch.MainHitBoxEnable' => TRUE,
             'Plugin.SphinxSearch.LimitRelatedSearches' => 20,
             'Plugin.SphinxSearch.LimitTopKeywords' => 20,
@@ -142,32 +141,36 @@ class SphinxSearchSettings {
             'Plugin.SphinxSearch.LimitRelatedThreadsBottomDiscussion' => 20,
             'Plugin.SphinxSearch.RelatedThreadsBottomDiscussionFormat' => 'table',
             'Plugin.SphinxSearch.MaxQueryTime' => 2000,
-            'Plugin.SphinxSearch.RetriesCount' => 50,
-            'Plugin.SphinxSearch.RetriesDelay' => 50,
-            'Plugin.SphinxSearch.ReadTimeout' => 5,
+            'Plugin.SphinxSearch.RetriesCount' => 10,
+            'Plugin.SphinxSearch.RetriesDelay' => 50, //ms
+
+            'Plugin.SphinxSearch.ReadTimeout' => 5, //searchd settings
             'Plugin.SphinxSearch.ClientTimeout' => 360,
             'Plugin.SphinxSearch.MaxChildren' => 0,
             'Plugin.SphinxSearch.MaxMatches' => 1000,
             'Plugin.SphinxSearch.ReadBuffer' => '1M',
             'Plugin.SphinxSearch.Workers' => 'fork',
             'Plugin.SphinxSearch.ThreadStack' => '64K',
-            'Plugin.SphinxSearch.ExpansionLimit' => 50,
-            'Plugin.SphinxSearch.PreforkRotationThrottle' => 0,
-            'Plugin.SphinxSearch.MemLimit' => '32M',
+            'Plugin.SphinxSearch.ExpansionLimit' => 0,
+            'Plugin.SphinxSearch.PreforkRotationThrottle' => 0, //end of searchd
+
+            'Plugin.SphinxSearch.MemLimit' => '32M',//indexer settings
             'Plugin.SphinxSearch.MaxIOps' => 0,
             'Plugin.SphinxSearch.MaxIOSize' => 0,
             'Plugin.SphinxSearch.WriteBuffer' => '1M',
-            'Plugin.SphinxSearch.MaxFileBuffer' => '8M',
-            'Plugin.SphinxSearch.BuildExcerptsAround' => 3,
+            'Plugin.SphinxSearch.MaxFileBuffer' => '8M', //end indexer
+
+            'Plugin.SphinxSearch.BuildExcerptsAround' => 3, //excerpts
             'Plugin.SphinxSearch.BuildExcerptsLimit' => 60,
             'Plugin.SphinxSearch.BuildExcerptsTitleEnable' => TRUE,
             'Plugin.SphinxSearch.BuildExcerptsBodyEnable' => TRUE,
-            'Plugin.SphinxSearch.Morphology' => 'none',
+
+            'Plugin.SphinxSearch.Morphology' => 'none', //index settings
             'Plugin.SphinxSearch.Dict' => 'crc',
             'Plugin.SphinxSearch.MinStemmingLen' => 1,
             'Plugin.SphinxSearch.StopWordsEnable' => TRUE,
             'Plugin.SphinxSearch.WordFormsEnable' => FALSE,
-            'Plugin.SphinxSearch.MinWordIndexLen' => 3,
+            'Plugin.SphinxSearch.MinWordIndexLen' => 2,
             'Plugin.SphinxSearch.MinPrefixLen' => 0,
             'Plugin.SphinxSearch.MinInfixLen' => 0,
             'Plugin.SphinxSearch.StarEnable' => FALSE,
@@ -176,10 +179,11 @@ class SphinxSearchSettings {
             'Plugin.SphinxSearch.OnDiskDictEnable' => FALSE,
             'Plugin.SphinxSearch.InPlaceEnable' => FALSE,
             'Plugin.SphinxSearch.ExpandKeywordsEnable' => FALSE,
-            'Plugin.SphinxSearch.RTMemLimit' => 0,
-            'Plugin.SphinxSearch.MainSearchEnable' => TRUE, //LEAVE THIS FOR BUTTONS TO DISAB/ENABLE
-            'Plugin.SphinxSearch.StatsEnable' => TRUE,
-            'Plugin.SphinxSearch.RelatedEnable' => TRUE,
+            'Plugin.SphinxSearch.RTMemLimit' => 'none', //end index
+
+            'Plugin.SphinxSearch.MainSearchEnable' => TRUE, //LEAVE THIS FOR BUTTONS TO DISABLE/ENABLE
+            'Plugin.SphinxSearch.StatsEnable' => TRUE, //LEAVE THIS FOR BUTTONS TO DISABLE/ENABLE
+            'Plugin.SphinxSearch.RelatedEnable' => TRUE, //LEAVE THIS FOR BUTTONS TO DISABLE/ENABLE
         );
         foreach ($AdminSettings as $Name => $Default) {
             $Val = explode('.', $Name);

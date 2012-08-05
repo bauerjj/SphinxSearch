@@ -1,4 +1,44 @@
+<script>
+    $(document).ready(function() {
 
+        //this toggles the plus/minus image and expands a div to show the text if viewing table layout
+        $('.Toggle').click(function(){
+            var ID = $(this).attr('id');
+
+
+            if($(this).hasClass('PlusImage')){
+                $(this).removeClass("PlusImage");
+                $(this).addClass("MinusImage");
+
+
+
+                $('#'+ID+'T').toggle('fast');
+            }
+            else{
+                $(this).addClass("PlusImage");
+                $(this).removeClass("MinusImage");
+
+                $('#'+ID+'T').toggle('fast');
+            }
+
+        });
+        $('#Options').click(function(){
+            if($(this).attr('value') == 'More Options'){
+                $(this).attr('value','Less Options');
+                $('#MoreOptions').toggle('fast');
+            }
+            else{
+                $(this).attr('value','More Options');
+                $('#MoreOptions').toggle('fast');
+            }
+
+        });
+
+
+
+    });
+
+</script>
 <?php
 /**
  * Grab the results according to the widgets returned array index, 'name'
@@ -10,10 +50,13 @@
  * of the configuration file
  *
  */
+?>
+<div id="SphinxResults">
+<?php
 //print_r($this->Data); die;
-$Settings = $this->Data['Settings'];
-$Results = $this->Data['MainSearch']; //main search results
-$GETString = $this->Data['GETString'];
+$Settings = GetValue('Settings', $this->Data);
+$Results = GetValue('MainSearch', $this->Data); //main search results
+$GETString = GetValue('GETString', $this->Data);
 $Format = 'Simple';
 if (isset($_GET['res']))
     $Format = $_GET['res']; //get result display format
@@ -21,25 +64,30 @@ if (isset($Results['total_found'])):
 
     if (!($Results['total_found'] == 0)): //make sure there is something here
         ?>
-        <div class="colmask">
             <div id="TitleBar">
-                <h1>Search Results for Query: <span id="SearchQuery"><?php echo $Results['query'] ?></span></h1>
+                <?php echo T('Search Results for Query') ?>: <span id="SearchQuery"><?php echo $Results['query'] ?></span>
+                <?php echo $this->Form->Button('Options', array('value'=>'More Options', 'id'=>'Options')); ?>
             </div>
             <div id="NavBar">
-                <span id="SearchAgain"><?php echo Anchor('Search Again', $GETString, FALSE, FALSE, TRUE) ?></span>
-                <span id="Time"><?php echo $Results['total_found'] . Plural($Results['total_found'], ' result', ' results') . ' in ' . $Results['time'] . 's' ?></span>
+                <span id="SearchAgain"><?php echo Anchor('Search Again :: Adv Search', $GETString, FALSE, FALSE, TRUE) ?></span>
+                <span id="Time"><?php echo sprintf(T('%s %s in %s'), $Results['total_found'],Plural($Results['total_found'], T('result'), T('results')),  $Results['time'] . 's') ?></span>
                 <?php echo str_replace('=p', '=', $this->Pager->ToString('more')); //get rid of the character 'p' in p1,p2,p3 etc ?>
             </div>
             <?php echo WriteResults($Format, $Results['matches'], TRUE); ?>
             <?php echo str_replace('=p', '=', $this->Pager->ToString('more')); //get rid of the character 'p' in p1,p2,p3 etc ?>
 
-        </div>
+        <?php else: ?>
+            <span id="SearchAgain"> <?php echo Anchor(T('Search Again :: Adv Search'), $GETString) ?></span>
+            <?php echo $this->Form->Button('Options', array('value'=>'More Options', 'id'=>'Options')); ?>
+        <?php echo '<p class="NoResults">', sprintf(T('No results for %s.', 'No results for <b>%s</b>.'), htmlspecialchars($this->SearchTerm)), '</p>'; ?>
+
+        <?php endif ?>
     <?php else: ?>
-        [<span id="SearchAgain"> <?php echo Anchor('Search Again', $GETString) ?></span>] No records found
+        <span id="SearchAgain"> <?php echo Anchor(T('Search Again :: Adv Search'), $GETString) ?></span>
+        <?php echo $this->Form->Button('Options', array('value'=>'More Options', 'id'=>'Options')); ?>
+        <?php echo '<p class="NoResults">', sprintf(T('No results for %s.', 'No results for <b>%s</b>.'), htmlspecialchars($this->SearchTerm)), '</p>'; ?>
     <?php endif ?>
-<?php else: ?>
-    [<span id="SearchAgain"> <?php echo Anchor('Search Again', $GETString) ?></span>] No records found
-<?php endif ?>
+</div>
 
 
 

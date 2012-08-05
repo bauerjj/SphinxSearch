@@ -66,7 +66,7 @@ class SphinxSearchService extends SphinxObservable {
     }
 
     public function Status() {
-        $SphinxSearchModel = new SphinxClient();
+        $SphinxSearchModel = new SphinxClient(); ///@todo fix this from getting new instance of sphinxclient
         $Status = $SphinxSearchModel->Status(); //will return an array of misc info if sphinx is running
         if ($Status) {
             parent::Update(SS_SUCCESS, 'Uptime', $Status[0][1]); //sphinx returns uptime in seconds
@@ -153,7 +153,7 @@ class SphinxSearchService extends SphinxObservable {
     }
 
     public function CheckSphinxRunning() {
-        $SphinxSearchModel = new SphinxClient();
+        $SphinxSearchModel = new SphinxClient();///@todo fix this from getting new instance of sphinxclient
         $Status = $SphinxSearchModel->Status(); //will return an array of misc info if sphinx is running
         if (!empty($Status)) {
             parent::Update(SS_SUCCESS, 'SearchdRunning', TRUE); //save as running

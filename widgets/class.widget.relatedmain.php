@@ -41,8 +41,6 @@ class WidgetRelatedMain extends Widgets implements SplObserver {
             $this->Queries[] = array(
                 'Name' => $this->Name,
                 'Index' => $QueryIndex,
-                'Highlight' => FALSE,
-                'IgnoreFirst' => FALSE,
             );
             return $this->Queries;
         }

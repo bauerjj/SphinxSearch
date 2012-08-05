@@ -37,8 +37,10 @@ class WidgetStats extends Widgets implements SplObserver {
                 foreach ($SingleKeywords as $Row) {
                     $KeywordsArray [] = $Row->keywords;
                 }
-                $Module = new KeywordsCloudModule($KeywordsArray);
-                $Sender->AddModule($Module);
+                if (isset($KeywordsArray)) {
+                    $Module = new KeywordsCloudModule($KeywordsArray);
+                    $Sender->AddModule($Module);
+                }
             }
 
             if (isset($Results[$this->NameTSearches]['matches'])) {
@@ -71,6 +73,7 @@ class WidgetStats extends Widgets implements SplObserver {
                 $this->SphinxClient->SetFilter('mode', array(1)); //only related keywords
                 //$this->SphinxClient->SetFilterRange(); //@todo put in times for date/time
                 $this->SphinxClient->SetGroupBy('keywords_crc', SPH_GROUPBY_ATTR, '@count desc');
+                $this->SphinxClient->SetLimits(0, $this->Settings['Admin']->LimitTopKeywords);
 
                 $Query = ''; //blank query
 
@@ -79,17 +82,16 @@ class WidgetStats extends Widgets implements SplObserver {
                 $this->Queries[] = array(
                     'Name' => $this->NameTKeywords,
                     'Index' => $QueryIndex,
-                    'Highlight' => FALSE,
-                    'IgnoreFirst' => FALSE,
                 );
             }
             if ($this->Settings['Admin']->LimitTopSearches > 0 && ($Options['Landing'] == TRUE)) {
                 //Get the top seaches
                 $this->SphinxClient->ResetFilters();
                 $this->SphinxClient->ResetGroupBy();
-                $this->SphinxClient->SetFilter('mode', array(2));
+                $this->SphinxClient->SetFilter('mode', array(2));//this is set in the sph_stats database ....mode = 2 when full sphinx search is made - not individual words
                 //$this->SphinxClient->SetFilterRange(); //@todo put in times for date/time
                 $this->SphinxClient->SetGroupBy('keywords_crc', SPH_GROUPBY_ATTR, '@count desc');
+                $this->SphinxClient->SetLimits(0,$this->Settings['Admin']->LimitTopSearches);
 
                 $Query = ''; //blank query
 
@@ -98,8 +100,6 @@ class WidgetStats extends Widgets implements SplObserver {
                 $this->Queries[] = array(
                     'Name' => $this->NameTSearches,
                     'Index' => $QueryIndex,
-                    'Highlight' => FALSE,
-                    'IgnoreFirst' => FALSE,
                 );
             }
 
@@ -110,6 +110,7 @@ class WidgetStats extends Widgets implements SplObserver {
                 $this->SphinxClient->SetFilter('mode', array(2)); //select only full searches (i.e return "vanilla forums search" versus "vanilla", "forums", "search")
                 //$this->SphinxClient->SetFilterRange(); //@todo put in times for date/time
                 $this->SphinxClient->SetGroupBy('keywords_crc', SPH_GROUPBY_ATTR, '@weight desc');
+                $this->SphinxClient->SetLimits(1, $this->Settings['Admin']->LimitRelatedSearches); //notice the '1' offset. This is so don't get exact search match
 
                 $Sanitized = $this->ValidateInputs(); //get the submitted query
                 $Query = $this->OperatorOrSearch($Sanitized['Query']); // vanilla | forums | search
@@ -120,8 +121,6 @@ class WidgetStats extends Widgets implements SplObserver {
                 $this->Queries[] = array(
                     'Name' => $this->NameRSearches,
                     'Index' => $QueryIndex,
-                    'Highlight' => FALSE,
-                    'IgnoreFirst' => FALSE,
                 );
             }
         } else if ($Sender->ControllerName == 'plugincontroller') {
@@ -137,7 +136,8 @@ class WidgetStats extends Widgets implements SplObserver {
                 $this->SphinxClient->ResetGroupBy();
                 $this->SphinxClient->SetLimits(0, 1); //no limits
 
-                $QueryIndex = $this->SphinxClient->AddQuery('', $Prefix.$Index); //blank query..match all documents basically
+
+                $QueryIndex = $this->SphinxClient->AddQuery('', $Prefix . $Index); //blank query..match all documents basically
 
                 switch ($Index) { //get index name ....use this later in 'update' to determine which statistic to update the total count for
                     case SS_STATS_INDEX:
@@ -155,8 +155,6 @@ class WidgetStats extends Widgets implements SplObserver {
                 $this->Queries[] = array(
                     'Name' => $IndexName,
                     'Index' => $QueryIndex,
-                    'Highlight' => FALSE,
-                    'IgnoreFirst' => FALSE,
                 );
             }
         }else
@@ -206,7 +204,12 @@ class WidgetStats extends Widgets implements SplObserver {
         else
             return array();
     }
-
+    /**
+     * @todo put in the count of each search in here to display on the widget
+     * @param type $Result
+     * @param type $Limit
+     * @return boolean
+     */
     public function FullSearches($Result, $Limit) {
         if (!isset($Result['matches']))
             return;
@@ -222,7 +225,6 @@ class WidgetStats extends Widgets implements SplObserver {
                     ->Get()
                     ->Result()
             ;
-
             return $FullSearches;
         }
         else

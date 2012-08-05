@@ -21,12 +21,16 @@ class TopSearchesModule extends Gdn_Module {
         }
         ob_start();
         ?>
-        <h3 class="Header">Top Searches</h3>
-        <div class="Search_Container">
-            <?php foreach ($this->TopSearches as $Row): ?>
-            <?php $QueryString = 'search/results?q=' . str_replace(' ', '+', $Row->keywords); ?>
-                <h4 class="DiscussionTitle"><?php echo Anchor($Row->keywords, $QueryString) ?></h4>
-            <?php endforeach ?>
+        <div id="TopSearches" class="Box TopSearches">
+            <h4 class="Header"><?php echo T('Top Searches') ?></h4>
+            <ul class="PanelInfo PanelDiscussions">
+                <?php foreach ($this->TopSearches as $Row): ?>
+                <li class="Item">
+                    <?php $QueryString = 'search/results?Search=' . str_replace(' ', '+', $Row->keywords); ?>
+                    <?php echo Anchor($Row->keywords, $QueryString, array('class'=>'Title')) ?>
+                    </li>
+                <?php endforeach ?>
+            </ul>
         </div>
         <?php
         $String .= ob_get_contents();
