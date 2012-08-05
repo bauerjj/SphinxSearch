@@ -90,7 +90,7 @@ Provides a backend to manage essentially everything related to sphinx.
 ####Widgets
 All of the widgets that display a discussion/thread title will have a tooltip that will display the first xxx amount of words from the original text. To show this text, simply hover over the title for a second to see the discussion body text. 
 
-As of v1.0, the following are a list of widgets
+As of v20120804, the following are a list of widgets
 #####Advanced Search & result Page
 This overrides the current search algorithm and substitues a more advanced search option. This will automatically revert to the default search engine if it detects that sphinx is not running. This will happend during indexing. All of the existing search queries will still be valid, but the advanced options will have no effect on the results. The number of results shown on each page is configurable in the admin settings. The view format can be set by the user (classic, table, simple, sleak)
 
@@ -186,6 +186,6 @@ You should kill all instances of searchd by using 'ps' in the command line. If t
 #####My indexes are reindexed through my cron job, but the index time is incorrect
 Yea, I know...this is only updated if you index through the control panel
 
-###Donate
+##Donate
 If you have found this plugin extremely useful, feel free to [donate here](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=kapotchy%40gmail%2ecom&lc=US&item_name=Sphinx%20Search&no_note=0&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHostedGuest)
 
