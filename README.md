@@ -8,7 +8,7 @@ SphinxSearch
 Table of contents
 -----------------
 
-1. [How it Works](#How it Works)
+1. [How it Works](#How-it-Works)
 2. [Requirements](#requirements)
 3. [Installation](#installation)
 4. [Features](#features)
