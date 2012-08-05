@@ -127,6 +127,7 @@ To learn how to do so, look at an existing widget. All of them extend the abstra
 ##Improvements
 There are multiple improvements that can be made. Here are a list of widgets that can be done, but I have lost track of time:
 
+   *  Windows support
    *  'Did you Mean' feature on the main search
    *  Include some of the advanced search options on the result page...maybe a javascript toggle div
    *  Add a nice javascript dropdown menu to all of the search boxes that show some quick advanced search options
