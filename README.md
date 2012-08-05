@@ -8,13 +8,13 @@ SphinxSearch
 Table of contents
 -----------------
 
-1. [How it Works](#How-it-Works)
+1. [How it Works](#how-it-works)
 2. [Requirements](#requirements)
-3. [Installation](#installation)
+3. [Install](#install)
 4. [Features](#features)
- 1. [Styling](#styling)
-	1. [Bootswatches](#bootswatches)
-	2. [Embedding](#embedding)
+	1. [Search](#search)
+	2. [Admin](#admin)
+	3. [Widgets](#widgets)
 5. [Compatibility](#compatibility)
 
 ##How it Works
