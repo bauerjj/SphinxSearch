@@ -3,7 +3,7 @@ SphinxSearch
 
 ####An advanced search plugin for Vanilla Forums based on the Sphinx Search engine v2.0.5
 
-Live Demo: http://mcuhq.com/mcuhq/vanilla/search?tar=srch
+[Live Demo](http://mcuhq.com/mcuhq/vanilla/search?tar=srch)
 
 
 ##How it Works
