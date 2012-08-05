@@ -15,7 +15,10 @@ Table of contents
 	1. [Search](#search)
 	2. [Admin](#admin)
 	3. [Widgets](#widgets)
-5. [Compatibility](#compatibility)
+5. [Developers](#developers)
+6. [Improvements](#improvements)
+7. [FAQ](#faq)
+8. [Donate](#donate)
 
 ##How it Works
 For nitty gritty details behind sphinx, you should look at their main documentation: http://sphinxsearch.com/docs/current.html
