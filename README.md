@@ -1,7 +1,7 @@
 SphinxSearch
 ============
 
-This is a advanced search plugin for Vanilla Forums  >= v2.0.18.4 . It is based on the Sphinx Search engine v2.0.5
+####An advanced search plugin for Vanilla Forums based on the Sphinx Search engine v2.0.5
 
 Live Demo: http://mcuhq.com/mcuhq/vanilla/search?tar=srch
 
@@ -22,6 +22,7 @@ The plugin connects to searchd and queries it using the shpinx API. You should n
  3. Shell Access
  4. Spawn a Daemon (searchd)
  5. Port Forwarding
+ 6. Vanilla >= v2.0.18.4 
 
 Sphinx does work on windows, it's just that I have not built the installer for windows as of yet. Maybe you can help!
 Shared hosting will probably restrict searchd from running properly on your host's servers, but you can try. 
