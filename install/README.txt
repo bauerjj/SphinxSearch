@@ -1,0 +1,2 @@
+This folder needs to be writable. This is where the packaged installer of sphinx will extract and install into.
+The error/output/pid.txt are used to poll the status of any background tasks and must be readable by your server

@@ -2,4 +2,3 @@
 /cron/cron.reindex.main.php
 /cron/cron.reindex.delta.php
 /cron/cron.reindex.stats.php
-/install/*
