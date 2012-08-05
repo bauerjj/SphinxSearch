@@ -5,6 +5,8 @@ SphinxSearch
 
 [Live Demo](http://mcuhq.com/mcuhq/vanilla/search?tar=srch)
 
+[Photo Album](http://imgur.com/a/jQ5WE#1)
+
 Table of contents
 -----------------
 
