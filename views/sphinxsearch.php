@@ -110,6 +110,9 @@ if (!defined('APPLICATION'))
     .Fail{
         color: red;
     }
+    .background{
+        margin-left: 20px;
+    }
 </style>
 
 <?php echo $this->Form->Errors(); ?>
@@ -120,7 +123,7 @@ if (!defined('APPLICATION'))
     <?php
     echo '<h2>', T('Need More Help?'), '</h2>';
     echo '<ul>';
-    echo '<li>', Anchor(T('FAQ'), 'plugin/sphinxfaq'), '</li>';
+    echo '<li>', Anchor(T('FAQ'), 'plugin/sphinxsearch/faq'), '</li>';
     echo '<li>', Anchor(T('Offical Sphinx Documentation'), 'http://sphinxsearch.com/docs/current.html'), '</li>';
     echo '</ul>';
     ?>
@@ -151,7 +154,7 @@ if (!defined('APPLICATION'))
 </div>
 <h3>Control Panel</h3>
 <br/>
-<?php echo $this->Form->Label('Run in background: ', 'Background'); ?>
+<?php echo $this->Form->Label('Run in background: ', 'Background', array('class' => 'background')); ?>
 <?php echo $this->Form->RadioList('Background', array(TRUE => 'True', FALSE => 'False'), array('list' => FALSE, 'default' => 'False')) ?>
 <ul class="Settings">
     <li class="FootNote">This lets all of the index commands to run in the background. Useful for long operations and identifying warnings</li>
@@ -215,15 +218,15 @@ if (!defined('APPLICATION'))
                 <td><?php echo $Settings['Status']->IndexerStatsLast == '---' ? '----' : Gdn_Format::FuzzyTime($Settings['Status']->IndexerStatsLast) ?></td>
             </tr>
         <td class="Desc">cron Files: </td>
-        <td><?php echo Anchor(T('cron file'), 'plugin/sphinxsearch/viewfile/' . Gdn::Session()->TransientKey() . '?action=viewfile&file=maincron', array('target'=>'_blank')) ?>
+        <td><?php echo Anchor(T('cron file'), 'plugin/sphinxsearch/viewfile/' . Gdn::Session()->TransientKey() . '?action=viewfile&file=maincron', array('target' => '_blank')) ?>
             <?php echo $this->Form->Button('Action', array('class' => 'SmallButton', 'value' => 'Write Main Cron')); ?>
 
         </td>
-        <td><?php echo Anchor(T('cron file'), 'plugin/sphinxsearch/viewfile/' . Gdn::Session()->TransientKey() . '?action=viewfile&file=deltacron', array('target'=>'_blank')) ?>
+        <td><?php echo Anchor(T('cron file'), 'plugin/sphinxsearch/viewfile/' . Gdn::Session()->TransientKey() . '?action=viewfile&file=deltacron', array('target' => '_blank')) ?>
             <?php echo $this->Form->Button('Action', array('class' => 'SmallButton', 'value' => 'Write Delta Cron')); ?>
 
         </td>
-        <td><?php echo Anchor(T('cron file'), 'plugin/sphinxsearch/viewfile/' . Gdn::Session()->TransientKey() . '?action=viewfile&file=statscron', array('target'=>'_blank')) ?>
+        <td><?php echo Anchor(T('cron file'), 'plugin/sphinxsearch/viewfile/' . Gdn::Session()->TransientKey() . '?action=viewfile&file=statscron', array('target' => '_blank')) ?>
             <?php echo $this->Form->Button('Action', array('class' => 'SmallButton', 'value' => 'Write Stats Cron')); ?></td>
         </tr>
         <tr>
@@ -279,7 +282,7 @@ if (!defined('APPLICATION'))
             </tr>
             <tr>
                 <td>Actions:</td>
-                <td> <?php echo Anchor('config file', 'plugin/sphinxsearch/viewfile/' . Gdn::Session()->TransientKey() . '?action=viewfile&file=conf', array('target'=>'_blank')); ?>
+                <td> <?php echo Anchor('config file', 'plugin/sphinxsearch/viewfile/' . Gdn::Session()->TransientKey() . '?action=viewfile&file=conf', array('target' => '_blank')); ?>
                     <?php echo $this->Form->Button('Action', array('class' => 'SmallButton', 'value' => 'Write Config')); ?>
                 </td>
             </tr>
@@ -302,8 +305,16 @@ if (!defined('APPLICATION'))
 <br/>
 
 <h3>Changelog</h3>
+20120806
+<ol>
+    <li>Added mysql_sock to config</li>
+    <li>Added mysql_db to config</li>
+    <li>Added localhost entry to wizard</li>
+    <li>Fixed FAQ link</li>
+    <li>Added an update entry to FAQ</li>
+</ol>
 <br/>
-2012506
+20120805
 <ol>
     <li>Initial Release</li>
 </ol>

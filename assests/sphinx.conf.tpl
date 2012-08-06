@@ -16,7 +16,8 @@ source {ss_prefix}main_comment
     sql_host        = {sql_host}
     sql_user        = {sql_user}
     sql_pass        = {sql_pass}
-    sql_db          = mysql         #must be this for now
+    sql_db          = {sql_db}
+    {sql_sock}
     sql_port        = 3306    #optional, default is 3306
 
     sql_query_pre   = SET NAMES utf8
@@ -89,7 +90,8 @@ source {ss_prefix}main_discussion
     sql_host        = {sql_host}
     sql_user        = {sql_user}
     sql_pass        = {sql_pass}
-    sql_db          = mysql         #must be this for now
+    sql_db          = {sql_db}
+    {sql_sock}
     sql_port        = 3306    #optional, default is 3306
 
     sql_query_pre   = SET NAMES utf8
@@ -173,11 +175,12 @@ index {ss_prefix}delta : {ss_prefix}main
 
 source {ss_prefix}stats
 {
-	type            = mysql
+	type        = mysql
     sql_host        = {sql_host}
     sql_user        = {sql_user}
     sql_pass        = {sql_pass}
-    sql_db          = mysql         #must be this for now
+    sql_db          = {sql_db}
+    {sql_sock}
     sql_port        = 3306    #optional, default is 3306
 
 	sql_query_pre	= SET NAMES utf8

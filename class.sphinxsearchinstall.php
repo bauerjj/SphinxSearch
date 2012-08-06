@@ -75,17 +75,13 @@ class SphinxSearchInstall extends SphinxObservable {
         else
             $Tags = FALSE;
 
-//        $yea = $SQL->Query('SELECT d.DiscussionID, d.Body, MAX(td.TagID) as TagID FROM pic.GDN_Discussion as d
-//            LEFT OUTER JOIN pic.GDN_TagDiscussion as td ON d.DiscussionID = td.DiscussionID
-//            GROUP BY d.DiscussionID, d.Body
-//            ')->Result();
- //       print_r($yea); die;
         $DBPrefix = C('Database.Name') . '.' . C('Database.Prefix', 'GDN_'); //join these 2
         $Search = array(
             '{sql_sock}' => $SQLSock,
             '{sql_host}' => $this->Settings['Install']->Host,
             '{sql_user}' => C('Database.User'),
             '{sql_pass}' => C('Database.Password'),
+            '{sql_db}' => C('Database.Name'),
             '{charset_type}' => C('Garden.Charset', 'utf-8'),
             '{charset_type_mysql}' => C('Database.CharacterEncoding', 'utf8'), //MySQL omits the hyphen
             '{install_path}' => $this->Settings['Install']->InstallPath,

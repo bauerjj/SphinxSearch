@@ -82,6 +82,12 @@ if (!defined('APPLICATION'))
             <li>7. Setup a cron job to run the three cron files</li>
         </ul>
         <br/>
+        <li class="Q">How to update?</li>
+        <li>If you installed sphinx using the packaged tarball that came with the plugin, then you should FTP over everything in the plugin folder EXCEPT the install folder!</li>
+        <li>The install folder is where sphinx is installed, so do not overwrite this. If you do, you must run the intire install wizard over again</li>
+        <li>If the plugin is disabled, you must also go through the install wizard again. The compiled files will still be there, so it won't take so long</li>
+        <li>After an updated, you should write the config file again in the control panel</li>
+        <br/>
         <li class="Q">What if sphinx is indexing and it shuts down searchd...now what?</li>
         <li>Anytime sphinx is indexing, it will shut down all searches temporary (unless you have another instance of searchd setup). The default search will be in effect immidiatly until searchd is running again.
             This is done automatically for you</li>

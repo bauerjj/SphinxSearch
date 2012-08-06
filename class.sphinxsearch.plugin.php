@@ -9,7 +9,6 @@ if (!defined('APPLICATION'))
  */
 
 $PluginInfo['SphinxSearch'] = array(
-    'Name' => 'SphinxSearch',
     'Description' => 'A much improved search experience with widgets based on the Sphinx Search Engine',
     'Version' => '20120805',
     'RequiredApplications' => array('Vanilla' => '2.0.18.4'),
@@ -495,7 +494,8 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
                     $SphinxAdmin->Detect();
                     $this->ConfigurationModel->Validation->ApplyRule('Plugin.SphinxSearch.Prefix', 'Required');
                     $this->ConfigurationModel->Validation->ApplyRule('Plugin.SphinxSearch.Port', 'Required');
-                    $this->ConfigurationModel->Validation->ApplyRule('Plugin.SphinxSearch.Port', 'Integer'); //mut be an int
+                    $this->ConfigurationModel->Validation->ApplyRule('Plugin.SphinxSearch.Host', 'Required');
+                    $this->ConfigurationModel->Validation->ApplyRule('Plugin.SphinxSearch.Port', 'Integer'); //PORT must be an int
                     if ($Sender->Form->Save()) {
                         //@todo don't check port just yet
                         $Sender->StatusMessage = T("Your changes have been saved.");

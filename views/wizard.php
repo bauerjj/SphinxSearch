@@ -115,7 +115,7 @@ if (!defined('APPLICATION'))
     <?php
     echo '<h2>', T('Need More Help?'), '</h2>';
     echo '<ul>';
-    echo '<li>', Anchor(T('Install FAQ'), 'plugin/sphinxsearch/sphinxfaq'), '</li>';
+    echo '<li>', Anchor(T('Install FAQ'), 'plugin/sphinxsearch/sphinxsearch/faq'), '</li>';
     echo '<li>', Anchor(T('Offical Sphinx Documentation'), 'http://sphinxsearch.com/docs/current.html'), '</li>';
     echo '</ul>';
     ?>
@@ -158,8 +158,14 @@ $Settings = $this->Data('Settings');
         echo $this->Form->Label('Port', 'Plugin.SphinxSearch.Port');
         echo $this->Form->Textbox('Plugin.SphinxSearch.Port', array_merge($Disabled, array($Disabled, 'value' => $Settings['Install']->Port)));
     ?></li>
+        <li><?php
+        echo $this->Form->Label('* Host', 'Plugin.SphinxSearch.Host');
+        echo $this->Form->Textbox('Plugin.SphinxSearch.Host', array_merge($Disabled, array($Disabled, 'value' => $Settings['Install']->Host)));
+    ?></li>
+        <li><span style="font-style:italic">* Use "127.0.0.1" (without quotes) to force TCP/IP usage. Recommended to first try "localhost" (without quotes)</span>
+        </li>
     </ul>
-
+    <br/>
 <?php endif ?>
 <?php if ($Settings['Wizard']->Connection) : ?>
     <?php $Disabled = $this->Data['NextAction'] != 'Install' ? array('Disabled' => 'Disabled') : array(); ?>
