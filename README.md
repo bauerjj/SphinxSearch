@@ -5,6 +5,8 @@ SphinxSearch
 
 [Live Demo](http://mcuhq.com/mcuhq/vanilla/search?tar=srch)
 
+[Photo Album](http://imgur.com/a/jQ5WE#1)
+
 Table of contents
 -----------------
 
@@ -45,8 +47,9 @@ Shared hosting will probably restrict searchd from running properly on your host
 No backend knowledge is required to install this! Everything is done for you via the install wizard. It comes bundled with the build of the sphinx search engine. To install, run the install wizard and complete the **3** step process. If the wizard encounters any errors, it will tell you. If the installer package does not work on your server, you can perform a manual installation via your distro's package manager and then tell the wizard where to find your installed files. 
 
 To enable the plugin, simply download it from Vanilla Forum's plugin portal and move it to your webserver's plugin folder. Enable it from the dashboard. Some files need to be given write permissions by the installer:
-  * pid/log/error.txt
-  * ~SphinxSearch/Install 
+  * ~SphinxSearch/Install folder
+  * ~SphinxSearch/Install/pid/error/output.txt files
+  
 
 The install process allows you to run long tasks, such as *./configure* and *./make* in the background. While this is going on, the terminal output will be presented to you. This is also possible to do while indexing your indexes, which may take a long time depending on the amount of documents in the database.
 
@@ -90,7 +93,7 @@ Provides a backend to manage essentially everything related to sphinx.
 ####Widgets
 All of the widgets that display a discussion/thread title will have a tooltip that will display the first xxx amount of words from the original text. To show this text, simply hover over the title for a second to see the discussion body text. 
 
-As of v20120804, the following are a list of widgets
+As of v20120805, the following are a list of widgets
 #####Advanced Search & result Page
 This overrides the current search algorithm and substitues a more advanced search option. This will automatically revert to the default search engine if it detects that sphinx is not running. This will happend during indexing. All of the existing search queries will still be valid, but the advanced options will have no effect on the results. The number of results shown on each page is configurable in the admin settings. The view format can be set by the user (classic, table, simple, sleak)
 
