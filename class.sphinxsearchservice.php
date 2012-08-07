@@ -14,6 +14,11 @@ class SphinxSearchService extends SphinxObservable {
         $this->Settings = $Settings;
     }
 
+    public function KillSearchd(){
+        $Command = 'killall -9 searchd'; //kills all instances of searchd
+        $Error = SphinxSearchGeneral::RunCommand($Command, '/', 'Attempting to kill all instances of searchd', $Background = FALSE);
+    }
+
     /**
      * Parse sphinx conf and grab path to search pid file
      *

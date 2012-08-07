@@ -163,6 +163,7 @@ class SphinxSearchInstall extends SphinxObservable {
             '{path_to_php}' => $InstallWizard->RunTypeCommand('', 'php'), //find where PHP is installed
             '{path_to_config}' => $this->Settings['Install']->ConfPath,
             '{path_to_cron}' => $CronFolder,
+            '{DS}' => DS,
             '{index_prefix}' => $this->Settings['Install']->Prefix, //prefix for shpinx configuration names
         );
 

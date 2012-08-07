@@ -109,4 +109,12 @@ class SphinxSearchAdmin {
         $this->Service->CheckPort();
     }
 
+    /**
+     * Searches for all instances of searchd and kills them
+     * This is useful is you get the "Unknown PID error" (multiple instances running)
+     */
+    public function KillSearchd(){
+        $this->Service->KillSearchd();
+    }
+
 }

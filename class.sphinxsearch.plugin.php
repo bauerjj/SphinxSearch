@@ -10,7 +10,7 @@ if (!defined('APPLICATION'))
 
 $PluginInfo['SphinxSearch'] = array(
     'Description' => 'A much improved search experience with widgets based on the Sphinx Search Engine',
-    'Version' => '20120806',
+    'Version' => '20120807',
     'RequiredApplications' => array('Vanilla' => '2.0.18.4'),
     'RequiredTheme' => FALSE,
     'RequiredPlugins' => FALSE,
@@ -36,7 +36,7 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
 
     public function __construct() {
         //@todo for testing
-         //error_reporting(E_ALL);
+        //error_reporting(E_ALL);
         ////////////////////////////////////////////////
         //Sphinx plugin core modules
         /////////////////////////////////////////////////
@@ -57,7 +57,7 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
         //create subclasses
         $this->_Storage = new SplObjectStorage();
 
-        if ($this->Settings['Status']->SearchdRunning) { //check if sphinx is running
+        if ($this->Settings['Status']->SearchdRunning && $this->Settings['Status']->EnableSphinxSearch) { //check if sphinx is running and if not manually overriden
             //If so, register the widgets
             $this->RegisterWidgets();
             $this->RegisterModules();
@@ -221,6 +221,12 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
                         $File = PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'cron' . DS . 'cron.reindex.delta.php';
                     else if ($_GET['file'] == 'statscron')
                         $File = PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'cron' . DS . 'cron.reindex.stats.php';
+                    else if ($_GET['file'] == 'cronlog')
+                        $File = PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'cron' . DS . 'sphinx_cron.log';
+                    else if ($_GET['file'] == 'querylog')
+                        $File = $this->Settings['Status']->QueryPath;
+                    else if ($_GET['file'] == 'searchlog')
+                        $File = $this->Settings['Status']->LogPath;
                     if (!isset($File)) {
                         echo 'An error has occured';
                         return;
@@ -429,6 +435,18 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
                     case 'CheckPort':
                         $SphinxAdmin->CheckPort();
                         break;
+                    case 'KillSearchd(s)':
+                        $SphinxAdmin->KillSearchd();
+                        break;
+                    case 'ToggleSphinxSearch':
+                        //enter here to toggle whether or not to interrupt the main search from launching
+                        //useful for when searchd is running, but problems happenend and now your search is stuck
+                        //being not functional.
+                        if ($this->Settings['Status']->EnableSphinxSearch == TRUE)
+                            SaveToConfig('Plugin.SphinxSearch.EnableSphinxSearch', FALSE);
+                        else
+                            SaveToConfig('Plugin.SphinxSearch.EnableSphinxSearch', TRUE);
+                        break;
                     default:
                         break;
                 }
@@ -570,7 +588,7 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
         if ($Query) {
             $RelatedPost = new WidgetRelatedPost($this->SphinxClient, $this->Settings);
             $Related = $RelatedPost->AddQuery(null, array('Query' => $Query)); //now actually adding the query
-            $this->Queries = array_merge($this->Queries,$Related);
+            $this->Queries = array_merge($this->Queries, $Related);
             $Results = $this->RunSearch();
             $Results = $Results['RelatedPost']; //name of related post query class name
             $Return['Text'] = $RelatedPost->ToString($Results, $Query);
@@ -578,7 +596,6 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
             echo json_encode($Return);
         }
     }
-
 
     /**
      * Enter here to interrupt the normal search page from showing.
@@ -591,7 +608,7 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
     public function SearchController_Render_Before($Sender) {
         //In order for the default search engine not to run, we will kill PHP from processing
         //after the sphinx view is loaded
-        if ($this->Settings['Status']->SearchdRunning) { //exit if sphinx is not running
+        if ($this->Settings['Status']->SearchdRunning && $this->Settings['Status']->EnableSphinxSearch) { //exit if sphinx is not running or if manullay overridden
             if ($this->AlreadySent != 1) { //in order to elminate nesting this over and over again as well as allowing result page to render
                 $this->AlreadySent = 1;
 

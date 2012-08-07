@@ -69,7 +69,7 @@ class SearchModel extends Gdn_Model {
 
         $AllSettings = SphinxFactory::BuildSettings();
         $Settings = $AllSettings->GetAllSettings();
-        if ($Settings['Status']->SearchdRunning)
+        if ($Settings['Status']->SearchdRunning && $this->Settings['Status']->EnableSphinxSearch)
             return FALSE; //sphinx is running...don't use default search
         else {
             // If there are no searches then return an empty array.

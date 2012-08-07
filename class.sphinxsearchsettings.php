@@ -85,6 +85,7 @@ class SphinxSearchSettings {
             'Plugin.SphinxSearch.SearchdPortStatus' => FALSE,
             'Plugin.SphinxSearch.SearchdConnections' => 0,
             'Plugin.SphinxSearch.SearchdRunning' => FALSE,
+            'Plugin.SphinxSearch.EnableSphinxSearch' => TRUE,
             'Plugin.SphinxSearch.IndexerMainTotal' => 0,
             'Plugin.SphinxSearch.IndexerDeltaTotal' => 0,
             'Plugin.SphinxSearch.IndexerStatsTotal' => 0,

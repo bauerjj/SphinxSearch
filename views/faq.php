@@ -131,6 +131,10 @@ if (!defined('APPLICATION'))
         <li>You should kill all instances of searchd by using 'ps' in the command line.
             If that does not work, delete all files in your ../sphinx/var/log folder and reboot</li>
         <br/>
+        <li class="Q">"WARNING: no process found by PID xxxx. WARNING: indices NOT rotated". </li>
+        <li>This is most likely caused by multiple instances of searchd running. This can happen if you start searchd and then either install a new instance of sphinx or disable the plugin.
+        Solution is to click the button 'Kill Searchd(d)' in the control panel and then start searchd and reindex</li>
+        <br/>
         <li class="Q">My indexes are reindexed through my cron job, but the index time is incorrect</li>
         <li>Yea, I know...this is only updated if you index through the control panel</li>
     </ol>

@@ -268,7 +268,7 @@ if (!defined('APPLICATION'))
                 <td> <?php echo $this->Form->Button('Action', array('class' => 'SmallButton', 'value' => 'Start Searchd')); ?>
                     <?php echo $this->Form->Button('Action', array('class' => 'SmallButton', 'value' => 'Stop Searchd')); ?>
                 <td> <?php echo $this->Form->Button('Action', array('class' => 'SmallButton', 'value' => 'Check Port')); ?></td>
-                <td><?php echo $this->Form->Button('Action', array('class' => 'SmallButton', 'value' => 'Reload Connections')); ?></td>
+                <td>----</td>
             </tr>
 
         </tbody>
@@ -288,8 +288,44 @@ if (!defined('APPLICATION'))
             </tr>
         </tbody>
     </table>
+    <br/>
+    <br/>
+    <table class="CPanel Searchd">
+        <tbody>
+            <tr>
+                <th class="Desc">Debug: </th>
+                <th>Kill </th>
+                <th>Manual Override</th>
+                <th>Search Log</th>
+                <th>Query Log</th>
+                <th>Cron Log</th>
 
-
+            </tr>
+            <tr>
+                <td>Actions:</td>
+                <td>
+                    <?php echo $this->Form->Button('Action', array('class' => 'SmallButton', 'value' => 'Kill Searchd(s)')); ?>
+                </td>
+                <td>
+                    <?php if ($Settings['Status']->EnableSphinxSearch) Success('Sphinx Enabled'); else Fail('Sphinx Disabled'); ?>
+                    <?php echo $this->Form->Button('Action', array('class' => 'SmallButton', 'value' => 'Toggle Sphinx Search')); ?>
+                </td>
+                <td>
+                    <?php echo Anchor(T('search log'), 'plugin/sphinxsearch/viewfile/' . Gdn::Session()->TransientKey() . '?action=viewfile&file=searchlog', array('target' => '_blank')) ?>
+                </td>
+                 <td>
+                    <?php echo Anchor(T('query log'), 'plugin/sphinxsearch/viewfile/' . Gdn::Session()->TransientKey() . '?action=viewfile&file=querylog', array('target' => '_blank')) ?>
+                </td>
+                 <td>
+                    <?php echo Anchor(T('cron log'), 'plugin/sphinxsearch/viewfile/' . Gdn::Session()->TransientKey() . '?action=viewfile&file=cronlog', array('target' => '_blank')) ?>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <ul class="Settings">
+<li class="FootNote">Kill Searchd is useful for when multiple instances of searchd are running - common sideffect of this is error: WARNING: no process found by PID xxxx </li>
+<li class="FootNote">Manual override will either enable sphinx over the default (if searchd is running), or disable sphinx and let the default run (regardless of the state of searchd)</li>
+</ul>
 
 </div>
 <br/>
@@ -305,6 +341,13 @@ if (!defined('APPLICATION'))
 <br/>
 
 <h3>Changelog</h3>
+20120807
+<ol>
+    <li>Added debug table to control panel</li>
+    <li>Fixed cron files to index at common times</li>
+    <li>Deleted "Reload Connections" button...it was useless</li>
+</ol>
+<br/>
 20120806
 <ol>
     <li>Added mysql_sock to config</li>
