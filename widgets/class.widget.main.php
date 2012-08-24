@@ -75,7 +75,6 @@ class WidgetMain extends Widgets implements SplObserver {
         $SubQuery = '';
 
 
-
         $Limit = $this->Settings['Admin']->LimitResultsPage;
         $Offset = (($Sanitized['Offset'] - 1) * $Limit); //limit per page
         if ($Offset < 0)
@@ -127,7 +126,7 @@ class WidgetMain extends Widgets implements SplObserver {
 
         //echo $Query; die;
 
-        $QueryIndex = $this->SphinxClient->AddQuery($Query, SS_INDEX_DIST, $this->Name);
+        $QueryIndex = $this->SphinxClient->AddQuery($Query.' ', SS_INDEX_DIST, $this->Name);
         $this->Queries[] = array(
             'Name' => $this->Name,
             'Index' => $QueryIndex,
