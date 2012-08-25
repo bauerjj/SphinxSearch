@@ -341,10 +341,17 @@ if (!defined('APPLICATION'))
 <br/>
 
 <h3>Changelog</h3>
+2012XXXX
+<ol>
+    <li>Created temporary workaround that fixed non-Roman search phrases from being executed correctly </li>
+    <li>Fixed stats cron file location to its actual location</li>
+    <li>Fixed the RelatedPost widget from adding a query when it should not be</li>
+</ol>
+<br/>
 20120807
 <ol>
     <li>Added debug table to control panel</li>
-    <li>Fixed cron files to index at common times</li>
+    <li>Fixed cron files to index at common times - also corrected file paths and comments</li>
     <li>Deleted "Reload Connections" button...it was useless</li>
 </ol>
 <br/>

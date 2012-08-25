@@ -36,8 +36,8 @@ class WidgetRelatedMain extends Widgets implements SplObserver {
             //must first clear any special characters in query string if using the extended syntax
             //@todo probably better to use the 'words' index
             $Query = $this->FieldSearch($this->OperatorOrSearch($this->ClearFromTags($Sanitized['Query'])), array(SS_FIELD_TITLE));
-
-            $QueryIndex = $this->SphinxClient->AddQuery($Query, $Index = SS_INDEX_DIST, $this->Name);
+            //echo $Query; die;
+            $QueryIndex = $this->SphinxClient->AddQuery($Query.' ', $Index = SS_INDEX_DIST, $this->Name);
             $this->Queries[] = array(
                 'Name' => $this->Name,
                 'Index' => $QueryIndex,

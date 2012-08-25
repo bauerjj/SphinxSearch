@@ -312,18 +312,27 @@ abstract class Widgets {
 
         $QueryIn = trim(filter_input(INPUT_GET, 'Search', FILTER_SANITIZE_STRING)); //probably overkill
         $QueryIn = explode(' ', $QueryIn);
+        $Match = filter_input(INPUT_GET, 'match', FILTER_SANITIZE_STRING);
         foreach ($QueryIn as $Word) {    //get rid of any white spaces inbetween words
             if (!is_string($Word) || $Word == '')
                 continue;
-            if ($Query == '')
+            if ($Query == '') {
+                if ($Match != 'Extended') {
+                    //$Word = $this->SphinxClient->EscapeString($Word);
+                }
                 $Query = $Word;
-            else
+            }
+            else{
+                if ($Match != 'Extended') {
+                    //$Word = $this->SphinxClient->EscapeString($Word);
+                    //$Query = $Word;
+                }
                 $Query .= ' ' . $Word;
+            }
         }
 
         $TitlesOnly = (filter_input(INPUT_GET, 'titles', FILTER_SANITIZE_NUMBER_INT) == 1 ? 1 : 0); //checkbox - bool
         $WithReplies = (filter_input(INPUT_GET, 'WithReplies', FILTER_SANITIZE_NUMBER_INT) == 1 ? 1 : 0); //checkbox - bool
-        $Match = filter_input(INPUT_GET, 'match', FILTER_SANITIZE_STRING);
         $Child = (filter_input(INPUT_GET, 'child', FILTER_SANITIZE_NUMBER_INT) == 1 ? 1 : 0); //checkbox - bool
         if (isset($_GET['forums']) && is_array($_GET['forums'])) {
             foreach ($_GET['forums'] as $Forum) {

@@ -27,13 +27,13 @@ class WidgetRelatedPost extends Widgets implements SplObserver {
      */
     public function AddQuery($Sender, $Options = FALSE) {
         $Thread = GetValue('Query', $Options); //get the discussion name (thread topic) to search against
-        if ($Options) { //call this directly from handler: Controller_newdiscussion
+        if ($Thread) { //call this directly from handler: Controller_newdiscussion
             $this->SphinxClient->ResetFilters();
             $this->SphinxClient->ResetGroupBy();
             $this->SphinxClient->SetLimits(0, $this->Settings['Admin']->LimitRelatedThreadsPost);
 
             $Query = $this->FieldSearch($this->OperatorOrSearch($Thread), array(SS_FIELD_TITLE));
-            $QueryIndex = $this->SphinxClient->AddQuery($Query, $Index = SS_INDEX_DIST, $this->Name);
+            $QueryIndex = $this->SphinxClient->AddQuery($Query.' ', $Index = SS_INDEX_DIST, $this->Name);
             $this->Queries[] = array(
                 'Name' => $this->Name,
                 'Index' => $QueryIndex,

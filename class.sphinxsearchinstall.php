@@ -190,7 +190,7 @@ class SphinxSearchInstall extends SphinxObservable {
             if (!file_put_contents($CronFolder . DS . 'cron.reindex.delta.php', $ReWritedDelta)) {
                 parent::Update(SS_FATAL_ERROR, FALSE, FALSE, "Error writing cron file: $DeltaTemplate");
             }
-            if (!file_put_contents($CronFolder . DS . 'cron.reindex.stats.php', $ReWritedMain)) {
+            if (!file_put_contents($CronFolder . DS . 'cron.reindex.stats.php', $ReWritedStats)) {
                 parent::Update(SS_FATAL_ERROR, FALSE, FALSE, "Error writing cron file: $StatsTemplate");
             }
         } catch (Exception $e) {

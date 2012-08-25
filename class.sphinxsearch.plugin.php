@@ -56,8 +56,8 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
         $this->Settings = $Settings->GetAllSettings();
         //create subclasses
         $this->_Storage = new SplObjectStorage();
-
-        if ($this->Settings['Status']->SearchdRunning && $this->Settings['Status']->EnableSphinxSearch) { //check if sphinx is running and if not manually overriden
+        //if($this->Settings['Status']->SearchdRunning && $this->Settings['Status']->EnableSphinxSearch) //check if sphinx is running and if not manually overriden
+        if (1) {
             //If so, register the widgets
             $this->RegisterWidgets();
             $this->RegisterModules();
@@ -155,6 +155,7 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
         if (sizeof($this->Queries) == 0)
             return $FinalResults; //don't run queries since no queries qued up
         else if ($this->Settings['Status']->SearchdRunning) {
+            //print_r($this->Queries); die;
             $Results = $this->SphinxClient->RunQueries(); //perform all of the queries
             //print_r($Results); die;
             if ($Results) {
@@ -224,9 +225,9 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
                     else if ($_GET['file'] == 'cronlog')
                         $File = PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'cron' . DS . 'sphinx_cron.log';
                     else if ($_GET['file'] == 'querylog')
-                        $File = $this->Settings['Status']->QueryPath;
+                        $File = $this->Settings['Install']->QueryPath;
                     else if ($_GET['file'] == 'searchlog')
-                        $File = $this->Settings['Status']->LogPath;
+                        $File = $this->Settings['Install']->LogPath;
                     if (!isset($File)) {
                         echo 'An error has occured';
                         return;

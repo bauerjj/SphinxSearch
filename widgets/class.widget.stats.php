@@ -115,8 +115,8 @@ class WidgetStats extends Widgets implements SplObserver {
                 $Sanitized = $this->ValidateInputs(); //get the submitted query
                 $Query = $this->OperatorOrSearch($Sanitized['Query']); // vanilla | forums | search
 
-
-                $QueryIndex = $this->SphinxClient->AddQuery('@(keywords) ' . $Query, $Index = SS_INDEX_STATS, 'Related Searches');
+                //echo $Query; die;
+                $QueryIndex = $this->SphinxClient->AddQuery('@(keywords) ' . $Query.' ', $Index = SS_INDEX_STATS, 'Related Searches');
 
                 $this->Queries[] = array(
                     'Name' => $this->NameRSearches,

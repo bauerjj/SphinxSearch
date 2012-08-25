@@ -29,7 +29,7 @@ class WidgetMember extends Widgets implements SplObserver {
             $Query = $MemberName;
 
             $Search = $this->FieldSearch($Query, array(SS_FIELD_USERNAME));
-            $QueryIndex = $this->SphinxClient->AddQuery($Search, $Index = SS_INDEX_DIST, $this->Name);
+            $QueryIndex = $this->SphinxClient->AddQuery($Search.' ', $Index = SS_INDEX_DIST, $this->Name);
 
             $this->Queries[] = array(
                 'Name' => $this->Name,
