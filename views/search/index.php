@@ -1,5 +1,5 @@
 <?php if (!defined('APPLICATION')) exit(); ?>
-<div class="Tabs SearchTabs">
+<div class="Tabs SearchTabs WithPanel"> <!-- WithPanel is used in the traditional plugin/theme ONLY!! -->
     <?php
     echo $this->Form->Open(array('action' => '', 'method' => 'get')),
     $this->Form->TextBox('Search'),

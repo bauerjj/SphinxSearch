@@ -51,7 +51,7 @@
  *
  */
 ?>
-<div id="SphinxResults">
+<div id="SphinxResults" class="WithPanel">
 <?php
 //print_r($this->Data); die;
 $Settings = GetValue('Settings', $this->Data);
