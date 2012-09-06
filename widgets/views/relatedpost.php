@@ -51,6 +51,7 @@ if (!defined('APPLICATION'))
                     },
                     error: function(XMLHttpRequest, textStatus, errorThrown){
                         addmsg("error", textStatus + " (" + errorThrown + ")");
+
                     }
                 });
                 finished = true;
