@@ -10,7 +10,7 @@ if (!defined('APPLICATION'))
 
 $PluginInfo['SphinxSearch'] = array(
     'Description' => 'A much improved search experience with widgets based on the Sphinx Search Engine',
-    'Version' => '20120905',
+    'Version' => '20120912',
     'RequiredApplications' => array('Vanilla' => '2.0.18.4'),
     'RequiredTheme' => FALSE,
     'RequiredPlugins' => FALSE,
@@ -41,9 +41,15 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
         //Sphinx plugin core modules
         /////////////////////////////////////////////////
         include_once(PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'sphinxconstants.php');
-        include_once(PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'class.sphinxsearchgeneral.php');
         include_once(PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'class.sphinxfactory.php');
+        include_once(PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'class.sphinxobservable.php');
+        include_once(PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'class.sphinxsearchadmin.php');
+        include_once(PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'class.sphinxsearchgeneral.php');
+        include_once(PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'class.sphinxsearchinstall.php');
+        include_once(PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'class.sphinxsearchinstallwizard.php');
+        include_once(PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'class.sphinxsearchservice.php');
         include_once(PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'class.sphinxsearchsettings.php');
+        include_once(PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'class.sphinxstatuslogger.php');
         //include_once(PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'class.searchmodel.php');
         include_once(PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'sphinxapi.php'); //load the Sphinx API file
         ////////////////////////////////////////////////
@@ -587,7 +593,6 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
         $Return = array();
         $Query = GetIncomingValue('Query'); //grab the POSTED query
         if ($Query) {
-            $but = new myclass();
             $RelatedPost = new WidgetRelatedPost($this->SphinxClient, $this->Settings);
             $Related = $RelatedPost->AddQuery(null, array('Query' => $Query)); //now actually adding the query
             $this->Queries = array_merge($this->Queries, $Related);
