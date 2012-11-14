@@ -42,9 +42,6 @@ $Definition['Sleak'] = 'Sleak';
 $Definition['Simple'] = 'Simple';
 
 
-
-
-
 //main result page
 $Definition['Search Results for Query'] = 'Search Results for Query';
 $Definition['Results'] = 'Results';
@@ -54,6 +51,9 @@ $Definition['Search Again :: Adv Search'] = 'Search Again :: Adv Search';
 //widgets
 $Definition['Related Discussions'] = 'Related Discussions';
 $Definition['HitBox'] = 'HitBox';
+$Definition['Word'] = 'Word';
+$Definition['Docs'] = 'Docs';
+$Definition['Hits'] = 'Hits';
 $Definition['Keyword Cloud'] = 'Keyword Cloud';
 $Definition['Related Searches'] = 'Related Searches';
 $Definition['Related Threads'] = 'Related Threads';
