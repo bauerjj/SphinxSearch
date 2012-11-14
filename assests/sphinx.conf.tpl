@@ -156,15 +156,6 @@ index {ss_prefix}main
     path            = {data_path}{ss_prefix}main
     docinfo         = extern
     charset_type    = {charset_type}
-
-
-    min_infix_len = 0
-    min_word_len = 3
-    min_stemming_len = 1
-    morphology = stem_en
-    enable_star = 0
-    #stopwords = {assests_path}stopwords.txt
-
 }
 index {ss_prefix}delta : {ss_prefix}main
 {
