@@ -28,6 +28,10 @@ class WidgetMain extends Widgets implements SplObserver {
                     $Total = 0;
                 else
                     $Total = $Results[$this->Name]['total_found'];
+
+                if($Total > $this->Settings['Admin']->MaxMatches)
+                    $Total = $this->Settings['Admin']->MaxMatches; //total_found is applied BEFORE setLimits and maxmatches take affect. We want to limit
+                    //pagination results to the max matches that sphinx will return...or else some pages will have a blank result set
                 $this->BuildPager($Sender, $Total);
             }
         }
@@ -44,12 +48,15 @@ class WidgetMain extends Widgets implements SplObserver {
         $Sanitized = $this->ValidateInputs(); //get offset
         $GETString = '?' . Gdn_Url::QueryString() . '&tar=srch'; //use this to providea link back to search - be sure to append the '&tar=srch' to tell to load the main search page
         $GETString = str_replace('p=search&', 'search?', $GETString);
+        //echo $GETString; die;
         $Limit = $this->Settings['Admin']->LimitResultsPage;
         $Offset = (($Sanitized['Offset'] - 1) * $Limit); //limit per page
 
-        $Pos = strpos($GETString, '&pg');
+        $Pos = strpos($GETString, '&pg='.$_GET['pg']);
         if (!$Pos == FALSE) {
-            $Url = substr($GETString, 0, $Pos); //strip the page number if it exists
+            //$Url = substr($GETString, 0, $Pos); //strip the page number if it exists
+            $Url = str_replace('&pg='.GetIncomingValue('pg'), '', $GETString); //strip the page number if it exists
+            $Url = str_replace('&tar=srch', '', $Url); //don't want to load adv search page when clicking page numbers
         }
         else
             $Url = str_replace('&tar=srch', '', $GETString); //don't want to load adv search page when clicking page numbers
@@ -60,6 +67,7 @@ class WidgetMain extends Widgets implements SplObserver {
         $Sender->Pager->LessCode = '<';
         $Sender->Pager->ClientID = 'Pager';
         $Sender->Pager->Configure($Offset, $Limit, $Total, $Url . '&pg=%1$s');
+        //echo $Url; die;
 
         $Sender->SetData('GETString', $GETString);
     }
