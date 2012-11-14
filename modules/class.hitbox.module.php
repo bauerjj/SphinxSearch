@@ -28,13 +28,13 @@ class HitBoxModule extends Gdn_Module {
                 <thead>
                     <tr>
                         <th class="Word">
-                            Word
+                            <?php echo T('Word') ?>
                         </th>
                         <th class="Docs">
-                            Docs
+                            <?php echo T('Docs') ?>
                         </th>
                         <th class="Hits">
-                            Hits
+                            <?php echo T('Hits') ?>
                         </th>
                     </tr>
                 </thead>
