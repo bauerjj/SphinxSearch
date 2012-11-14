@@ -1,6 +1,8 @@
 <?php if (!defined('APPLICATION')) exit(); ?>
 <div class="Tabs SearchTabs WithPanel"> <!-- WithPanel is used in the traditional plugin/theme ONLY!! -->
     <?php
+     $or = GetIncomingValue('or') == '' ? 'Relevance' : GetIncomingValue('mem') ; //default order to Relevance
+
     echo $this->Form->Open(array('action' => '', 'method' => 'get')),
     $this->Form->TextBox('Search'),
     $this->Form->Button('Search', array('Name' => '')),
@@ -11,7 +13,7 @@
 
     $this->Form->Hidden('child', array('value' => GetIncomingValue('child'))),
     $this->Form->Hidden('forums', array('value' => GetIncomingValue('forums'))),
-    $this->Form->Hidden('or', array('value' => GetIncomingValue('or'))),
+    $this->Form->Hidden('or', array('value' => $or)),
     $this->Form->Hidden('mem', array('value' => GetIncomingValue('mem'))),
     $this->Form->Hidden('tag', array('value' => GetIncomingValue('tag'))),
     $this->Form->Hidden('pg', array('value' => GetIncomingValue('pg')))
