@@ -21,6 +21,7 @@ abstract class Widgets {
         $this->SphinxClient->SetMaxQueryTime((int) $this->Settings['Admin']->MaxQueryTime); // Sets maximum search query time, in milliseconds. Default valus is 0 which means "do not limit".
         //$this->SphinxClient->SetRetries((int) $this->Settings['Admin']->RetriesCount, (int)$this->Settings['Admin']->RetriesDelay );
         $this->SphinxClient->SetMatchMode(SPH_MATCH_EXTENDED2); //use this since using boolean operators
+        $this->SphinxClient->SetRankingMode(SPH_RANK_PROXIMITY_BM25);
     }
 
     protected function SortIDMatches($SphinxMatches) {
@@ -50,6 +51,7 @@ abstract class Widgets {
      * @return type
      */
     protected function GetSQLData($Mode, $SphinxMatches) {
+        //print_r($SphinxMatches); die;
         $Return = array(); //use this to sort results based on what sphinx returned them in (this IS IMPORTANT!)
         $Matches = $this->SortIDMatches($SphinxMatches); //return the sorted IDs (recall that a docid of '5' is duplicate in both comments/discussions..there is no unique ID
         switch (strtolower($Mode)) {
@@ -76,6 +78,9 @@ abstract class Widgets {
     }
 
     protected function PrepareSimple($Matches) {
+        // Create a fresh copy of the Sql object so as not to pollute.
+        $SQL = clone Gdn::SQL();
+        $SQL->Reset();
         $SQL = Gdn::SQL();
         $Comment = $SQL->Select('c.DiscussionID')
                 ->Select('d.Name as Title, c.Body as Body, d.Body as DiscussionBody, c.CommentID as CommentID, d.CountComments, 1 as IsComment')
@@ -85,6 +90,9 @@ abstract class Widgets {
                 ->Get()
                 ->Result()
         ;
+        // Create a fresh copy of the Sql object so as not to pollute.
+        $SQL = clone Gdn::SQL();
+        $SQL->Reset();
         $Discussion = $SQL->Select('d.DiscussionID')
                 ->Select('d.Name as Title, d.Body as Body, d.Body as DiscussionBody, d.DiscussionID as CommentID, d.CountComments, 0 as IsComment')
                 ->From('Discussion as d')
@@ -92,13 +100,14 @@ abstract class Widgets {
                 ->Get()
                 ->Result()
         ;
-
         return $this->SortTableResults($Matches, $Comment, $Discussion);
     }
 
     //display the following:
     protected function PrepareTable($Matches) {
         //print_r($Matches); die;
+                $SQL = clone Gdn::SQL();
+        $SQL->Reset();
         $SQL = Gdn::SQL();
         $Prefix = C('Database.Prefix', 'GDN_');
         $WhereIn = $this->WhereIn('c.CommentID', $Matches['Comment']);
@@ -120,6 +129,8 @@ abstract class Widgets {
 
         $WhereIn = $this->WhereIn('d.DiscussionID', $Matches['Discussion']); //only retrieving discussions
         //This query checks if the LastUserID and LastCommentID are Null.
+        $SQL = clone Gdn::SQL();
+        $SQL->Reset();
         $Discussion = $SQL->Query('
             select d.DiscussionID as CommentID, d.DiscussionID as `DiscussionID`, d.InsertUserID as `InsertUserID`, d.DateInserted as `DateInserted`, IF(d.LastCommentUserID IS NULL, d.InsertUserID, d.LastCommentUserID) as `LastCommentUserID`, d.DateLastComment as `DateLastComment`, if(d.LastCommentID is NULL, d.DiscussionID, d.LastCommentID) as `LastCommentID`,
             d.CountComments as `CountComments`, d.CountViews as `CountViews`, d.Name as `Title`, d.Body as Body, d.Body as DiscussionBody, 0 as IsComment,
@@ -137,6 +148,8 @@ abstract class Widgets {
 
     protected function PrepareClassic($Matches) {
         //print_r($Matches); die;
+        $SQL = clone Gdn::SQL();
+        $SQL->Reset();
         $SQL = Gdn::SQL();
         $WhereIn = $this->WhereIn('c.CommentID', $Matches['Comment']); //only retrieving comments and the title of the discussion
 
@@ -152,6 +165,8 @@ abstract class Widgets {
                 ->Get()
                 ->Result()
         ;
+        $SQL = clone Gdn::SQL();
+        $SQL->Reset();
         $Discussion = $SQL->Select('d.DiscussionID, d.InsertUserID, d.Body, d.DateInserted, d.LastCommentUserID, d.DiscussionID as CommentID, 0 as IsComment')
                 ->Select('d.CountComments, d.CountViews, d.Name as Title, d.Body as DiscussionBody')
                 ->Select('u.Name as UserName, u.Photo as UserPhoto, u.UserID')
