@@ -52,25 +52,26 @@
  */
 ?>
 <div id="SphinxResults" class="WithPanel">
-<?php
+    <?php
 //print_r($this->Data); die;
-$Settings = GetValue('Settings', $this->Data);
-$Results = GetValue('MainSearch', $this->Data); //main search results
-$GETString = GetValue('GETString', $this->Data);
-$Format = 'Simple';
-if (isset($_GET['res']))
-    $Format = $_GET['res']; //get result display format
-if (isset($Results['total_found'])):
+    $Settings = GetValue('Settings', $this->Data);
+    $Results = GetValue('MainSearch', $this->Data); //main search results
+    $GETString = GetValue('GETString', $this->Data);
 
-    if (!($Results['total_found'] == 0)): //make sure there is something here
-        ?>
+    $Total = $Results['total'] > $this->Settings['Admin']->MaxMatches ? 'Top '.$this->Settings['Admin']->MaxMatches : $Results['total'];
+    if (isset($_GET['res']))
+        $Format = $_GET['res']; //get result display format
+    if (isset($Results['total_found'])):
+
+        if (!($Results['total_found'] == 0)): //make sure there is something here
+            ?>
             <div id="TitleBar">
                 <?php echo T('Search Results for Query') ?>: <span id="SearchQuery"><?php echo $Results['query'] ?></span>
-                <?php echo $this->Form->Button('Options', array('value'=>'More Options', 'id'=>'Options')); ?>
+                <?php echo $this->Form->Button('Options', array('value' => 'More Options', 'id' => 'Options')); ?>
             </div>
             <div id="NavBar">
                 <span id="SearchAgain"><?php echo Anchor('Search Again :: Adv Search', $GETString, FALSE, FALSE, TRUE) ?></span>
-                <span id="Time"><?php echo sprintf(T('%s %s in %s'), $Results['total_found'],Plural($Results['total_found'], T('result'), T('results')),  $Results['time'] . 's') ?></span>
+                <span id="Time"><?php echo sprintf(T('%s %s in %s'), $Total, Plural($Results['total'], T('result'), T('results')), $Results['time'] . 's') ?></span>
                 <?php echo str_replace('=p', '=', $this->Pager->ToString('more')); //get rid of the character 'p' in p1,p2,p3 etc ?>
             </div>
             <?php echo WriteResults($Format, $Results['matches'], TRUE); ?>
@@ -78,13 +79,13 @@ if (isset($Results['total_found'])):
 
         <?php else: ?>
             <span id="SearchAgain"> <?php echo Anchor(T('Search Again :: Adv Search'), $GETString) ?></span>
-            <?php echo $this->Form->Button('Options', array('value'=>'More Options', 'id'=>'Options')); ?>
-        <?php echo '<p class="NoResults">', sprintf(T('No results for %s.', 'No results for <b>%s</b>.'), htmlspecialchars($this->SearchTerm)), '</p>'; ?>
+            <?php echo $this->Form->Button('Options', array('value' => 'More Options', 'id' => 'Options')); ?>
+            <?php echo '<p class="NoResults">', sprintf(T('No results for %s.', 'No results for <b>%s</b>.'), htmlspecialchars($this->SearchTerm)), '</p>'; ?>
 
         <?php endif ?>
     <?php else: ?>
         <span id="SearchAgain"> <?php echo Anchor(T('Search Again :: Adv Search'), $GETString) ?></span>
-        <?php echo $this->Form->Button('Options', array('value'=>'More Options', 'id'=>'Options')); ?>
+        <?php echo $this->Form->Button('Options', array('value' => 'More Options', 'id' => 'Options')); ?>
         <?php echo '<p class="NoResults">', sprintf(T('No results for %s.', 'No results for <b>%s</b>.'), htmlspecialchars($this->SearchTerm)), '</p>'; ?>
     <?php endif ?>
 </div>
