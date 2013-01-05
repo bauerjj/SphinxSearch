@@ -8,8 +8,8 @@ function WriteResults($Format, $Results, $WriteText = FALSE, $Module = FALSE) {
     else
         $CssClass = 'DataList'; //regular content
     switch (strtolower($Format)) {
-        case 'sleak':
-            return WriteSleak($Results, $WriteText, $CssClass);
+        case 'sleek':
+            return WriteSleek($Results, $WriteText, $CssClass);
             break;
         case 'table':
             return WriteTable($Results, $WriteText, $CssClass);
@@ -104,7 +104,7 @@ function WriteSimple($Results, $WriteText, $CssClass) {
     return $String;
 }
 
-function WriteSleak($Results, $WriteText, $CssClass) {
+function WriteSleek($Results, $WriteText, $CssClass) {
     $String = '';
     $Total = sizeof($Results);
     if ($Total == 0) {
@@ -116,7 +116,7 @@ function WriteSleak($Results, $WriteText, $CssClass) {
     $Org = $Count;
     ob_start();
     ?>
-    <div class="SphinxSearch Sleak">
+    <div class="SphinxSearch Sleek">
         <ul class="<?php echo $CssClass ?>">
             <?php for ($i = 0; $i < $Cols; $i++): ?>
                 <?php while ($Count--): ?>
