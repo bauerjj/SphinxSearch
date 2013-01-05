@@ -55,8 +55,8 @@ abstract class Widgets {
         $Return = array(); //use this to sort results based on what sphinx returned them in (this IS IMPORTANT!)
         $Matches = $this->SortIDMatches($SphinxMatches); //return the sorted IDs (recall that a docid of '5' is duplicate in both comments/discussions..there is no unique ID
         switch (strtolower($Mode)) {
-            case 'sleak':
-                $Result = $this->PrepareSleak($Matches);
+            case 'sleek':
+                $Result = $this->PrepareSleek($Matches);
                 break;
             case 'table':
                 $Result = $this->PrepareTable($Matches);
@@ -72,7 +72,7 @@ abstract class Widgets {
         return $Result;
     }
 
-    protected function PrepareSleak($Matches) {
+    protected function PrepareSleek($Matches) {
 
         return $this->PrepareClassic($Matches);
     }
