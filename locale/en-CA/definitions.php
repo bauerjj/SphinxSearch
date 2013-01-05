@@ -1,17 +1,6 @@
 <?php
 if (!defined('APPLICATION')) exit();
 
-$LocaleInfo['locale'] = array( // make sure the key of this array is the same as its folder name.
-   'Locale'       => 'en-CA',
-   'Name'         => 'SphinxSearch',
-   'Description'  => 'For the Sphinx Search plugin',
-   'Version'      => '1.0',
-   'Author'       => "mcuhq",
-   'AuthorEmail'  => 'mcuhq',
-   'AuthorUrl'    => 'http://mcuhq.com',
-   'License'      => 'FREE as in BEER'
-);
-
 //main adv search page
 $Definition['Help'] = 'Help';
 $Definition['Titles only'] = 'Titles only';
