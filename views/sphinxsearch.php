@@ -341,6 +341,24 @@ if (!defined('APPLICATION'))
 <br/>
 
 <h3>Changelog</h3>
+20130105
+<ol>
+    <li>Fixed search results not respecting user permissions (added another attribute to sphinx to filter on)</li>
+    <li>Updated release file to 2.0.6</li>
+    <li>Relocated definitions file to make it easier to edit</li>
+    <li>Deleted hard coded statements in config template that would override automatic settings set in plugin's settings page</li>
+    <li>Added more locale definitions to hitbox widget</li>
+    <li>Fixed incorrect query string in the results page. Any filtering done in the result page would only take affect for that single page! Now all pages are affected (fixed)</li>
+    <li>Fixed pagination results which would sometimes render blank results page. Now only 'MaxMatches' amount of results will be displayed (default is 1000 docs)</li>
+    <li>Fixed numerous spelling mistakes</li>
+</ol>
+<br/>
+20120912
+<ol>
+    <li>deleted old debug stuff that caused fatal error when auto completing</li>
+    <li>fixed problem with php classes not included...now just include all files in root of plugin </li>
+</ol>
+<br/>
 20120905
 <ol>
     <li>Created temporary workaround that fixed non-Roman search phrases from being executed correctly </li>
