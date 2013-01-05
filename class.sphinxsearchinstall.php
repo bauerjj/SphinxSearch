@@ -2,7 +2,7 @@
 
 class SphinxSearchInstall extends SphinxObservable {
 
-    private $LatestSphinxFileName = 'sphinx-2.0.5-release.tar.gz';    //update this on a need-to basis
+    private $LatestSphinxFileName = 'sphinx-2.0.6-release.tar.gz';    //update this on a need-to basis
     private $Settings = array();
 
     public function __construct($Config) {
