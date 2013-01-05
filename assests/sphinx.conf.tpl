@@ -27,7 +27,7 @@ source {ss_prefix}main_comment
 \
             0 as title, d.CountComments as CountComments, d.CountViews as CountViews,\
 \
-			cat.CategoryID as catid,\
+			cat.CategoryID as catid, cat.PermissionCategoryID as catpermid,\
 \
             u.Name as user, u.UserID as UserID\
 \
@@ -44,6 +44,7 @@ source {ss_prefix}main_comment
 	sql_attr_uint = UserID
 	sql_attr_uint = docid
 	sql_attr_uint = catid
+        sql_attr_bigint = catpermid #so results respect user permissions (must be signed!)
 
         {tag_attr}
 
@@ -65,7 +66,7 @@ source {ss_prefix}delta_comment : {ss_prefix}main_comment
 \
             0 as title, d.CountComments as CountComments, d.CountViews as CountViews,\
 \
-			cat.CategoryID as catid,\
+			cat.CategoryID as catid, cat.PermissionCategoryID as catpermid,\
 \
             u.Name as user, u.UserID as UserID\
 \
@@ -101,7 +102,7 @@ source {ss_prefix}main_discussion
 \
             d.Name as title, d.CountComments as CountComments, d.CountViews as CountViews,\
 \
-			d.CategoryID as catid,\
+			d.CategoryID as catid, cat.PermissionCategoryID as catpermid,\
 \
             u.Name as user, u.UserID as UserID\
 \
@@ -117,6 +118,7 @@ source {ss_prefix}main_discussion
 	sql_attr_uint = UserID
 	sql_attr_uint = docid
 	sql_attr_uint = catid
+        sql_attr_bigint = catpermid #so results respect user permissions (must be signed!)
 
         {tag_attr}
 
@@ -136,7 +138,7 @@ source {ss_prefix}delta_discussion : {ss_prefix}main_discussion
 \
             d.Name as title, d.CountComments as CountComments, d.CountViews as CountViews,\
 \
-			d.CategoryID as catid,\
+			d.CategoryID as catid, cat.PermissionCategoryID as catpermid,\
 \
             u.Name as user, u.UserID as UserID\
 \
