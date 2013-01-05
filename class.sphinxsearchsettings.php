@@ -43,7 +43,7 @@ class SphinxSearchSettings {
             'Match' => array('Any' => T('Any'), 'All' => T('All'), 'Extended' => T('Extended')), //Search Match Mode
             'Order' => array('Relevance' => T('Relevance'), 'MostRecent' => T('Most Recent'), 'MostViews' => T('Most Views'), 'MostReplies' => T('Most Replies')), //Search Order - the key corresponds to value on radio list
             'Time' => array('All' => 'All', 'ThisWeek' => T('This Week'), 'ThisMonth' => T('This Month'), 'ThisYear' => T('Year')), //t
-            'ResultFormat' => array('Classic' => T('Classic'), 'Table' => T('Table'), 'Sleak' => T('Sleak'),'Simple' => T('Simple')),
+            'ResultFormat' => array('Classic' => T('Classic'), 'Table' => T('Table'), 'Sleek' => T('Sleek'),'Simple' => T('Simple')),
         );
 
         return self::$SearchOptions;
