@@ -88,12 +88,17 @@ class WidgetMain extends Widgets implements SplObserver {
         if ($Offset < 0)
             $Offset = 0;
 
+        //Make sure results respect category permissions depending on user performing search
+        $Permissions = Gdn::Session()->GetPermissions(); // Get user permissions
+        $Permissions = $Permissions['Vanilla.Discussions.View']; // Only care about 'viewing' permissions
+        $this->SphinxClient->SetFilter(SS_ATTR_CATPERMID, $Permissions);
+
         if (!empty($Sanitized['ForumList'])) {       //filter Forum categories
             $Categories = $Sanitized['ForumList'];
             if (!in_array(0, $Categories)) {  //If this is TRUE, than user selected to search in "All" categories...no filtering then requried
                 if ($Sanitized['SearchChildren'])
                     $Categories = $this->GetCategories($Categories); //get children IDs
-                $this->SphinxClient->SetFilter('CatID', $Categories); //no children required, just get whatever was posted
+                $this->SphinxClient->SetFilter(SS_ATTR_CATID, $Categories); //no children required, just get whatever was posted
             }
         }
         if (!empty($Sanitized['TagList'])) {
