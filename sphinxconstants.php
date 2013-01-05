@@ -43,6 +43,7 @@ define ('SS_FIELD_USERNAME','user');
 
 //these are ONLY stored
 define ('SS_ATTR_DOCID','docid');
+define ('SS_ATTR_CATPERMID','catpermid');
 define ('SS_ATTR_ISCOMMENT','iscomment');
 define ('SS_ATTR_DOCDATEINSERTED','docdateinserted');
 define ('SS_ATTR_COUNTVIEWS','countviews');
