@@ -176,7 +176,7 @@ echo $this->Form->Errors();
                     <?php echo $this->Form->Label('Number of results that pop up when adding a new discussion (0 to disable)', 'Plugin.SphinxSearch.LimitRelatedThreadsPost'); ?>
                 </td>
                 <td>
-                    <?php echo $this->Form->DropDown('Plugin.SphinxSearch.RelatedThreadsPostFormat', array('simple' => 'simple', 'classic' => 'classic', 'sleak' => 'sleak', 'table' => 'table')) ?>
+                    <?php echo $this->Form->DropDown('Plugin.SphinxSearch.RelatedThreadsPostFormat', array('simple' => 'simple', 'classic' => 'classic', 'sleek' => 'sleek', 'table' => 'table')) ?>
                 </td>
             </tr>
             <tr>
@@ -187,7 +187,7 @@ echo $this->Form->Errors();
                     <?php echo $this->Form->Label('Number of related threads on the bottom of each discussion thread (0 to disable)', 'Plugin.SphinxSearch.LimitRelatedThreadsBottomDiscussion'); ?>
                 </td>
                 <td>
-                    <?php echo $this->Form->DropDown('Plugin.SphinxSearch.RelatedThreadsBottomDiscussionFormat', array('simple' => 'simple', 'classic' => 'classic', 'sleak' => 'sleak', 'table' => 'table')) ?>
+                    <?php echo $this->Form->DropDown('Plugin.SphinxSearch.RelatedThreadsBottomDiscussionFormat', array('simple' => 'simple', 'classic' => 'classic', 'sleek' => 'sleek', 'table' => 'table')) ?>
                 </td>
             </tr>
         </tbody>
