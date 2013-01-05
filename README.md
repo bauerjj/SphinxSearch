@@ -95,7 +95,7 @@ All of the widgets that display a discussion/thread title will have a tooltip th
 
 As of v20120805, the following are a list of widgets
 #####Advanced Search & result Page
-This overrides the current search algorithm and substitues a more advanced search option. This will automatically revert to the default search engine if it detects that sphinx is not running. This will happend during indexing. All of the existing search queries will still be valid, but the advanced options will have no effect on the results. The number of results shown on each page is configurable in the admin settings. The view format can be set by the user (classic, table, simple, sleak)
+This overrides the current search algorithm and substitues a more advanced search option. This will automatically revert to the default search engine if it detects that sphinx is not running. This will happend during indexing. All of the existing search queries will still be valid, but the advanced options will have no effect on the results. The number of results shown on each page is configurable in the admin settings. The view format can be set by the user (classic, table, simple, sleek)
 
 
 #####Post Searches
