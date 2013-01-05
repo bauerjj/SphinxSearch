@@ -122,9 +122,9 @@ class SphinxSearchService extends SphinxObservable {
         $SearchLog = $this->GetSearchLog();
 
         if (!file_exists($QueryLog) || !is_readable($QueryLog))
-            parent::Update(SS_FATAL_ERROR, 'This file does not exist or is not readable...must CHMOD 777 here: ' . $QueryLog);
+            parent::Update(SS_FATAL_ERROR, 'This file does not exist or is not readable...try chmod 777 here: ' . $QueryLog);
         if (!file_exists($QueryLog) || !is_readable($QueryLog))
-            parent::Update(SS_FATAL_ERROR, FALSE, FALSE, 'This file does not exist or is not readable...must CHMOD 777 here: ' . $SearchLog);
+            parent::Update(SS_FATAL_ERROR, FALSE, FALSE, 'This file does not exist or is not readable...try chmod 777 here: ' . $SearchLog);
     }
 
     /**

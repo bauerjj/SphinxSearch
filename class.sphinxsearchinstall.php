@@ -34,7 +34,7 @@ class SphinxSearchInstall extends SphinxObservable {
         }
         if ($CheckWritable) {
             if (!IsWritable($InstallPath)) {
-                parent::Update(SS_FATAL_ERROR, FALSE, FALSE, 'This location is not writable: ' . $InstallPath . ' <br/>Must CHMOD 777 this directory');
+                parent::Update(SS_FATAL_ERROR, FALSE, FALSE, 'This location is not writable: ' . $InstallPath . ' <br/>Try chmod 777 this directory');
             }
         }
     }
