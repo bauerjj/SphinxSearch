@@ -240,6 +240,8 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
                     }
                     if (isset($File) && !file_exists($File))
                         echo ('File does not exist here: ' . $File);
+                    elseif (!is_readable($File))
+                        echo ('File "' . $File . '" is not readable.');
                     else {
                         echo nl2br(file_get_contents($File));
                     }
