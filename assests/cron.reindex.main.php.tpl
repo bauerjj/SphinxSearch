@@ -3,7 +3,7 @@
 /*
  * Add the following cron job to update the main index every day at 4AM
  */
-// 00 04 * * * {path_to_php} {path_to_cron}{DS}cron.reindex.delta.php
+// 00 04 * * * {path_to_php} {path_to_cron}{DS}cron.reindex.main.php
 
 define('PATH_TO_SPHINX_INDEXER', '{path_to_indexer}');
 define('PATH_TO_SPHINX_CONFIG', '{path_to_config}');
