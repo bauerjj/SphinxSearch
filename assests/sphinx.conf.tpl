@@ -157,7 +157,7 @@ index {ss_prefix}main
     source          = {ss_prefix}main_discussion
     path            = {data_path}{ss_prefix}main
     docinfo         = extern
-    charset_type    = {charset_type}
+    charset_type    = {charset_type} #For more charsets, for Arabic, Persian, Italian, etc forums, please see: http://sphinxsearch.com/wiki/doku.php?id=charset_tables
 }
 index {ss_prefix}delta : {ss_prefix}main
 {
