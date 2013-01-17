@@ -4,10 +4,12 @@ SphinxSearch
 ####An advanced search plugin for Vanilla Forums based on the Sphinx Search engine v2.0.5
 
 [Live Demo #1](http://homebrewforums.net/search?Search=beer)
+
 [Live Demo #2](http://mcuhq.com/mcuhq/vanilla/search?tar=srch)
 
 [Photo Album](http://imgur.com/a/jQ5WE#1)
-[Vanilla Forums Download](http://vanillaforums.org/addon/sphinxsearch-plugin)
+
+[Offical Plugin Page](http://vanillaforums.org/addon/sphinxsearch-plugin)
 
 Table of contents
 -----------------
