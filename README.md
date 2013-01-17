@@ -3,7 +3,8 @@ SphinxSearch
 
 ####An advanced search plugin for Vanilla Forums based on the Sphinx Search engine v2.0.5
 
-[Live Demo](http://mcuhq.com/mcuhq/vanilla/search?tar=srch)
+[Live Demo #1](http://homebrewforums.net/search?Search=beer)
+[Live Demo #2](http://mcuhq.com/mcuhq/vanilla/search?tar=srch)
 
 [Photo Album](http://imgur.com/a/jQ5WE#1)
 
@@ -25,11 +26,11 @@ Table of contents
 ##How it Works
 For nitty gritty details behind sphinx, you should look at their main documentation: http://sphinxsearch.com/docs/current.html
 
-Basically, it indexes (optinally can store) the certain fields and then stores some attributes that are used to filter the results down such as comment count, category name, etc. Sphinx then returns a document ID which is then used in a typicall MYSQL query to retrieve the meat and potatoes of it such as last comment ID, category URL code, etc. Almost all searches are returned instantly (<12ms). 
+Basically, it indexes (optinally can store) the certain fields and then stores some attributes that are used to filter the results down such as comment count, category name, etc. Sphinx then returns a document ID which is then used in a typicall MYSQL query to retrieve the meat and potatoes of it such as last comment ID, category URL code, etc. Almost all searches are returned instantly (<12ms).
 
-Sphinx requires indexing, which is why cron tasks should be used on your server to run periodically. You can always manually index in the control panel for testing purposes. The 'Main' index will read the discussions and comments table in your database. The 'Delta' will do the same thing, except it will only pickup the ones since the last index was performed. Sphinx will search through both indexes, so you should index 'Delta' frequently and 'Main' during non-peak hours. 
+Sphinx requires indexing, which is why cron tasks should be used on your server to run periodically. You can always manually index in the control panel for testing purposes. The 'Main' index will read the discussions and comments table in your database. The 'Delta' will do the same thing, except it will only pickup the ones since the last index was performed. Sphinx will search through both indexes, so you should index 'Delta' frequently and 'Main' during non-peak hours.
 
-The plugin connects to searchd and queries it using the shpinx API. You should notice a significant speed increase and search relevance. 
+The plugin connects to searchd and queries it using the shpinx API. You should notice a significant speed increase and search relevance.
 
 ##Requirements
 
@@ -38,27 +39,27 @@ The plugin connects to searchd and queries it using the shpinx API. You should n
  3. Shell Access
  4. Spawn a Daemon (searchd)
  5. Port Forwarding
- 6. Vanilla >= v2.0.18.4 
+ 6. Vanilla >= v2.0.18.4
 
 Sphinx does work on windows, it's just that I have not built the installer for windows as of yet. Maybe you can help!
-Shared hosting will probably restrict searchd from running properly on your host's servers, but you can try. 
+Shared hosting will probably restrict searchd from running properly on your host's servers, but you can try.
 
 ##Install
-No backend knowledge is required to install this! Everything is done for you via the install wizard. It comes bundled with the build of the sphinx search engine. To install, run the install wizard and complete the **3** step process. If the wizard encounters any errors, it will tell you. If the installer package does not work on your server, you can perform a manual installation via your distro's package manager and then tell the wizard where to find your installed files. 
+No backend knowledge is required to install this! Everything is done for you via the install wizard. It comes bundled with the build of the sphinx search engine. To install, run the install wizard and complete the **3** step process. If the wizard encounters any errors, it will tell you. If the installer package does not work on your server, you can perform a manual installation via your distro's package manager and then tell the wizard where to find your installed files.
 
 To enable the plugin, simply download it from Vanilla Forum's plugin portal and move it to your webserver's plugin folder. Enable it from the dashboard. Some files need to be given write permissions by the installer:
   * ~SphinxSearch/Install folder
   * ~SphinxSearch/Install/pid/error/output.txt files
-  
+
 
 The install process allows you to run long tasks, such as *./configure* and *./make* in the background. While this is going on, the terminal output will be presented to you. This is also possible to do while indexing your indexes, which may take a long time depending on the amount of documents in the database.
 
 After installation, do the following in the control panel:
 
-1. Start searchd 
-2. index 'Main' 
-3. index 'Delta' 
-4. index 'Stats' 
+1. Start searchd
+2. index 'Main'
+3. index 'Delta'
+4. index 'Stats'
 5. Stop and then start searchd again
 6. Search for something on your forums through the usual means
 7. Setup a cron job to run the three cron files
@@ -76,22 +77,22 @@ The following is a list of search filters:
   * Threads with 1 or more replies
   * Certain sub forums
   * Tags (if tagging plugin enabled)
-  * Date 
+  * Date
   * Order By date, views, replies, relevance or mixture
 
 There are multiple viewing formats avaliable such as table or vertical layout. The tags and usernames are autocomplete fields. It also supports the sphinx extended syntax such as: *@title hello @body world*
 
 ####Admin
-Provides a backend to manage essentially everything related to sphinx. 
+Provides a backend to manage essentially everything related to sphinx.
   * Linux installer for the prepackaged tarball. Can also use existing system binaries if installed already
   * Control panel for managing the indexer and search daemon
   * Automatically generated configuration and cron files
   * Numerous supported options that can be enabled in the sphinx configuration (morphology, stemming, etc)
   * Enable/Disable widgets and their parameters (word highlighting, max matches, view format)
-  * Install FAQ 
+  * Install FAQ
 
 ####Widgets
-All of the widgets that display a discussion/thread title will have a tooltip that will display the first xxx amount of words from the original text. To show this text, simply hover over the title for a second to see the discussion body text. 
+All of the widgets that display a discussion/thread title will have a tooltip that will display the first xxx amount of words from the original text. To show this text, simply hover over the title for a second to see the discussion body text.
 
 As of v20120805, the following are a list of widgets
 #####Advanced Search & result Page
@@ -102,13 +103,13 @@ This overrides the current search algorithm and substitues a more advanced searc
 Much like on stackoverflow, any new discussion that is being typed into the title box will start sphinx looking for related threads in reference to the new potential thread. A box will appear the input box showing some relevant threads.
 
 #####Related Main Threads
-For each main search, the side panel will include a list of related threads based on the query. 
+For each main search, the side panel will include a list of related threads based on the query.
 
 #####Related Main Searches
 For each main search, the side panel will include a list of full search phrases that match the current one.
 
 #####Top Keywords
-The plugin will keep a list of all search queries and display the top xx amount of keywords in the panel on the advanced search landing page. 
+The plugin will keep a list of all search queries and display the top xx amount of keywords in the panel on the advanced search landing page.
 
 #####Top Searches
 Sidepanel displays the top searches in the panel on the advanced search landing page
@@ -117,13 +118,13 @@ Sidepanel displays the top searches in the panel on the advanced search landing 
 Simply shows how to use the extended search syntax in the left side panel on the advanced search landing page
 
 #####Related Discussion Threads
-For each discussion, a list of related threads in reference to the currently viewed one can be either shown in the sidepanel or below/above each discussion. 
+For each discussion, a list of related threads in reference to the currently viewed one can be either shown in the sidepanel or below/above each discussion.
 
 #####HitBox
-For each search, there is a hitbox that will detail the number of documents that matched each word and number of hits total. A caveat of this is that the analysis of each word comes **BEFORE** any filtering, so the results may differ than what the hitbox says. For instance, 26 documents in the document for the word, *vanilla*, may only result in 8 threads/comments with that same word due to filtering or post processing. 
+For each search, there is a hitbox that will detail the number of documents that matched each word and number of hits total. A caveat of this is that the analysis of each word comes **BEFORE** any filtering, so the results may differ than what the hitbox says. For instance, 26 documents in the document for the word, *vanilla*, may only result in 8 threads/comments with that same word due to filtering or post processing.
 
 ##Developers
-This plugin was built to encourage others to add to its functionality. The widgets are implemented in such a way to make a new addition relativly easy. 
+This plugin was built to encourage others to add to its functionality. The widgets are implemented in such a way to make a new addition relativly easy.
 
 To learn how to do so, look at an existing widget. All of them extend the abstract class, *widgets*, which provides common generic routines used by all of the widgets. All of the settings related to sphinx and the sphinx client are passed as construct parameters. This is important!! Only one instance of the sphinx API should be used since only **1** query is made. The widgets add a query to main batch which is then run before each rendered view. An exception to this rule are things that need to be executed from a handler inside of Vanilla such as the PostSearch
 
