@@ -26,7 +26,7 @@ class RelatedSearchesModule extends Gdn_Module {
             <ul class="PanelInfo PanelDiscussions">
                 <?php foreach ($this->RelatedSearches as $Row): ?>
                 <li class="Item">
-                    <?php $QueryString = 'search/results?q=' . str_replace(' ', '+', $Row->keywords); ?>
+                    <?php $QueryString = 'search/results?Search=' . str_replace(' ', '+', $Row->keywords); ?>
                     <?php echo Anchor($Row->keywords, $QueryString, '', array('class'=>'Title')) ?>
                 </li>
                 <?php endforeach ?>
