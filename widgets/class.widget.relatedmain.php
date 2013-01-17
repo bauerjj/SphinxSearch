@@ -16,7 +16,7 @@ class WidgetRelatedMain extends Widgets implements SplObserver {
 
         if (isset($Results[$this->Name])) {
             if ($this->Settings['Admin']->LimitRelatedThreadsMain > 0) {
-                if(isset($Results[$this->Name]['matches'])) {
+                if (isset($Results[$this->Name]['matches'])) {
                     $Matches = $this->GetSQLData('simple', $Results[$this->Name]['matches']);
                     $Module = new RelatedThreadsModule($Matches);
                     $Sender->AddModule($Module);
@@ -37,7 +37,13 @@ class WidgetRelatedMain extends Widgets implements SplObserver {
             //@todo probably better to use the 'words' index
             $Query = $this->FieldSearch($this->OperatorOrSearch($this->ClearFromTags($Sanitized['Query'])), array(SS_FIELD_TITLE));
             //echo $Query; die;
-            $QueryIndex = $this->SphinxClient->AddQuery($Query.' ', $Index = SS_INDEX_DIST, $this->Name);
+
+            //Make sure results respect category permissions depending on user performing search
+            $Permissions = Gdn::Session()->GetPermissions(); // Get user permissions
+            $Permissions = $Permissions['Vanilla.Discussions.View']; // Only care about 'viewing' permissions
+            $this->SphinxClient->SetFilter(SS_ATTR_CATPERMID, $Permissions);
+
+            $QueryIndex = $this->SphinxClient->AddQuery($Query . ' ', $Index = SS_INDEX_DIST, $this->Name);
             $this->Queries[] = array(
                 'Name' => $this->Name,
                 'Index' => $QueryIndex,

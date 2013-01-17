@@ -32,13 +32,13 @@ class WidgetRelatedDiscussion extends Widgets implements SplObserver {
 
             if (!isset($Results[$this->Name])) { // the '!' is important here
                 if ($this->Settings['Admin']->LimitRelatedThreadsBottomDiscussion > 0) { //put it on the bottom
-                    $Matches = $this->GetSQLData($this->Settings['Admin']->RelatedThreadsBottomDiscussionFormat, GetValue('matches',$Results));
+                    $Matches = $this->GetSQLData($this->Settings['Admin']->RelatedThreadsBottomDiscussionFormat, GetValue('matches', $Results));
                     $String = $this->ToString($Matches);
                     echo $String;
                 }
             } else {
                 if ($this->Settings['Admin']->LimitRelatedThreadsSidebarDiscussion > 0) { //put it on the sidebar
-                    $Matches = $this->GetSQLData('simple', GetValue('matches',$Results[$this->Name]));
+                    $Matches = $this->GetSQLData('simple', GetValue('matches', $Results[$this->Name]));
                     $Module = new RelatedDiscussionModule($this->ToString($Matches, TRUE));
                     $Sender->AddModule($Module);
                 }
@@ -58,7 +58,14 @@ class WidgetRelatedDiscussion extends Widgets implements SplObserver {
             $this->SphinxClient->SetLimits(1, $this->Settings['Admin']->LimitRelatedThreadsSidebarDiscussion); //notice the offset of '1'. This is so don't select current viewed discussion as related
             $Thread = $Sender->Discussion->Name; //get the discussion name (thread topic) to search against
             $Query = $this->FieldSearch($this->OperatorOrSearch($Thread), array(SS_FIELD_TITLE));
-            $QueryIndex = $this->SphinxClient->AddQuery($Query.' ', $Index = SS_INDEX_DIST, $this->Name);
+
+            //Make sure results respect category permissions depending on user performing search
+            $Permissions = Gdn::Session()->GetPermissions(); // Get user permissions
+            $Permissions = $Permissions['Vanilla.Discussions.View']; // Only care about 'viewing' permissions
+            $this->SphinxClient->SetFilter(SS_ATTR_CATPERMID, $Permissions);
+
+
+            $QueryIndex = $this->SphinxClient->AddQuery($Query . ' ', $Index = SS_INDEX_DIST, $this->Name);
 
             $this->Queries[] = array(
                 'Name' => $this->Name,
@@ -84,7 +91,7 @@ class WidgetRelatedDiscussion extends Widgets implements SplObserver {
             ob_start();
             ?>
 
-          <div id="RelatedDiscussion" class="Box"><!--   Important to distinugish this from the one in the panel because of the h4 banner in mainsearch.css-->
+            <div id="RelatedDiscussion" class="Box"><!--   Important to distinugish this from the one in the panel because of the h4 banner in mainsearch.css-->
                 <h4 class="Header Bottom">Related Discussions</h4>
                 <?php echo WriteResults($this->Settings['Admin']->RelatedThreadsBottomDiscussionFormat, $Results) ?>
             </div>
@@ -93,21 +100,19 @@ class WidgetRelatedDiscussion extends Widgets implements SplObserver {
             $String = ob_get_contents();
             @ob_end_clean();
             return $String;
-        }
-        else{ //writing to the panel
+        } else { //writing to the panel
             ob_start();
             ?>
 
             <div id="RelatedDiscussion" class="Box">
                 <h4 class="Header">Related Discussions</h4>
-                <?php echo WriteResults('Simple',$Results, FALSE, TRUE) ?>
+                <?php echo WriteResults('Simple', $Results, FALSE, TRUE) ?>
             </div>
 
             <?php
             $String = ob_get_contents();
             @ob_end_clean();
             return $String;
-
         }
     }
 
