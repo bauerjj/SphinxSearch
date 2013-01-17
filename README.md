@@ -7,6 +7,7 @@ SphinxSearch
 [Live Demo #2](http://mcuhq.com/mcuhq/vanilla/search?tar=srch)
 
 [Photo Album](http://imgur.com/a/jQ5WE#1)
+[Vanilla Forums Download](http://vanillaforums.org/addon/sphinxsearch-plugin)
 
 Table of contents
 -----------------
