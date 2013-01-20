@@ -267,6 +267,7 @@ $Settings = $this->Data('Settings');
                 <li><?php echo Anchor('*View my custom Sphinx.conf file', 'plugin/sphinxsearch/viewfile/' . Gdn::Session()->TransientKey() . '?action=viewfile&file=conf', array('target'=>'_blank')); ?></li>
                 <li><?php echo Anchor('View my custom main cron file', 'plugin/sphinxsearch/viewfile/' . Gdn::Session()->TransientKey() . '?action=viewfile&file=maincron', array('target'=>'_blank')); ?></li>
                 <li><?php echo Anchor('View my custom delta cron file', 'plugin/sphinxsearch/viewfile/' . Gdn::Session()->TransientKey() . '?action=viewfile&file=deltacron', array('target'=>'_blank')); ?></li>
+                <li><?php echo Anchor('View my custom stats cron file', 'plugin/sphinxsearch/viewfile/' . Gdn::Session()->TransientKey() . '?action=viewfile&file=statscron', array('target'=>'_blank')); ?></li>
 
                 <li><span style="font-style:italic">* Contains your database username/password</span></li>
             </ul>
