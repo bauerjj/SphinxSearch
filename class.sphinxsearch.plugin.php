@@ -164,6 +164,20 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
             //print_r($this->Queries); die;
             $Results = $this->SphinxClient->RunQueries(); //perform all of the queries
             //print_r($Results); die;
+
+            /**
+             * This will publicly announce any errors or warnings to the main search page. If this is unwarranted, simply
+             * comment the following few lines. However this if usually the first place to look for any errors in the install
+             */
+            if ($Results === false) {
+                echo "Query failed: " . $this->SphinxClient->GetLastError() . ".\n";
+            } else {
+                if ($this->SphinxClient->GetLastWarning()) {
+                    echo "WARNING: " . $this->SphinxClient->GetLastWarning() . ".\n";
+                }
+            }
+
+
             if ($Results) {
                 foreach ($this->Queries as $Query) {
                     $ResultDocs = array();
