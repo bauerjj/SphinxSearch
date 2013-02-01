@@ -346,6 +346,8 @@ abstract class Widgets {
             }
         }
         $Query = html_entity_decode($Query,ENT_QUOTES, 'UTF-8'); // Deocodes Numeric character references ("&'<>)
+        if($Match != 'Extended')
+            $Query = $this->SphinxClient->EscapeString($Query);
 
         $TitlesOnly = (filter_input(INPUT_GET, 'titles', FILTER_SANITIZE_NUMBER_INT) == 1 ? 1 : 0); //checkbox - bool
         $WithReplies = (filter_input(INPUT_GET, 'WithReplies', FILTER_SANITIZE_NUMBER_INT) == 1 ? 1 : 0); //checkbox - bool

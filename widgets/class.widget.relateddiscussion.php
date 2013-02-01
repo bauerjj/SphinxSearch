@@ -56,7 +56,7 @@ class WidgetRelatedDiscussion extends Widgets implements SplObserver {
             $this->SphinxClient->SetSortMode(SPH_SORT_RELEVANCE);
             $this->SphinxClient->SetRankingMode(SPH_RANK_WORDCOUNT);
             $this->SphinxClient->SetLimits(1, $this->Settings['Admin']->LimitRelatedThreadsSidebarDiscussion); //notice the offset of '1'. This is so don't select current viewed discussion as related
-            $Thread = $Sender->Discussion->Name; //get the discussion name (thread topic) to search against
+            $Thread = $this->SphinxClient->EscapeString($Sender->Discussion->Name); //get the discussion name (thread topic) to search against
             $Query = $this->FieldSearch($this->OperatorOrSearch($Thread), array(SS_FIELD_TITLE));
 
             //Make sure results respect category permissions depending on user performing search

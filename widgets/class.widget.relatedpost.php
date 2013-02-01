@@ -26,7 +26,7 @@ class WidgetRelatedPost extends Widgets implements SplObserver {
      * @return boolean
      */
     public function AddQuery($Sender, $Options = FALSE) {
-        $Thread = GetValue('Query', $Options); //get the discussion name (thread topic) to search against
+        $Thread = $this->SphinxClient->EscapeString(GetValue('Query', $Options)); //get the discussion name (thread topic) to search against
         if ($Thread) { //call this directly from handler: Controller_newdiscussion
             $this->SphinxClient->ResetFilters();
             $this->SphinxClient->ResetGroupBy();
