@@ -218,6 +218,9 @@ index vanilla
     inplace_enable  = {inplace_enable}
     expand_keywords = {expand_keywords}
     rt_mem_limit    = {rt_mem_limit}
+    # 'utf-8' defaults for English and Russian
+    charset_table = 0..9, A..Z->a..z, _, a..z, \
+                    U+410..U+42F->U+430..U+44F, U+430..U+44F
 
 
 }
