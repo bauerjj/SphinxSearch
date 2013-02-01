@@ -205,7 +205,7 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
 
     public function PluginController_SphinxSearch_Create($Sender) {
         $Sender->Title('Sphinx Search');
-        $Sender->Permission('Garden.Settings.Manage');
+
         $Sender->AddSideMenu('plugin/sphinxsearch'); //add the left side menu
         $Sender->Form = new Gdn_Form();
 
