@@ -345,6 +345,7 @@ abstract class Widgets {
                 $Query .= ' ' . $Word;
             }
         }
+        $Query = html_entity_decode($Query,ENT_QUOTES, 'UTF-8'); // Deocodes Numeric character references ("&'<>)
 
         $TitlesOnly = (filter_input(INPUT_GET, 'titles', FILTER_SANITIZE_NUMBER_INT) == 1 ? 1 : 0); //checkbox - bool
         $WithReplies = (filter_input(INPUT_GET, 'WithReplies', FILTER_SANITIZE_NUMBER_INT) == 1 ? 1 : 0); //checkbox - bool
