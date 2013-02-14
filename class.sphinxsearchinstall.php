@@ -75,7 +75,7 @@ class SphinxSearchInstall extends SphinxObservable {
         else
             $Tags = FALSE;
 
-        $DBPrefix = C('Database.Name') . '.' . C('Database.Prefix', 'GDN_'); //join these 2
+        $DBPrefix = C('Database.Name') . '.' . C('Database.DatabasePrefix', 'GDN_'); //join these 2
         $Search = array(
             '{sql_sock}' => $SQLSock,
             '{sql_host}' => $this->Settings['Install']->Host,
@@ -140,8 +140,8 @@ class SphinxSearchInstall extends SphinxObservable {
     }
 
     private function _ReWriteSphinxConf($OrgFile, $FinalFile) {
-        if (!is_readable($OrgFile) || !IsWritable($OrgFile)) {
-            parent::Update(SS_FATAL_ERROR, FALSE, FALSE, "Unable to Read/Write config file at: $OrgFile");
+        if (!is_readable($OrgFile)) {
+            parent::Update(SS_FATAL_ERROR, FALSE, FALSE, "(Permissions) Unable to Read config file at: $OrgFile");
         }
         $Template = file_get_contents($OrgFile);       //get text from file
         $ReWritedContent = $this->_GenerateConfContent($Template);  //replace variables into sphinx.conf
@@ -185,13 +185,13 @@ class SphinxSearchInstall extends SphinxObservable {
 
         try {
             if (!file_put_contents($CronFolder . DS . 'cron.reindex.main.php', $ReWritedMain)) {
-                parent::Update(SS_FATAL_ERROR, FALSE, FALSE, "Error writing cron file: $MainTemplate");
+                parent::Update(SS_FATAL_ERROR, FALSE, FALSE, "(Permissions) Error writing cron file: $MainTemplate");
             }
             if (!file_put_contents($CronFolder . DS . 'cron.reindex.delta.php', $ReWritedDelta)) {
-                parent::Update(SS_FATAL_ERROR, FALSE, FALSE, "Error writing cron file: $DeltaTemplate");
+                parent::Update(SS_FATAL_ERROR, FALSE, FALSE, "(Permissions) Error writing cron file: $DeltaTemplate");
             }
             if (!file_put_contents($CronFolder . DS . 'cron.reindex.stats.php', $ReWritedStats)) {
-                parent::Update(SS_FATAL_ERROR, FALSE, FALSE, "Error writing cron file: $StatsTemplate");
+                parent::Update(SS_FATAL_ERROR, FALSE, FALSE, "(Permissions) Error writing cron file: $StatsTemplate");
             }
         } catch (Exception $e) {
             //get just the exception error
@@ -230,7 +230,7 @@ class SphinxSearchInstall extends SphinxObservable {
             parent::Update(SS_FATAL_ERROR, FALSE, FALSE, $Error);
         }
         if (!$CopySuccess) {
-            parent::Update(SS_FATAL_ERROR, FALSE, FALSE, 'Failed to copy: ' . $SphinxConfOrgPath . ' to: ' . $SphinxConfInstallPath);
+            parent::Update(SS_FATAL_ERROR, FALSE, FALSE, '(Permissions) Failed to copy: ' . $SphinxConfOrgPath . ' to: ' . $SphinxConfInstallPath);
         }
         //rewrite pre defined variables in config file to their values
         $SphinxConfOrgPath = PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'assests' . DS . 'sphinx.conf.tpl'; //local copy that ships with plugin
@@ -277,13 +277,13 @@ class SphinxSearchInstall extends SphinxObservable {
             parent::Update(SS_FATAL_ERROR, FALSE, FALSE, $Error);
         }
         if (!$CopySuccess) {
-            parent::Update(SS_FATAL_ERROR, FALSE, FALSE, 'Failed to copy: ' . $this->LatestSphinxFileName . ' to: ' . $InstallPath);
+            parent::Update(SS_FATAL_ERROR, FALSE, FALSE, '(Permissions) Failed to copy: ' . $this->LatestSphinxFileName . ' to: ' . $InstallPath);
         }
 
         //Now attempt to extract the Sphinx archive
         $Command = "tar xzf " . $InstallPath . DS . $this->LatestSphinxFileName . " -C $InstallPath";
         if ($Error = SphinxSearchGeneral::RunCommand($Command, $InstallPath, 'Installation: Sphinx installation error')) //don't run in background!
-            parent::Update(SS_FATAL_ERROR, FALSE, FALSE, 'Failed to copy: ' . $Error);
+            parent::Update(SS_FATAL_ERROR, FALSE, FALSE, '(Permissions) Failed to copy: ' . $Error);
         $InsideDir = $InstallPath . DS . str_replace('.tar.gz', '', $this->LatestSphinxFileName); //newley created folder from extraction
 
         /*         * *******************************************************************
