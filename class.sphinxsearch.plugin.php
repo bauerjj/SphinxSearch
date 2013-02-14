@@ -402,6 +402,11 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
     public function Controller_Index($Sender) {
         $Sender->Permission('Vanilla.Settings.Manage');
 
+
+        // Currently, only pretty URLs will work with Sphinx. This is due to how the GET query string is constructed
+        if(C('Garden.RewriteUrls') != TRUE)
+            $Sender->Form->AddError("Must enable Pretty URLs for Sphinx to work properly! <br> Do so in your config.php file; Configuration['Garden']['RewriteUrls'] = TRUE;");
+
         $Sender->SetData('PluginDescription', $this->GetPluginKey('Description'));
         $Sender->SetData('PluginVersion', $this->GetPluginKey('Version'));
         $SphinxAdmin = SphinxFactory::BuildSphinx($Sender, $this->getview('sphinxsearch.php'));
