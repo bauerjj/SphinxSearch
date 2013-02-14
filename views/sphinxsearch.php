@@ -341,6 +341,27 @@ if (!defined('APPLICATION'))
 <br/>
 
 <h3>Changelog</h3>
+20130214
+<ol>
+    <li>Fixed a HUGE bug that caused all sphinx searches to also perform a regular MYSQL "LIKE" search!</li>
+    <li>Put a big reminder about enabling pretty URL's in the dasbhoard</li>
+    <li>Added better debug messages during install wizard and reminders to turn on error reporting</li>
+    <li>Added a check to enforce Pretty URL's for the time being</li>
+    <li>Now sphinx escapes every search query. Check your charset</li>
+    <li>Added default charset for English/Russian</li>
+    <li>Added debug info to the main results page. Now Sphinx will spit out any errors in your face!</li>
+    <li>Fixed issue where regular users could would not see the suggested threads when starting a new thread </li>
+    <li>Fixed queries with any numeric character references in them</li>
+    <li>Added link to view stats cron in the install wizard</li>
+    <li>Added icon image of the sphinx eye</li>
+    <li>Added permissions check for related discussions o main/regular discussions view</li>
+    <li>Fixed incorect query string from '?q=' to '?Search=' in the Related threads box on main results page</li>
+    <li>Added option for different charsets in sphinx.conf template file</li>
+    <li>Added hbf as a live demo that is better than my site as well as link back to main plugin site to readme</li>
+    <li>Verified read permission in viewfile @Gillingham</li>
+    <li>Fixed example cron files that were not pointing to correct paths @Gillingham</li>
+</ol>
+<br/>
 20130105
 <ol>
     <li>Fixed search results not respecting user permissions (added another attribute to sphinx to filter on)</li>
