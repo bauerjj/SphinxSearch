@@ -57,7 +57,7 @@ class SphinxSearchSettings {
             'Plugin.SphinxSearch.Detection' => FALSE, //step 2
             'Plugin.SphinxSearch.Installed' => FALSE, //end of wizard
             'Plugin.SphinxSearch.AutoDetected' => FALSE,
-            'Plugin.SphinxSearch.ManaulDetected' => FALSE,
+            'Plugin.SphinxSearch.ManualDetected' => FALSE,
             'Plugin.SphinxSearch.Task' => 'Idle',
             'Plugin.SphinxSearch.ServicePollTask' => FALSE,
         );
