@@ -42,7 +42,6 @@ class SphinxSearchInstallWizard extends SphinxObservable {
         //$DetectSystemSearchd = FALSE;
         //$DetectSystemIndexer = FALSE;
 
-
         if ($DetectSystemSearchd == FALSE) {
             parent::Update(SS_SUCCESS, 'ManualSearchdPath', 'Not Detected'); //did not find an instance of searchd
         } else {
@@ -110,6 +109,7 @@ class SphinxSearchInstallWizard extends SphinxObservable {
                 parent::Update(SS_SUCCESS, 'DataPath', $Service->GetDataPath());
             }
         } else if ($InstallAction == 'NotDetected') { //perform the installation
+            parent::Update(SS_SUCCESS, 'ManualDetected', FALSE); // For the radio button to stay put on "prepackaged" install
             parent::Update(SS_SUCCESS, 'LogPath', $this->Settings['Install']->InstallPath . DS . 'sphinx' . DS . 'var' . DS . 'log' . DS . 'search.log');
             parent::Update(SS_SUCCESS, 'QueryPath', $this->Settings['Install']->InstallPath . DS . 'sphinx' . DS . 'var' . DS . 'log' . DS . 'query.log');
             parent::Update(SS_SUCCESS, 'PIDPath', $this->Settings['Install']->InstallPath . DS . 'sphinx' . DS . 'var' . DS . 'log' . DS . 'search.pid');
@@ -133,7 +133,8 @@ class SphinxSearchInstallWizard extends SphinxObservable {
         foreach ($Files as $Name => $Path) {
             if (!file_exists($Path)) {
                 if ($ShowError)
-                    parent::Update(SS_FATAL_ERROR, $Name, 'Not Detected', T($Name . ' not found at: ' . $Path)); //save as 'not detected'
+                    parent::Update(SS_FATAL_ERROR, $Name, 'Not Detected', T($Name . ' not found at: ' . $Path). "<br>May also try
+                      turning on all errors, error_reporting(E_ALL);, to see if 'open_basedir restriction is NOT in effect"); //save as 'not detected'
                 $Error = TRUE;
             }
             else
