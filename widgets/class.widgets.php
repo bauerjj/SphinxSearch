@@ -109,7 +109,7 @@ abstract class Widgets {
                 $SQL = clone Gdn::SQL();
         $SQL->Reset();
         $SQL = Gdn::SQL();
-        $Prefix = C('Database.Prefix', 'GDN_');
+        $Prefix = C('Database.DatabasePrefix', 'GDN_');
         $WhereIn = $this->WhereIn('c.CommentID', $Matches['Comment']);
         //This query checks if the LastUserID and LastCommentID are Null.
         $Comment = $SQL->Query('
