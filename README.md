@@ -1,7 +1,7 @@
 SphinxSearch
 ============
 
-####An advanced search plugin for Vanilla Forums based on the Sphinx Search engine v2.0.5
+####An advanced search plugin for Vanilla Forums based on the Sphinx Search engine v2.0.6
 
 [Live Demo #1](http://homebrewforums.net/search?Search=beer)
 
@@ -66,10 +66,11 @@ After installation, do the following in the control panel:
 5. Stop and then start searchd again
 6. Search for something on your forums through the usual means
 7. Setup a cron job to run the three cron files
+8. ERASE ALL FILES IN /cache folder
 
 ##Features
 ####Search
-The follwing fields are indexed and thus searchable:
+The following fields are indexed and thus searchable:
    * Thread title
    * Body text
    * Author name
@@ -145,10 +146,13 @@ There are multiple improvements that can be made. Here are a list of widgets tha
 
 #####Will this work for me?
 Depends...are you on a shared host? If so, this is probably not for you, but talk to your hosting provider about having a daemon run on your server.
+If sphinx runs for a just a few seconds/minutes and is then shutdown mysteriously, chances are that your host is killing it. Talk to your hosting provider.
 Windows support may come in later releases if there is enough demand. If the auto installer does not work for you, try installing using your distro's package manger and then telling the plugin where the requested files are.
 
 #####Can't find indexer at path: Not Detected
 You will encounter this at the control panel if sphinx is not properly installed. The control will not respond to anything until these paths are resolved by using the install wizard
+You may also encounter this if PHP cannot read files outside of your typical www folders. Since sphinx maybe installed elsewhere on your system, make sure that PHP
+has read access to wherever sphinx searchd/indexer/conf is located. This can be done in your php.ini under "open_basedir"
 
 #####What if sphinx is indexing and it shuts down searchd...now what?
 Anytime sphinx is indexing, it will shut down all searches temporary (unless you have another instance of searchd setup). The default search will be in effect immidiatly until searchd is running again. This is done automatically for you
