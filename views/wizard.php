@@ -199,7 +199,12 @@ $Settings = $this->Data('Settings');
                 <ul>
                     <li>
                         <?php
-                        echo $this->Form->RadioList('Plugin.SphinxSearch.Detected', array('Manual' => '* Use existing binaries'), array_merge($Disabled, array('Default' => 'NotDetected')));
+                        // JJB added 2.12.2013 - this avoids the radiobutton from switching in later steps after already selecting method
+                        if (C('Plugin.SphinxSearch.ManualDetected') == true)
+                            $default = 'Manual';
+                        else
+                            $default = 'NotDetected';
+                        echo $this->Form->RadioList('Plugin.SphinxSearch.Detected', array('Manual' => '* Use existing binaries'), array_merge($Disabled, array('Default' => $default)));
                         ?>
                     </li>
                     <li>
@@ -223,7 +228,7 @@ $Settings = $this->Data('Settings');
                     </li>
 
                     <?php
-                    echo $this->Form->RadioList('Plugin.SphinxSearch.Detected', array('NotDetected' => '<span style="color: green">** Install Prepackaged Sphinx</span>'), array_merge($Disabled, array('Default' => 'NotDetected')));
+                    echo $this->Form->RadioList('Plugin.SphinxSearch.Detected', array('NotDetected' => '<span style="color: green">** Install Prepackaged Sphinx</span>'), array_merge($Disabled, array('Default' => $default)));
                     ?>
 
                     <li><?php
