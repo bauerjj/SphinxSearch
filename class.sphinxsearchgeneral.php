@@ -59,7 +59,8 @@ class SphinxSearchGeneral {
                         '<b>' . $PrefixMsg . ', try to run this command manually in Terminal: </b><br/>' .
                         $Command . '<br/><br/> at directory: <br/>' .
                         $Path .
-                        '<br/><br/>Try running it with sudo if it doesn\'t work
+                        '<br/><br/>Try running it with sudo if it doesn\'t work. Check that apache has the correct permissions to read/write files on your
+                            webserver
                     <br/><b>Terminal Output:</b><br/>' .
                         $stdout;
                 $Error = str_replace('%', '%%', $Error);//THIS IS IMPORTANT! Must escape strings in case of percent signs since this is eventually used
