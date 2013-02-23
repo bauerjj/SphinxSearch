@@ -265,7 +265,7 @@ src; http://stackoverflow.com/questions/5683364/how-to-make-pure-css-floating-to
 .SphinxSearch  .StatsBlock dt{
     display: block;
     float: left;
-    margin-right: 5px;
+/*    margin-right: 5px;*/
     text-align: right;
     color: #555555;
 }
