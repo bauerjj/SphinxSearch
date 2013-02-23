@@ -57,18 +57,21 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
         /////////////////////////////////////////////////
         include_once(PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'widgets' . DS . 'views' . DS . 'helper_functions.php'); //widgets use this
 
+        $SphinxAdmin = SphinxFactory::BuildSphinx(null, null); // @todo Should fix this angry call...
+        // This only works because the logger needs the sender and view to generate an error message. Since 'Status()' will not cause
+        // Any errors, both of the paparemts are not needed and so a null value will do. This is still ugly tho
+        $SphinxAdmin->Status(); //call status from here so that admin can register observers
+
         $this->SphinxClient = new SphinxClient(); //sphinx API
         $Settings = SphinxFactory::BuildSettings();
         $this->Settings = $Settings->GetAllSettings();
         //create subclasses
         $this->_Storage = new SplObjectStorage();
         //if($this->Settings['Status']->SearchdRunning && $this->Settings['Status']->EnableSphinxSearch) //check if sphinx is running and if not manually overriden
-        if (1) {
-            //If so, register the widgets
+        if (true) {
             $this->RegisterWidgets();
             $this->RegisterModules();
-            $Service = new SphinxSearchService($this->Settings);
-            $Service->Status(); //update the widgets
+
         }
     }
 
@@ -160,7 +163,7 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
         $FinalResults = array();
         if (sizeof($this->Queries) == 0)
             return $FinalResults; //don't run queries since no queries qued up
-        else if ($this->Settings['Status']->SearchdRunning) {
+        else if (true) { //if($this->Settings['Status']->SearchdRunning)
             //print_r($this->Queries); die;
             $Results = $this->SphinxClient->RunQueries(); //perform all of the queries
             //print_r($Results); die;
@@ -636,8 +639,9 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
     public function SearchController_Render_Before($Sender) {
         //In order for the default search engine not to run, we will kill PHP from processing
         //after the sphinx view is loaded
-        if ($this->Settings['Status']->SearchdRunning && $this->Settings['Status']->EnableSphinxSearch) { //exit if sphinx is not running or if manullay overridden
-            if ($this->AlreadySent != 1) { //in order to elminate nesting this over and over again as well as allowing result page to render
+      //  if ($this->Settings['Status']->SearchdRunning && $this->Settings['Status']->EnableSphinxSearch) { //exit if sphinx is not running or if manullay overridden
+            if(true){ // Always have this enabled as long as plugin is enabled
+        if ($this->AlreadySent != 1) { //in order to elminate nesting this over and over again as well as allowing result page to render
                 $this->AlreadySent = 1;
 
                 //get rid of that nasty guest module
