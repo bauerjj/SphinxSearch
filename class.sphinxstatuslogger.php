@@ -36,7 +36,8 @@ class SphinxStatusLogger implements SplObserver {
                 }
                 break;
         }
-        if ($Priority == SS_FATAL_ERROR) {
+        // @todo if the logger is not created with a valid sender and view file for error messages, simply don't display them
+        if ($Priority == SS_FATAL_ERROR && ($this->Sender != null && $this->View != null)) {
             $Msg = GetValue('Message', $Latest);
             //If an error, must handle this immidiatl to stop program flow from continuing
             if (isset($Msg))
