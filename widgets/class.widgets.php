@@ -193,16 +193,21 @@ abstract class Widgets {
         $Offset = 0;
         $Return = array();
         foreach ($Matches['Comment'] as $Rating => $ID) {
-            if (array_key_exists($Offset, $Comment)) { //make sure the ID that sphinx returned is still a valid ID in the database
-                $Return[$Rating] = $Comment[$Offset];
-                $Offset++;
+            foreach ($Comment as $Off => $Data) {
+                if($Data->CommentID == $ID){
+                    $Return[$Rating] = $Data;
+                    break;
+                }
             }
         }
-        $Offset = 0;
+
+
         foreach ($Matches['Discussion'] as $Rating => $ID) {
-            if (array_key_exists($Offset, $Discussion)) {//make sure the ID that sphinx returned is still a valid ID in the database
-                $Return[$Rating] = $Discussion[$Offset];
-                $Offset++;
+            foreach ($Discussion as $Off => $Data) {
+                if($Data->DiscussionID == $ID){
+                    $Return[$Rating] = $Data;
+                    break;
+                }
             }
         }
         ksort($Return); //sort them back in their original ratings again
