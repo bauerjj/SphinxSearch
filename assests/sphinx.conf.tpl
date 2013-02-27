@@ -45,13 +45,10 @@ source {ss_prefix}main_comment
 	sql_attr_uint = docid
 	sql_attr_uint = catid
         sql_attr_bigint = catpermid #so results respect user permissions (must be signed!)
-
-        {tag_attr}
-
 	sql_attr_timestamp = docdateinserted
-    sql_attr_uint = CountViews
-    sql_attr_uint = CountComments
-    sql_attr_uint = isComment        			#distinguishes between a discussion/comment
+        sql_attr_uint = CountViews
+        sql_attr_uint = CountComments
+        sql_attr_uint = isComment        			#distinguishes between a discussion/comment
 
 
 }
@@ -119,13 +116,10 @@ source {ss_prefix}main_discussion
 	sql_attr_uint = docid
 	sql_attr_uint = catid
         sql_attr_bigint = catpermid #so results respect user permissions (must be signed!)
-
-        {tag_attr}
-
 	sql_attr_timestamp = docdateinserted
-    sql_attr_uint = CountViews
-    sql_attr_uint = CountComments
-    sql_attr_uint = isComment        			#distinguishes between a discussion/comment
+        sql_attr_uint = CountViews
+        sql_attr_uint = CountComments
+        sql_attr_uint = isComment        			#distinguishes between a discussion/comment
 
 }
 
@@ -166,35 +160,6 @@ index {ss_prefix}delta : {ss_prefix}main
     path            = {data_path}{ss_prefix}delta
 }
 
-source {ss_prefix}stats
-{
-	type        = mysql
-    sql_host        = {sql_host}
-    sql_user        = {sql_user}
-    sql_pass        = {sql_pass}
-    sql_db          = {sql_db}
-    {sql_sock}
-    sql_port        = 3306    #optional, default is 3306
-
-	sql_query_pre	= SET NAMES utf8
-	sql_query	=  select id, keywords as keywords, crc32(keywords) as keywords_crc, mode,\
-    UNIX_TIMESTAMP(date_added) as date_added \
-    from {db_prefix}sph_stats;
-
-    sql_attr_uint		= mode
-    sql_attr_uint       = keywords_crc
-    sql_attr_timestamp	= date_added
-}
-
-index {ss_prefix}stats
-{
-	source	= {ss_prefix}stats
-	path	= {data_path}{ss_prefix}stats
-	docinfo	= extern
-
-
-}
-
 index vanilla
 {
     type            =  distributed
@@ -203,21 +168,18 @@ index vanilla
 
 
     #index settings
-    morphology      = {morphology}
-    dict            = {dict}
-    min_stemming_len = {min_stemming_len}
-    stopwords       = {stopwords} #path to text file if enabled, else empty
-    wordforms       = {wordforms}
-    min_word_len    = {min_word_len}
-    min_prefix_len  = {min_prefix_len}
-    min_infix_len   = {min_infix_len}
-    enable_star     = {enable_star}
-    ngram_len       = {ngram_len}
-    html_strip      = {html_strip}
-    ondisk_dict     = {ondisk_dict}
-    inplace_enable  = {inplace_enable}
-    expand_keywords = {expand_keywords}
-    rt_mem_limit    = {rt_mem_limit}
+    morphology      = none
+    dict            = crc
+    min_stemming_len = 1
+    min_word_len    = 2
+    min_prefix_len  = 0
+    min_infix_len   = 0
+    enable_star     = 0
+    ngram_len       = 0
+    html_strip      = 0
+    ondisk_dict     = 0
+    inplace_enable  = 0
+    expand_keywords = 0
     # 'utf-8' defaults for English and Russian
     charset_table = 0..9, A..Z->a..z, _, a..z, \
                     U+410..U+42F->U+430..U+44F, U+430..U+44F
@@ -228,11 +190,11 @@ index vanilla
 indexer
 {
     #indexer settings
-    mem_limit       = {mem_limit}
-    max_iops        = {max_iops}
-    max_iosize      = {max_iosize}
-    write_buffer    = {write_buffer}
-    max_file_field_buffer = {max_file_field_buffer}
+    mem_limit       = 32M
+    max_iops        = 0
+    max_iosize      = 0
+    write_buffer    = 1M
+    max_file_field_buffer = 8M
 }
 
 searchd
@@ -244,15 +206,15 @@ searchd
 
 
     #settings
-    read_timeout    = {read_timeout}
-    client_timeout  = {client_timeout}
-    max_children    = {max_children}
-    max_matches     = {max_matches}
-    read_buffer     = {read_buffer}
-    workers         = {workers}
-    thread_stack    = {thread_stack}
-    expansion_limit = {expansion_limit}
-    prefork_rotation_throttle = {prefork_rotation_throttle}
+    read_timeout    = 5
+    client_timeout  = 360
+    max_children    = 0
+    max_matches     = 1000
+    read_buffer     = 1M
+    workers         = fork
+    thread_stack    = 64K
+    expansion_limit = 0
+    prefork_rotation_throttle = 0
 
     compat_sphinxql_magics = 0 # the future is now
 }
