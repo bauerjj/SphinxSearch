@@ -128,7 +128,7 @@ src; http://stackoverflow.com/questions/5683364/how-to-make-pure-css-floating-to
 }
 
 .SphinxSearch  table td{
-    vertical-align: middle;
+/*    vertical-align: middle;*/
 }
 .SphinxSearch table .InfoCount{
     width: 60px;
@@ -164,10 +164,18 @@ src; http://stackoverflow.com/questions/5683364/how-to-make-pure-css-floating-to
     margin-top: 5px;
 }
 #MoreOptions{
-    height: 115px;
+/*    height: 115px;*/
     position: relative;
     width: 100%;
     padding: 0px 2px;
+}
+
+/** Added this for sphinxLite "more/less options" button grid to play nice **/
+.SphinxSearch li{
+    display: block;
+}
+
+.SphinxSearch #OrderBy td{
 }
 
 #SphinxResults #Options {
