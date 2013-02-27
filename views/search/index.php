@@ -1,13 +1,12 @@
 <?php if (!defined('APPLICATION')) exit(); ?>
 <div class="Tabs SearchTabs WithPanel"> <!-- WithPanel is used in the traditional plugin/theme ONLY!! -->
     <?php
-     $or = GetIncomingValue('or') == '' ? 'Relevance' : GetIncomingValue('mem') ; //default order to Relevance
+    $or = GetIncomingValue('or') == '' ? 'Relevance' : GetIncomingValue('mem'); //default order to Relevance
 
     echo $this->Form->Open(array('action' => '', 'method' => 'get')),
     $this->Form->TextBox('Search'),
     $this->Form->Button('Search', array('Name' => '')),
     $this->Form->Errors(),
-
     //the following reflect the same inputs as the main adv search landing page that
     //are not covered in the small dropdown on the main results page here
 
@@ -16,7 +15,7 @@
     $this->Form->Hidden('or', array('value' => $or)),
     $this->Form->Hidden('mem', array('value' => GetIncomingValue('mem'))),
     $this->Form->Hidden('tag', array('value' => GetIncomingValue('tag'))),
-    $this->Form->Hidden('pg', array('value' => GetIncomingValue('pg')))
+    $this->Form->Hidden('pg', array('value' => 1)) // Always default to page 1
     ;
     ?>
 </div>
@@ -56,21 +55,40 @@
                 <td>
                     <dl>
                         <dt>
-                        <?php echo $this->Form->Label(T('Display Results as:'), 'res'), ' '; ?>
+                        <?php echo $this->Form->Label(T('Order By:'), 'or'), ' '; ?>
                         </dt>
                         <dd>
-                            <?php echo $this->Form->RadioList('res', $this->Settings['SearchOptions']->ResultFormat, array('list' => FALSE, 'default' => $this->Settings['SearchOptions']->ResultFormat['Classic'])) ?>
+                            <table id="OrderBy" style="width: 100%">
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <?php echo $this->Form->RadioList('or', array_slice($this->Settings['SearchOptions']->Order, 0, 2, TRUE), array('list' => TRUE, 'listclass' => 'SearchOrderLeft', 'default' => $this->Settings['SearchOptions']->Order['Relevance'])) ?>
+                                        </td>
+                                        <td>
+                                            <?php echo $this->Form->RadioList('or', array_slice($this->Settings['SearchOptions']->Order, 2, 4, TRUE), array('list' => TRUE, 'listclass' => 'SearchOrderRight')) ?>
+
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </dd>
                     </dl>
                 </td>
                 <td>
                     <dl>
                         <dt>
-                        <?php echo $this->Form->Label(T('Phrase Match:'), 'match'), ' '; ?>
-                        </dt>
-                        <dd>
-                            <?php echo $this->Form->Dropdown('match', $this->Settings['SearchOptions']->Match, array('id' => 'match')) ?>
-                        </dd>
+        <?php echo $this->Form->Label(T('Search in Forums:'), 'forums'), ' '; ?>
+        </dt>
+        <dd>
+            <ul>
+                <li>
+                    <?php echo SphinxSearchLitePlugin::CategoryDropDown('forums[]', array('Value' => ArrayValue('forums',$_GET) == '' ? array(0) : ArrayValue('forums',$_GET)  )); ?>
+                </li>
+                <li>
+                    <?php echo $this->Form->Checkbox('child', 'Search child forums'); ?>
+                </li>
+            </ul>
+        </dd>
                     </dl>
                 </td>
             </tr>
@@ -83,6 +101,6 @@
 <?php
 echo $this->Form->Close();
 
-$ViewLocation = PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'views' . DS . 'search' . DS . 'results.php';
+$ViewLocation = PATH_PLUGINS . DS . 'SphinxSearchLite' . DS . 'views' . DS . 'search' . DS . 'results.php';
 include($ViewLocation); //load the main results view page
 

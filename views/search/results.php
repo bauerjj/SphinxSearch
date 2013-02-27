@@ -70,7 +70,6 @@
                 <?php echo $this->Form->Button('Options', array('value' => 'More Options', 'id' => 'Options')); ?>
             </div>
             <div id="NavBar">
-                <span id="SearchAgain"><?php echo Anchor('Search Again :: Adv Search', $GETString, FALSE, FALSE, TRUE) ?></span>
                 <span id="Time"><?php echo sprintf(T('%s %s in %s'), $Total, Plural($Results['total'], T('result'), T('results')), $Results['time'] . 's') ?></span>
                 <?php echo str_replace('=p', '=', $this->Pager->ToString('more')); //get rid of the character 'p' in p1,p2,p3 etc ?>
             </div>
@@ -78,13 +77,11 @@
             <?php echo str_replace('=p', '=', $this->Pager->ToString('more')); //get rid of the character 'p' in p1,p2,p3 etc ?>
 
         <?php else: ?>
-            <span id="SearchAgain"> <?php echo Anchor(T('Search Again :: Adv Search'), $GETString) ?></span>
             <?php echo $this->Form->Button('Options', array('value' => 'More Options', 'id' => 'Options')); ?>
             <?php echo '<p class="NoResults">', sprintf(T('No results for %s.', 'No results for <b>%s</b>.'), htmlspecialchars($this->SearchTerm)), '</p>'; ?>
 
         <?php endif ?>
     <?php else: ?>
-        <span id="SearchAgain"> <?php echo Anchor(T('Search Again :: Adv Search'), $GETString) ?></span>
         <?php echo $this->Form->Button('Options', array('value' => 'More Options', 'id' => 'Options')); ?>
         <?php echo '<p class="NoResults">', sprintf(T('No results for %s.', 'No results for <b>%s</b>.'), htmlspecialchars($this->SearchTerm)), '</p>'; ?>
     <?php endif ?>
