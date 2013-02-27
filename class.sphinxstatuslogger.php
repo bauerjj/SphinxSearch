@@ -29,10 +29,10 @@ class SphinxStatusLogger implements SplObserver {
             case 'Install':
             default:
                 if ($Priority != SS_FATAL_ERROR)
-                    SaveToConfig('Plugin.SphinxSearch.' . $Name, $Value); //save this to configuration
+                    SaveToConfig('Plugin.SphinxSearchLite.' . $Name, $Value); //save this to configuration
                 else {
                     if ($Name) //if this is given, assume that the value will be FALSE
-                        SaveToConfig('Plugin.SphinxSearch.' . $Name, FALSE); //non recoverable error has occured
+                        SaveToConfig('Plugin.SphinxSearchLite.' . $Name, FALSE); //non recoverable error has occured
                 }
                 break;
         }
