@@ -18,7 +18,7 @@ if (!defined('APPLICATION'))
     <?php
     echo '<h2>', T('Need More Help?'), '</h2>';
     echo '<ul>';
-    echo '<li>', Anchor(T('Install FAQ'), 'plugin/sphinxsearch/sphinxfaq'), '</li>';
+    echo '<li>', Anchor(T('Install FAQ'), 'plugin/sphinxsearchlite/sphinxfaq'), '</li>';
     echo '<li>', Anchor(T('Vanilla Forums Install Thread'), ''), '</li>';
     echo '<li>', Anchor(T('Offical Sphinx Documentation'), 'http://sphinxsearch.com/docs/current.html'), '</li>';
     echo '</ul>';
@@ -31,7 +31,7 @@ if (!defined('APPLICATION'))
 <h3><?php echo 'Quick Links'; ?></h3>
 <div class="Info">
     <ul>
-        <li><?php echo Anchor('Back To Control Panel', 'plugin/sphinxsearch'); ?></li>
+        <li><?php echo Anchor('Back To Control Panel', 'plugin/sphinxsearchlite'); ?></li>
     </ul>
 </div>
 <h3>FAQ</h3>
@@ -73,24 +73,18 @@ if (!defined('APPLICATION'))
         <br/>
         <li class="Q">Alright, it is installed...now what?</li>
         <ul>
-            <li>1. Start searchd on the control panel</li>
-            <li>2. index 'Main' through the control panel </li>
-            <li>3. index 'Delta' through the control panel </li>
-            <li>4. index 'Stats' through the control panel </li>
-            <li>5. Stop and then start searchd again</li>
+            <li>1. Start searchd through the command line</li>
+            <li>2. index 'Main' through the command line </li>
+            <li>3. index 'Delta' through the command line </li>
             <li>6. Search for something on your forums through the usual means </li>
             <li>7. Setup a cron job to run the three cron files</li>
         </ul>
         <br/>
         <li class="Q">How to update?</li>
-        <li>If you installed sphinx using the packaged tarball that came with the plugin, then you should FTP over everything in the plugin folder EXCEPT the install folder!</li>
-        <li>The install folder is where sphinx is installed, so do not overwrite this. If you do, you must run the intire install wizard over again</li>
-        <li>If the plugin is disabled, you must also go through the install wizard again. The compiled files will still be there, so it won't take so long</li>
-        <li>After an updated, you should write the config file again in the control panel</li>
+        <li>Delte the whole plugin folder and then move over the new one. Run through the install wizard once more</li>
         <br/>
-        <li class="Q">What if sphinx is indexing and it shuts down searchd...now what?</li>
-        <li>Anytime sphinx is indexing, it will shut down all searches temporary (unless you have another instance of searchd setup). The default search will be in effect immidiatly until searchd is running again.
-            This is done automatically for you</li>
+        <li class="Q">What if sphinx is indexing?</li>
+        <li>Anytime sphinx is indexing with the --rotate switch command, sphinx search will be left in-tact. If not, an error msg will be displayed on the search page</li>
         <br/>
         <li class="Q">What is the indexer and searchd?</li>
         <li>These are two seperate entities that work together. Indexer indexes your database fields and searchd listens on your server for search requests to query the indexer </li>
@@ -100,29 +94,10 @@ if (!defined('APPLICATION'))
         <li>It does not store your text, but rather uses a special data structure to optimize searching </li>
         <li>Sphinx is as dedicated indexing/query engine, and therefore can do it a lot better, rather than MYSQL/MyISAM</li>
         <br/>
-        <li class="Q">Run in Background?</li>
-        <li>This lets all of the index and install commands to run in the background. The progress is then printed onto your screen (black terminal look-a-alike).
-            The benefit of this is that you can see the progress in real time. A benefit of NOT running in background is that you can spot errors easier, although your browser will
-            be waiting for each task to complete and it will appear that the website has frozen. This is not the case...let it finish.</li>
-        <br/>
         <li class="Q">What's the deal with the cron files?</li>
         <li> Sphinx needs to reindex your database here and there to stay current. The 'Main' and 'Delta' index work together to achieve optimal results</li>
         <li>You should index 'Main' once in a while, depending on the activity of your forum. Delta should be updated more frequent since it should only update much less than the Main index</li>
         <li>Use the cron files to update sphinx during low peak times. Remember, reindex delta often, and main seldom. More info, see section 3.12 of the main sphinx documenation</li>
-        <br/>
-        <li class="Q">How do I get rid of some of the top searches/tags?</li>
-        <li>Add the words to your stoplist.txt found in the assests folder of this plugin and then reindex. Over time, you should see these dissappear</li>
-        <li>Future versions may let you censor this easier, but for now be sure to enable the stopwords feature</li>
-        <br/>
-        <li class="Q">Error xxxx Permission denied</li>
-        <li>This error mostly occurs when NOT using pre packaged sphinx installer. You have to give sphinx read/write permission to all log and data temp files by using CHMOD </li>
-        <br/>
-        <li class="Q">Control Panel says 10 queries were made, but I only made 1 search?</li>
-        <li>Total Queries does not mean 'Total Searches'(i.e 12 queries != 12 individual searches on your site. </li>
-        <li>For each search, there are other numerous searches being processed such as related threads and top searches</li>
-        <br/>
-        <li class="Q">You get a "stop: kill() on pid xxxx failed: Operation not permitted Sphinx" </li>
-        <li>This is because you started sphinx from the Command line or some other means and now there are user permission problems...stop searchd through the same means you started it with</li>
         <br/>
         <li class="Q">fsockopen(): unable to connect to localhost::xxxx ....</li>
         <li>First try to start searchd and then check the port again</li>
@@ -134,8 +109,5 @@ if (!defined('APPLICATION'))
         <li class="Q">"WARNING: no process found by PID xxxx. WARNING: indices NOT rotated". </li>
         <li>This is most likely caused by multiple instances of searchd running. This can happen if you start searchd and then either install a new instance of sphinx or disable the plugin.
         Solution is to click the button 'Kill Searchd(d)' in the control panel and then start searchd and reindex</li>
-        <br/>
-        <li class="Q">My indexes are reindexed through my cron job, but the index time is incorrect</li>
-        <li>Yea, I know...this is only updated if you index through the control panel</li>
     </ol>
 </div>
