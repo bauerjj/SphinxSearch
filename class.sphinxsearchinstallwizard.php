@@ -43,61 +43,43 @@ class SphinxSearchInstallWizard extends SphinxObservable {
         //$DetectSystemIndexer = FALSE;
 
         if ($DetectSystemSearchd == FALSE) {
-            parent::Update(SS_SUCCESS, 'ManualSearchdPath', 'Not Detected'); //did not find an instance of searchd
+            parent::Update(SS_SUCCESS, 'SearchdPath', 'Not Detected'); //did not find an instance of searchd
         } else {
-            parent::Update(SS_SUCCESS, 'ManualSearchdPath', $DetectSystemSearchd); //DID find searchd
+            parent::Update(SS_SUCCESS, 'SearchdPath', $DetectSystemSearchd); //DID find searchd
         }
         if ($DetectSystemIndexer == FALSE) {
-            parent::Update(SS_SUCCESS, 'ManualIndexerPath', 'Not Detected'); //did not find an instance of indexer
+            parent::Update(SS_SUCCESS, 'IndexerPath', 'Not Detected'); //did not find an instance of indexer
         } else {
-            parent::Update(SS_SUCCESS, 'ManualIndexerPath', $DetectSystemIndexer); //DID find searchd
+            parent::Update(SS_SUCCESS, 'IndexerPath', $DetectSystemIndexer); //DID find searchd
         }
-        //check if prepackaged sphinx is installed
-        $ExistingDetect = $this->DetectProgram($ShowError = FALSE, array(
-            'IndexerPath' => $this->Settings['Install']->InstallPath . DS . 'sphinx' . DS . 'bin' . DS . 'indexer',
-            'SearchdPath' => $this->Settings['Install']->InstallPath . DS . 'sphinx' . DS . 'bin' . DS . 'searchd',
-            'ConfPath' => $this->Settings['Install']->InstallPath . DS . 'sphinx' . DS . 'etc' . DS . 'sphinx.conf',
-                ));
-        if ($ExistingDetect)
-            $DefaultInstall = TRUE;
-        else
-            $DefaultInstall = FALSE; //manual location is not detected
 
-
-//check if sphinx installed at manual paths
+        //check if sphinx installed at manual paths
         $ManualDetect = $this->DetectProgram($ShowError = FALSE, array(
-            'IndexerPath' => $this->Settings['Install']->ManualIndexerPath,
-            'SearchdPath' => $this->Settings['Install']->ManualSearchdPath,
-            'ConfPath' => $this->Settings['Install']->ManualConfPath,
+            'IndexerPath' => $this->Settings['Install']->IndexerPath,
+            'SearchdPath' => $this->Settings['Install']->SearchdPath,
+            'ConfPath' => $this->Settings['Install']->ConfPath,
                 ));
-        if ($ManualDetect)
-            $ManualInstall = TRUE;
-        else
-            $ManualInstall = FALSE;
 
-        //checks if (auto detect || prepackaged install || manual locations ) are installed
-        if ((($DetectSystemSearchd && $DetectSystemIndexer) == TRUE) || $DefaultInstall)
-            parent::Update(SS_SUCCESS, 'AutoDetected', TRUE); //already exists..no install required
-        else
-            parent::Update(SS_SUCCESS, 'AutoDetected', FALSE); //not detected
-        if ($ManualInstall)
-            parent::Update(SS_SUCCESS, 'ManualDetected', TRUE); //already exists..no install required
-        else
-            parent::Update(SS_SUCCESS, 'ManualDetected', FALSE); //already exists..no install required
     }
 
+    /**
+     * Force a manual install via distro or command line (Plugin CANNOT do install by itself)
+     * @param type $InstallAction
+     * @param type $Background
+     * @param type $Service
+     * @param type $Install
+     */
     public function InstallAction($InstallAction, $Background, $Service, $Install) {
-        if ($InstallAction == 'Manual') {
             //check if file exist at the said locations
             $Detect = $this->DetectProgram($ShowError = TRUE, array(
-                'ManualIndexerPath' => $this->Settings['Install']->ManualIndexerPath,
-                'ManualSearchdPath' => $this->Settings['Install']->ManualSearchdPath,
-                'ManualConfPath' => $this->Settings['Install']->ManualConfPath,
+                'IndexerPath' => $this->Settings['Install']->IndexerPath,
+                'SearchdPath' => $this->Settings['Install']->SearchdPath,
+                'ConfPath' => $this->Settings['Install']->ConfPath,
                     ));
             if ($Detect) {//if they do, then save them at the REAL paths that are used by plugin (i.e strip off the 'Manual' prefix)
-                parent::Update(SS_SUCCESS, 'IndexerPath', $this->Settings['Install']->ManualIndexerPath);
-                parent::Update(SS_SUCCESS, 'SearchdPath', $this->Settings['Install']->ManualSearchdPath);
-                parent::Update(SS_SUCCESS, 'ConfPath', $this->Settings['Install']->ManualConfPath);
+                parent::Update(SS_SUCCESS, 'IndexerPath', $this->Settings['Install']->IndexerPath);
+                parent::Update(SS_SUCCESS, 'SearchdPath', $this->Settings['Install']->SearchdPath);
+                parent::Update(SS_SUCCESS, 'ConfPath', $this->Settings['Install']->ConfPath);
 
                 //get new settings here since confpath has suddnely changed above
                 $Settings = SphinxFactory::BuildSettings();
@@ -108,19 +90,6 @@ class SphinxSearchInstallWizard extends SphinxObservable {
                 parent::Update(SS_SUCCESS, 'PIDPath', $Service->GetPIDFileName());
                 parent::Update(SS_SUCCESS, 'DataPath', $Service->GetDataPath());
             }
-        } else if ($InstallAction == 'NotDetected') { //perform the installation
-            parent::Update(SS_SUCCESS, 'ManualDetected', FALSE); // For the radio button to stay put on "prepackaged" install
-            parent::Update(SS_SUCCESS, 'LogPath', $this->Settings['Install']->InstallPath . DS . 'sphinx' . DS . 'var' . DS . 'log' . DS . 'search.log');
-            parent::Update(SS_SUCCESS, 'QueryPath', $this->Settings['Install']->InstallPath . DS . 'sphinx' . DS . 'var' . DS . 'log' . DS . 'query.log');
-            parent::Update(SS_SUCCESS, 'PIDPath', $this->Settings['Install']->InstallPath . DS . 'sphinx' . DS . 'var' . DS . 'log' . DS . 'search.pid');
-            parent::Update(SS_SUCCESS, 'DataPath', $this->Settings['Install']->InstallPath . DS . 'sphinx' . DS . 'var' . DS . 'data' . DS); //leave the slash in here!
-            parent::Update(SS_SUCCESS, 'IndexerPath', $this->Settings['Install']->InstallPath . DS . 'sphinx' . DS . 'bin' . DS . 'indexer');
-            parent::Update(SS_SUCCESS, 'SearchdPath', $this->Settings['Install']->InstallPath . DS . 'sphinx' . DS . 'bin' . DS . 'searchd');
-            parent::Update(SS_SUCCESS, 'ConfPath', $this->Settings['Install']->InstallPath . DS . 'sphinx' . DS . 'etc' . DS . 'sphinx.conf');
-            $Settings = SphinxFactory::BuildSettings();
-            $Install->NewSettings($Settings->GetAllSettings()); //need new settings
-            $Install->InstallExtract($Background); //This begins the installation process if using the packaged sphinx installer
-        }
     }
 
     /**
