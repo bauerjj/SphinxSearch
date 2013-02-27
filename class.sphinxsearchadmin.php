@@ -13,7 +13,7 @@ class SphinxSearchAdmin {
     public $Observable;
 
     public function __construct($Sender, $View) {
-
+  
         $this->Setup = SphinxFactory::BuildSettings();
         $this->Settings = $this->Setup->GetAllSettings();
 
@@ -72,8 +72,7 @@ class SphinxSearchAdmin {
     }
 
     public function InstallAction($InstallAction, $Background ){
-        if($this->CheckSphinxRunning())
-            $this->Stop(); //stop if it is running before a new install is made
+        // NO checks are made to see if already running
         return $this->Wizard->InstallAction($InstallAction, $Background , $this->Service, $this->Install);
     }
 
@@ -83,14 +82,6 @@ class SphinxSearchAdmin {
 
     public function Status() {
         $this->Service->Status();
-    }
-
-    public function Start() {
-        $this->Service->Start();
-    }
-
-    public function Stop() {
-        $this->Service->Stop();
     }
 
     public function ReIndexMain($Background) {
@@ -108,13 +99,4 @@ class SphinxSearchAdmin {
     public function CheckPort() {
         $this->Service->CheckPort();
     }
-
-    /**
-     * Searches for all instances of searchd and kills them
-     * This is useful is you get the "Unknown PID error" (multiple instances running)
-     */
-    public function KillSearchd(){
-        $this->Service->KillSearchd();
-    }
-
 }
