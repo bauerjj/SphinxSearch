@@ -16,24 +16,24 @@ class WidgetMain extends Widgets implements SplObserver {
         $Sender = $Status['Sender'];
 
         if (isset($Results[$this->Name])) {
-            if ($this->Settings['Admin']->MainSearchEnable) {
-                if (isset($Results[$this->Name]['matches'])) {
-                    $Sanitized = $this->ValidateInputs(); //get offset
-                    $Matches = $this->GetSQLData($Sanitized['ResultFormat'], $Results[$this->Name]['matches']);
-                    $Matches = $this->HighLightResults($Matches, $Results[$this->Name]['query'], $this->Settings['Admin']->BuildExcerptsTitleEnable, $this->Settings['Admin']->BuildExcerptsBodyEnable);
-                    $Results[$this->Name]['matches'] = $Matches;
-                }
-                $Sender->SetData($this->Name, $Results[$this->Name]); //still set the data even if no total found
-                if (!isset($Results[$this->Name]['total_found']))
-                    $Total = 0;
-                else
-                    $Total = $Results[$this->Name]['total_found'];
-
-                if($Total > $this->Settings['Admin']->MaxMatches)
-                    $Total = $this->Settings['Admin']->MaxMatches; //total_found is applied BEFORE setLimits and maxmatches take affect. We want to limit
-                    //pagination results to the max matches that sphinx will return...or else some pages will have a blank result set
-                $this->BuildPager($Sender, $Total);
+            if (isset($Results[$this->Name]['matches'])) {
+                $Sanitized = $this->ValidateInputs(); //get offset
+                $Matches = $this->GetSQLData($Sanitized['ResultFormat'], $Results[$this->Name]['matches']);
+               // $Matches = $this->HighLightResults($Matches, $Results[$this->Name]['query'], $this->Settings['Admin']->BuildExcerptsTitleEnable, $this->Settings['Admin']->BuildExcerptsBodyEnable);
+                $Matches = $this->HighLightResults($Matches, $Results[$this->Name]['query'], true, true); // Highlighting is ALWAYS enabled
+                $Results[$this->Name]['matches'] = $Matches;
             }
+            $Sender->SetData($this->Name, $Results[$this->Name]); //still set the data even if no total found
+            if (!isset($Results[$this->Name]['total_found']))
+                $Total = 0;
+            else
+                $Total = $Results[$this->Name]['total_found'];
+
+            if ($Total > $this->Settings['Admin']->MaxMatches)
+                $Total = $this->Settings['Admin']->MaxMatches; //total_found is applied BEFORE setLimits and maxmatches take affect. We want to limit
+
+//pagination results to the max matches that sphinx will return...or else some pages will have a blank result set
+            $this->BuildPager($Sender, $Total);
         }
     }
 
@@ -52,10 +52,10 @@ class WidgetMain extends Widgets implements SplObserver {
         $Limit = $this->Settings['Admin']->LimitResultsPage;
         $Offset = (($Sanitized['Offset'] - 1) * $Limit); //limit per page
 
-        $Pos = strpos($GETString, '&pg='.$_GET['pg']);
+        $Pos = strpos($GETString, '&pg=' . $_GET['pg']);
         if (!$Pos == FALSE) {
             //$Url = substr($GETString, 0, $Pos); //strip the page number if it exists
-            $Url = str_replace('&pg='.GetIncomingValue('pg'), '', $GETString); //strip the page number if it exists
+            $Url = str_replace('&pg=' . GetIncomingValue('pg'), '', $GETString); //strip the page number if it exists
             $Url = str_replace('&tar=srch', '', $Url); //don't want to load adv search page when clicking page numbers
         }
         else
@@ -139,7 +139,7 @@ class WidgetMain extends Widgets implements SplObserver {
 
         //echo $Query; die;
 
-        $QueryIndex = $this->SphinxClient->AddQuery($Query.' ', SS_INDEX_DIST, $this->Name);
+        $QueryIndex = $this->SphinxClient->AddQuery($Query . ' ', SS_INDEX_DIST, $this->Name);
         $this->Queries[] = array(
             'Name' => $this->Name,
             'Index' => $QueryIndex,
