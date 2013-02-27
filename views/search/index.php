@@ -16,7 +16,7 @@
     $this->Form->Hidden('or', array('value' => $or)),
     $this->Form->Hidden('mem', array('value' => GetIncomingValue('mem'))),
     $this->Form->Hidden('tag', array('value' => GetIncomingValue('tag'))),
-    $this->Form->Hidden('pg', array('value' => GetIncomingValue('pg')))
+    $this->Form->Hidden('pg', array('value' => 1)) // Always default to page 1
     ;
     ?>
 </div>
