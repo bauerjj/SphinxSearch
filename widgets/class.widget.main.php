@@ -80,7 +80,6 @@ class WidgetMain extends Widgets implements SplObserver {
     private function Search($Sanitized) {
         $this->SphinxClient->ResetFilters();
         $this->SphinxClient->ResetGroupBy();
-        $SubQuery = '';
 
 
         $Limit = $this->Settings['Admin']->LimitResultsPage;
@@ -124,20 +123,23 @@ class WidgetMain extends Widgets implements SplObserver {
 
         $this->SphinxClient->SetLimits($Offset, $this->Settings['Admin']->LimitResultsPage, $MaxMatches = 0); //limit the results pageination
 
-        if ($Sanitized['Match'] != 'Extended') { //extended query do not add these
+       // if ($Sanitized['Match'] != 'Extended') { //extended query do not add these
+        if (true) { //extended query DO ADD THESE FOR EXTENDED!
             if ($Sanitized['TitlesOnly'] == 1) {
                 $Query = $this->SphinxClient->EscapeString($Query); //Escapes characters that are treated as special operators by the query language parser (i.e @title => /@/title). Returns an escaped string.
                 $MainSearch = $this->FieldSearch($Query, array(SS_FIELD_TITLE));
             } else {
-                $MainSearch = $this->FieldSearch($Query, array(SS_FIELD_TITLE, SS_FIELD_BODY)); //perform the search
+                if(strpos($Sanitized['Query'], "@") === false) // If the query does not contain an '@' symbol, then do not construct the query since user is doing manually
+                    $MainSearch = $this->FieldSearch($Query, array(SS_FIELD_TITLE, SS_FIELD_BODY)); //perform the search
+                else
+                    $MainSearch = $Sanitized['Query']; // User is manually constructing the query (i.e query = @title DVD)
             }
         }
         else
             $MainSearch = $Query;
 
-        $Query = ' ' . $SubQuery . ' ' . $MainSearch;
+        $Query = ' '. $MainSearch;
 
-        //echo $Query; die;
 
         $QueryIndex = $this->SphinxClient->AddQuery($Query . ' ', SS_INDEX_DIST, $this->Name);
         $this->Queries[] = array(
