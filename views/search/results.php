@@ -1,34 +1,17 @@
 <script>
     $(document).ready(function() {
-
-        //this toggles the plus/minus image and expands a div to show the text if viewing table layout
-        $('.Toggle').click(function(){
-            var ID = $(this).attr('id');
-
-
-            if($(this).hasClass('PlusImage')){
-                $(this).removeClass("PlusImage");
-                $(this).addClass("MinusImage");
-
-
-
-                $('#'+ID+'T').toggle('fast');
-            }
-            else{
-                $(this).addClass("PlusImage");
-                $(this).removeClass("MinusImage");
-
-                $('#'+ID+'T').toggle('fast');
-            }
-
-        });
+        var MoreOptions = $("#More").val();
+        var LessOptions = $("#Less").val();
+        // For the more advanced options button
         $('#Options').click(function(){
-            if($(this).attr('value') == 'More Options'){
-                $(this).attr('value','Less Options');
+            if($(this).attr('value') == MoreOptions){
+                $(this).attr('value',LessOptions);
+                $('#Form_expand').attr('value', 'yes'); // Next search will leave this div expanded
                 $('#MoreOptions').toggle('fast');
             }
             else{
-                $(this).attr('value','More Options');
+                $(this).attr('value',MoreOptions);
+                $('#Form_expand').attr('value', 'no'); // Next search will leave this div hidden
                 $('#MoreOptions').toggle('fast');
             }
 
@@ -66,11 +49,11 @@
         if (!($Results['total_found'] == 0)): //make sure there is something here
             ?>
             <div id="TitleBar">
-                <?php echo T('Search Results for Query') ?>: <span id="SearchQuery"><?php echo $Results['query'] ?></span>
-                <?php echo $this->Form->Button('Options', array('value' => 'More Options', 'id' => 'Options')); ?>
+<!--                Change button text based on GET string if the div is expanded on default-->
+                <?php echo $this->Form->Button('Options', array('value' => GetValue('expand', $_GET) == 'yes' ? T('Less Options') : T('More Options'), 'id' => 'Options')); ?>
             </div>
             <div id="NavBar">
-                <span id="Time"><?php echo sprintf(T('%s %s in %s'), $Total, Plural($Results['total'], T('result'), T('results')), $Results['time'] . 's') ?></span>
+                <span id="Time"><?php echo sprintf(T('%s %s'), $Total, Plural($Results['total'], T('result'), T('results')), $Results['time'] . 's') ?></span>
                 <?php echo str_replace('=p', '=', $this->Pager->ToString('more')); //get rid of the character 'p' in p1,p2,p3 etc ?>
             </div>
             <?php echo WriteResults($Format, $Results['matches'], TRUE); ?>
