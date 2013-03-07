@@ -32,10 +32,11 @@ $Definition['Simple'] = 'Simple';
 
 
 //main result page
-$Definition['Search Results for Query'] = 'Search Results for Query';
 $Definition['Results'] = 'Results';
 $Definition['Result'] = 'Result';
 $Definition['Search Again :: Adv Search'] = 'Search Again :: Adv Search';
+$Definition['More Options'] = 'Advanced Search';
+$Definition['Less Options'] = 'Basic Search';
 
 //widgets
 $Definition['Related Discussions'] = 'Related Discussions';
@@ -48,3 +49,4 @@ $Definition['Related Searches'] = 'Related Searches';
 $Definition['Related Threads'] = 'Related Threads';
 $Definition['Search Help'] = 'Search Help';
 $Definition['Top Searches'] = 'Top Searches';
+$Definition['People'] = 'People';
