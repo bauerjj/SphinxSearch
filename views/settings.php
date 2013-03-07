@@ -59,6 +59,14 @@ echo $this->Form->Errors();
                 <?php echo $this->Form->Label('Number of max matches before Sphinx quits! MUST ALSO CONFIGURE THIS IN SPHINX.CONF MANUALLY!', 'Plugin.SphinxSearchLite.MaxMatches'); ?>
             </td>
         </tr>
+        <tr>
+            <td class="Input">
+                <?php echo $this->Form->Textbox('Plugin.SphinxSearchLite.LimitMemberMatches'); ?>
+            </td>
+            <td>
+                <?php echo $this->Form->Label('Number of matching members to display on the results page', 'Plugin.SphinxSearchLite.LimitMemberMatches'); ?>
+            </td>
+        </tr>
     </tbody>
 </table>
 

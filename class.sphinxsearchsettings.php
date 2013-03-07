@@ -115,6 +115,7 @@ class SphinxSearchSettings {
         $AdminSettings = array(
             'Plugin.SphinxSearchLite.LimitResultsPage' => 30,
             'Plugin.SphinxSearchLite.MaxMatches' => 1000,
+            'Plugin.SphinxSearchLite.LimitMemberMatches' => 20,
         );
         foreach ($AdminSettings as $Name => $Default) {
             $Val = explode('.', $Name);

@@ -34,6 +34,7 @@ class WidgetMember extends Widgets implements SplObserver {
             $this->SphinxClient->ResetGroupBy();
             $this->SphinxClient->SetGroupDistinct(SS_ATTR_USERID); //only want one unique username
             $this->SphinxClient->SetGroupBy(SS_ATTR_USERID, SPH_GROUPBY_ATTR);
+            $this->SphinxClient->SetLimits(0, $this->Settings['Admin']->LimitMemberMatches);
 
 
             $Query = $Sanitized['Query'];
