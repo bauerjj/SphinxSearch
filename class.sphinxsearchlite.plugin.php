@@ -121,13 +121,13 @@ class SphinxSearchLitePlugin extends Gdn_Plugin implements SplSubject {
     }
 
     /**
-     * No modules in the "Lite" version
+     *
      */
     public function RegisterModules() {
-//        $Path = PATH_PLUGINS . DS . 'SphinxSearchLite' . DS . 'modules' . DS;
-//        foreach (glob($Path . '*.php') as $filename) {
-//            include $filename; //inclue all of the modules
-//        }
+        $Path = PATH_PLUGINS . DS . 'SphinxSearchLite' . DS . 'modules' . DS;
+        foreach (glob($Path . '*.php') as $filename) {
+            include $filename; //inclue all of the modules
+        }
     }
 
     public function QueryWidgets($Sender) {
@@ -146,7 +146,6 @@ class SphinxSearchLitePlugin extends Gdn_Plugin implements SplSubject {
     public function Base_Render_Before(&$Sender) {
         //'discussioncontroller','categoriescontroller','discussionscontroller','profilecontroller',
         //'activitycontroller','draftscontroller','messagescontroller', searchcontroller
-        $Sender->AddCssFile('/plugins/SphinxSearchLite/design/result.css'); //for the tooltip as well
         $this->QueryWidgets($Sender);
 
         ///////////////This runs sphinx !!!////////////////////
@@ -415,10 +414,15 @@ class SphinxSearchLitePlugin extends Gdn_Plugin implements SplSubject {
                 $Sender->SetData('Settings', $this->Settings); //put settings on view
                 include_once(PATH_PLUGINS . DS . 'SphinxSearchLite' . DS . 'class.hitbox.module.php');
 
+                // Add defnitions for the javascript to pick up the 'more/less' options button
+                $Sender->AddDefinition('More', T('More Options'));
+                $Sender->AddDefinition('Less', T('Less Options'));
+ 
                 // Guest module will show up on default if user is not logged in - don't cause a double here
                 // $Sender->AddModule('GuestModule');
                 // $Sender->AddModule(new NewDiscussionModule()); // @todo why doesn't this work?
                 $Sender->AddModule(new CategoriesModule()); // Add the categories view
+               // print_r($Sender->Assets['Panel']);
                 //Load results page
                 $Sender->AddCssFile('/plugins/SphinxSearchLite/design/result.css');
                 $Sender->Render($this->GetView('search' . DS . 'index.php'));
