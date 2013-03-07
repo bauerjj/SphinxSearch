@@ -251,6 +251,8 @@ abstract class Widgets {
         $QueryIn = trim(filter_input(INPUT_GET, 'Search', FILTER_SANITIZE_STRING)); //probably overkill
         $QueryIn = explode(' ', $QueryIn);
         $Match = filter_input(INPUT_GET, 'match', FILTER_SANITIZE_STRING);
+        // Default to EXTENDED for sphinxlite!!!
+        $Match = 'Extended';
         foreach ($QueryIn as $Word) {    //get rid of any white spaces inbetween words
             if (!is_string($Word) || $Word == '')
                 continue;
