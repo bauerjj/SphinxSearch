@@ -10,7 +10,7 @@ if (!defined('APPLICATION'))
 
 $PluginInfo['SphinxSearchLite'] = array(
     'Description' => 'A light-weight plugin for the Sphinx Search engine derived from the full-featured SphinxSearch plugin',
-    'Version' => '20130301',
+    'Version' => '20130330',
     'RequiredApplications' => array('Vanilla' => '2.0.18.4'),
     'RequiredTheme' => FALSE,
     'RequiredPlugins' => FALSE,
@@ -417,7 +417,7 @@ class SphinxSearchLitePlugin extends Gdn_Plugin implements SplSubject {
                 // Add defnitions for the javascript to pick up the 'more/less' options button
                 $Sender->AddDefinition('More', T('More Options'));
                 $Sender->AddDefinition('Less', T('Less Options'));
- 
+
                 // Guest module will show up on default if user is not logged in - don't cause a double here
                 // $Sender->AddModule('GuestModule');
                 // $Sender->AddModule(new NewDiscussionModule()); // @todo why doesn't this work?
