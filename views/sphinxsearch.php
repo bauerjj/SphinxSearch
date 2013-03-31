@@ -341,6 +341,17 @@ if (!defined('APPLICATION'))
 <br/>
 
 <h3>Changelog</h3>
+
+20130330
+<ol>
+    <li> Whenever the advanced search is expanded, the div will stay collapsed for subsequent searches until it is toggled</li>
+    <li> Fixed a bug where the xx amount of search results were not being reconstructed back to their original ranking order from sphinx. This caused the results within each page to be mixed randomly!</li>
+    <li> Fixed a bug where sometimes the results will say "xx results found" but no results actually shown. This is because the default page landing was NOT being set correctly to 1. This is repeatable when a
+            previous search on a large page number is then followed by a search that returns a few results on a smaller pagination scale than the previously viewed one. No results will be shown since the GET query string tells sphinx to return the previous search's offset</li>
+    <li>Instead of checking if sphinx is installed and ready, the plugin now forces the default search to ALWAYS be sphinx until the plugin is disabled. Any errors should now be spit out on any page that fetches a query from sphinx</li>
+    <li>Added a message indicating that apache may not have the correct read/write permissions</li>
+</ol>
+<br/>
 20130214
 <ol>
     <li>Fixed a HUGE bug that caused all sphinx searches to also perform a regular MYSQL "LIKE" search!</li>
