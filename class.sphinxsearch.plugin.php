@@ -10,7 +10,7 @@ if (!defined('APPLICATION'))
 
 $PluginInfo['SphinxSearch'] = array(
     'Description' => 'A much improved search experience with widgets based on the Sphinx Search Engine',
-    'Version' => '20130214',
+    'Version' => '20130330',
     'RequiredApplications' => array('Vanilla' => '2.0.18.4'),
     'RequiredTheme' => FALSE,
     'RequiredPlugins' => FALSE,
@@ -71,7 +71,6 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
         if (true) {
             $this->RegisterWidgets();
             $this->RegisterModules();
-
         }
     }
 
@@ -149,6 +148,12 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
         $this->QueryWidgets($Sender);
         $Sender->AddJsFile('jquery.hoverintent.js', 'plugins' . DS . 'SphinxSearch' . DS); //tooltip
         $Sender->AddJsFile('jquery.tooltip.js', 'plugins' . DS . 'SphinxSearch' . DS); //tooltip
+        //
+        //// Add defnitions for the javascript to pick up the 'more/less' options button
+        $Sender->AddDefinition('More', T('More Options'));
+        $Sender->AddDefinition('Less', T('Less Options'));
+
+
         ///////////////This runs sphinx !!!////////////////////
         $Results = $this->RunSearch($Sender); //only 1 search call is made...use sphinxclient->AddQuery(...)
         ///////////////////////////////////////////////////////
@@ -407,7 +412,7 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
 
 
         // Currently, only pretty URLs will work with Sphinx. This is due to how the GET query string is constructed
-        if(C('Garden.RewriteUrls') != TRUE)
+        if (C('Garden.RewriteUrls') != TRUE)
             $Sender->Form->AddError("Must enable Pretty URLs for Sphinx to work properly! <br> Do so in your config.php file; Configuration['Garden']['RewriteUrls'] = TRUE;");
 
         $Sender->SetData('PluginDescription', $this->GetPluginKey('Description'));
@@ -639,9 +644,9 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
     public function SearchController_Render_Before($Sender) {
         //In order for the default search engine not to run, we will kill PHP from processing
         //after the sphinx view is loaded
-      //  if ($this->Settings['Status']->SearchdRunning && $this->Settings['Status']->EnableSphinxSearch) { //exit if sphinx is not running or if manullay overridden
-            if(true){ // Always have this enabled as long as plugin is enabled
-        if ($this->AlreadySent != 1) { //in order to elminate nesting this over and over again as well as allowing result page to render
+        //  if ($this->Settings['Status']->SearchdRunning && $this->Settings['Status']->EnableSphinxSearch) { //exit if sphinx is not running or if manullay overridden
+        if (true) { // Always have this enabled as long as plugin is enabled
+            if ($this->AlreadySent != 1) { //in order to elminate nesting this over and over again as well as allowing result page to render
                 $this->AlreadySent = 1;
 
                 //get rid of that nasty guest module

@@ -11,6 +11,7 @@
     //the following reflect the same inputs as the main adv search landing page that
     //are not covered in the small dropdown on the main results page here
 
+    $this->Form->Hidden('expand', array('value' => GetIncomingValue('expand'))), // Whether or not to expand advanced page or not
     $this->Form->Hidden('child', array('value' => GetIncomingValue('child'))),
     $this->Form->Hidden('forums', array('value' => GetIncomingValue('forums'))),
     $this->Form->Hidden('or', array('value' => $or)),
@@ -18,10 +19,11 @@
     $this->Form->Hidden('tag', array('value' => GetIncomingValue('tag'))),
     $this->Form->Hidden('pg', array('value' => 1)) // Always default to page 1
     ;
+    $Display = GetValue('expand', $_GET) == 'yes' ? '' : 'display:none';
     ?>
 </div>
 <?php $this->Settings = GetValue('Settings', $this->Data); ?>
-<div id="MoreOptions" class="SphinxSearch MessageForm" style="display: none">
+<div id="MoreOptions" class="SphinxSearch MessageForm" style= <?php echo "$Display" ?>>
     <table>
         <tbody>
             <tr>

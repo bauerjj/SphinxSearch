@@ -22,13 +22,18 @@
             }
 
         });
+        var MoreOptions = $("#More").val();
+        var LessOptions = $("#Less").val();
+        // For the more advanced options button
         $('#Options').click(function(){
-            if($(this).attr('value') == 'More Options'){
-                $(this).attr('value','Less Options');
+            if($(this).attr('value') == MoreOptions){
+                $(this).attr('value',LessOptions);
+                $('#Form_expand').attr('value', 'yes'); // Next search will leave this div expanded
                 $('#MoreOptions').toggle('fast');
             }
             else{
-                $(this).attr('value','More Options');
+                $(this).attr('value',MoreOptions);
+                $('#Form_expand').attr('value', 'no'); // Next search will leave this div hidden
                 $('#MoreOptions').toggle('fast');
             }
 
@@ -67,7 +72,8 @@
             ?>
             <div id="TitleBar">
                 <?php echo T('Search Results for Query') ?>: <span id="SearchQuery"><?php echo $Results['query'] ?></span>
-                <?php echo $this->Form->Button('Options', array('value' => 'More Options', 'id' => 'Options')); ?>
+                <!--                Change button text based on GET string if the div is expanded on default-->
+                <?php echo $this->Form->Button('Options', array('value' => GetValue('expand', $_GET) == 'yes' ? T('Less Options') : T('More Options'), 'id' => 'Options')); ?>
             </div>
             <div id="NavBar">
                 <span id="SearchAgain"><?php echo Anchor('Search Again :: Adv Search', $GETString, FALSE, FALSE, TRUE) ?></span>
