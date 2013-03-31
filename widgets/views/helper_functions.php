@@ -44,7 +44,8 @@ function WriteClassic($Results, $WriteText, $CssClass) {
                         <h4 class="Title"><?php echo Anchor($Row->Title . Wrap(htmlspecialchars(SliceString($Row->DiscussionBody, SS_PREVIEW_BODY_LIMIT)), 'span', array('class' => 'ToolTip')), $TitleURL, FALSE, array('class' => 'HasToolTip')) ?></h4>
                         <?php if ($WriteText) : ?>
                             <div class="Message Excerpt">
-                                <?php echo nl2br(SliceString($Row->Body, SS_BODY_LIMIT)); ?>
+                                <?php //echo nl2br(SliceString($Row->Body, SS_BODY_LIMIT));  This seemed to make MARKDOWN posts look correct - JJB?>
+                                <?php echo SliceString($Row->Body, SS_BODY_LIMIT); ?>
                             </div>
                         <?php endif ?>
                         <div class="Meta">
