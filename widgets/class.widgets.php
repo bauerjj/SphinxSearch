@@ -284,6 +284,7 @@ abstract class Widgets {
         }
         $Date = filter_input(INPUT_GET, 'date', FILTER_SANITIZE_STRING);
         $Order = filter_input(INPUT_GET, 'or', FILTER_SANITIZE_STRING);
+        $User = filter_input(INPUT_GET, 'user', FILTER_SANITIZE_STRING);
 
         $Members = filter_input(INPUT_GET, 'mem', FILTER_SANITIZE_STRING); //list seperated by comma
         if (!empty($Members)) {
@@ -323,6 +324,7 @@ abstract class Widgets {
             'Order' => $Order,
             'TagList' => $TagList,
             'Order' => $Order,
+            'User' => $User,
             'ResultFormat' => $SanitizedFormat,
             'Offset' => $Offset,
         );

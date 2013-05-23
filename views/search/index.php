@@ -74,23 +74,29 @@
                                 </tbody>
                             </table>
                         </dd>
+                        <dt>
+                        <?php echo $this->Form->Label(T('User:'), 'user'), ' '; ?>
+                        </dt>
+                        <dd>
+                            <?php echo $this->Form->Input('user','text', array('id' => 'UserInput', 'class'=> 'UserInput')); ?>
+                        </dd>
                     </dl>
                 </td>
                 <td>
                     <dl>
                         <dt>
-        <?php echo $this->Form->Label(T('Search in Forums:'), 'forums'), ' '; ?>
-        </dt>
-        <dd>
-            <ul>
-                <li>
-                    <?php echo SphinxSearchLitePlugin::CategoryDropDown('forums[]', array('Value' => ArrayValue('forums',$_GET) == '' ? array(0) : ArrayValue('forums',$_GET)  )); ?>
-                </li>
-                <li>
-                    <?php echo $this->Form->Checkbox('child', 'Search child forums'); ?>
-                </li>
-            </ul>
-        </dd>
+                        <?php echo $this->Form->Label(T('Search in Forums:'), 'forums'), ' '; ?>
+                        </dt>
+                        <dd>
+                            <ul>
+                                <li>
+                                    <?php echo SphinxSearchLitePlugin::CategoryDropDown('forums[]', array('Value' => ArrayValue('forums', $_GET) == '' ? array(0) : ArrayValue('forums', $_GET))); ?>
+                                </li>
+                                <li>
+                                    <?php echo $this->Form->Checkbox('child', 'Search child forums'); ?>
+                                </li>
+                            </ul>
+                        </dd>
                     </dl>
                 </td>
             </tr>

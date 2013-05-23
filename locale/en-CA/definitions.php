@@ -4,6 +4,7 @@ if (!defined('APPLICATION')) exit();
 //main adv search page
 $Definition['Help'] = 'Help';
 $Definition['Titles only'] = 'Titles only';
+$Definition['User'] = 'User';
 $Definition['Threads with replies only'] = 'Threads with replies only';
 $Definition['Phrase Match:'] = 'Phrase Match:';
 $Definition['Search in Forums:'] = 'Categories:';

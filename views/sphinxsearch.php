@@ -189,6 +189,14 @@ if (!defined('APPLICATION'))
 <br/>
 
 <h3>Changelog</h3>
+20130523
+<ol>
+    <li>Added member search box to advanced drop-down menu. Be sure to enable star syntax in your sphinx.conf to search<br/>
+    for all posts from a specific member. Supports members with spaces in their username. Only one user is searched against.
+    </li>
+
+</ol>
+<br/>
 20130301
 <ol>
     <li>Initial</li>

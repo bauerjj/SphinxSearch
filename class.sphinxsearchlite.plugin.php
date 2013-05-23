@@ -10,7 +10,7 @@ if (!defined('APPLICATION'))
 
 $PluginInfo['SphinxSearchLite'] = array(
     'Description' => 'A light-weight plugin for the Sphinx Search engine derived from the full-featured SphinxSearch plugin',
-    'Version' => '20130330',
+    'Version' => '20130523',
     'RequiredApplications' => array('Vanilla' => '2.0.18.4'),
     'RequiredTheme' => FALSE,
     'RequiredPlugins' => FALSE,
@@ -513,7 +513,7 @@ class SphinxSearchLitePlugin extends Gdn_Plugin implements SplSubject {
         $Return .= ' multiple="multiple"';
         $Return .= ' id="SearchDropdown"';
         $Return .= ' name="' . $FieldName . '"';
-        $Return .= ' size="3"';
+        $Return .= ' size="4"';
         $Return .= ">\n";
 
         // Get value from attributes

@@ -80,6 +80,7 @@ class WidgetMain extends Widgets implements SplObserver {
     private function Search($Sanitized) {
         $this->SphinxClient->ResetFilters();
         $this->SphinxClient->ResetGroupBy();
+        $MainSearch = "";
 
 
         $Limit = $this->Settings['Admin']->LimitResultsPage;
@@ -107,6 +108,10 @@ class WidgetMain extends Widgets implements SplObserver {
                     $this->SphinxClient->SetFilter('TagID', $TagIDs);
             }
         }
+        if (!empty($Sanitized['User'])) {
+            // Place quotes around user to support usernames with spaces
+            $MainSearch .= $this->FieldSearch('"'.$Sanitized['User'].'"', array(SS_FIELD_USERNAME)) ." "; // Return documents with this user
+        }
         if (!empty($Sanitized['MemberList'])) {      //filter by member
             // $String = $this->OperatorOrSearch($Sanitized['MemberList']);
             // $SubQuery .= $this->FieldSearch($String, array(SS_FIELD_USERNAME));
@@ -125,21 +130,20 @@ class WidgetMain extends Widgets implements SplObserver {
 
        // if ($Sanitized['Match'] != 'Extended') { //extended query do not add these
         if (true) { //extended query DO ADD THESE FOR EXTENDED!
-            if ($Sanitized['TitlesOnly'] == 1) {
+            if ($Sanitized['TitlesOnly'] == 1) { // If this is checked, user is NOT manually constructing query (with @ symbol)
                 $Query = $this->SphinxClient->EscapeString($Query); //Escapes characters that are treated as special operators by the query language parser (i.e @title => /@/title). Returns an escaped string.
-                $MainSearch = $this->FieldSearch($Query, array(SS_FIELD_TITLE));
+                $MainSearch .= $this->FieldSearch($Query, array(SS_FIELD_TITLE)); // Search only titles
             } else {
-                if(strpos($Sanitized['Query'], "@") === false) // If the query does not contain an '@' symbol, then do not construct the query since user is doing manually
-                    $MainSearch = $this->FieldSearch($Query, array(SS_FIELD_TITLE, SS_FIELD_BODY)); //perform the search
+                if(strpos($Sanitized['Query'], "@") === false) // If the query DOES contain an '@' symbol, then do not construct the query since user is doing manually
+                    $MainSearch .= $this->FieldSearch($Query, array(SS_FIELD_TITLE, SS_FIELD_BODY)); //perform the search
                 else
-                    $MainSearch = $Sanitized['Query']; // User is manually constructing the query (i.e query = @title DVD)
+                    $MainSearch .= $Sanitized['Query']; // User is manually constructing the query (i.e query = @title DVD)
             }
         }
         else
             $MainSearch = $Query;
 
         $Query = ' '. $MainSearch;
-
 
         $QueryIndex = $this->SphinxClient->AddQuery($Query . ' ', SS_INDEX_DIST, $this->Name);
         $this->Queries[] = array(

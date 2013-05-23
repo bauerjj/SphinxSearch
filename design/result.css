@@ -84,6 +84,10 @@
     display: block;
 }
 
+#UserInput{
+    width: 95%;
+}
+
 .SphinxSearch #OrderBy td{
 }
 
