@@ -10,7 +10,7 @@ if (!defined('APPLICATION'))
 
 $PluginInfo['SphinxSearchLite'] = array(
     'Description' => 'A light-weight plugin for the Sphinx Search engine derived from the full-featured SphinxSearch plugin',
-    'Version' => '20130523',
+    'Version' => '20130529',
     'RequiredApplications' => array('Vanilla' => '2.0.18.4'),
     'RequiredTheme' => FALSE,
     'RequiredPlugins' => FALSE,
