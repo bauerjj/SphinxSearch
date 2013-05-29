@@ -13,7 +13,7 @@ class SphinxSearchAdmin {
     public $Observable;
 
     public function __construct($Sender, $View) {
-  
+
         $this->Setup = SphinxFactory::BuildSettings();
         $this->Settings = $this->Setup->GetAllSettings();
 

@@ -123,11 +123,13 @@ $Settings = $this->Data('Settings');
                     echo $this->Form->Textbox('Plugin.SphinxSearchLite.SearchdPath', array_merge($Disabled, array(), array('value' => $Settings['Install']->SearchdPath)));
                         ?></li>
                     <li><?php
-                    echo $this->Form->Label('Conf Path', 'Plugin.SphinxSearchLite.ConfPath');
+                    echo $this->Form->Label('sphinx.conf Path', 'Plugin.SphinxSearchLite.ConfPath');
                     echo $this->Form->Textbox('Plugin.SphinxSearchLite.ConfPath', array_merge($Disabled, array(), array('value' => $Settings['Install']->ConfPath)));
                         ?></li>
-
-
+                    <li><?php
+                    echo $this->Form->Label('Full Text of existing contents of sphinx.conf', 'Plugin.SphinxSearchLite.ConfText');
+                    echo $this->Form->Textbox('Plugin.SphinxSearchLite.ConfText', array_merge($Disabled, array(), array('value' => $Settings['Install']->ConfText, 'Multiline' => true)));
+                        ?></li>
                 </ul>
 
             <?php endif ?>
@@ -157,12 +159,14 @@ $Settings = $this->Data('Settings');
             <span class="Finish"><?php echo T('Congraduations  Sphinx has been installed successfully!') ?></span>
             <br/>
             <ul>
-                <li><?php echo Anchor('*View my custom Sphinx.conf file', 'plugin/sphinxsearchlite/viewfile/' . Gdn::Session()->TransientKey() . '?action=viewfile&file=conf', array('target'=>'_blank')); ?></li>
+                <li><?php
+                    echo $this->Form->Label('Full Text of NEW sphinx.conf - Copy this into your existing sphinx.conf after making a local copy of original', 'OutputText');
+                    echo $this->Form->Textbox('OutputText', array('value' => $Settings['Install']->ConfText, 'Multiline' => true));
+                        ?></li>
                 <li><?php echo Anchor('View my custom main cron file', 'plugin/sphinxsearchlite/viewfile/' . Gdn::Session()->TransientKey() . '?action=viewfile&file=maincron', array('target'=>'_blank')); ?></li>
                 <li><?php echo Anchor('View my custom delta cron file', 'plugin/sphinxsearchlite/viewfile/' . Gdn::Session()->TransientKey() . '?action=viewfile&file=deltacron', array('target'=>'_blank')); ?></li>
                 <li><?php echo Anchor('View my custom stats cron file', 'plugin/sphinxsearchlite/viewfile/' . Gdn::Session()->TransientKey() . '?action=viewfile&file=statscron', array('target'=>'_blank')); ?></li>
 
-                <li><span style="font-style:italic">* Contains your database username/password</span></li>
             </ul>
         </div>
     <?php endif ?>

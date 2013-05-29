@@ -94,20 +94,22 @@ class SphinxSearchInstall extends SphinxObservable {
         return $ReWritedContent;
     }
 
-    private function _ReWriteSphinxConf($OrgFile, $FinalFile) {
-        if (!is_readable($OrgFile)) {
-            parent::Update(SS_FATAL_ERROR, FALSE, FALSE, "(Permissions) Unable to Read config file at: $OrgFile");
-        }
+    private function _ReWriteSphinxConf($OrgFile) {
+//        if (!is_readable($OrgFile)) {
+//            parent::Update(SS_FATAL_ERROR, FALSE, FALSE, "(Permissions) Unable to Read config file at: $OrgFile");
+//        }
         $Template = file_get_contents($OrgFile);       //get text from file
         $ReWritedContent = $this->_GenerateConfContent($Template);  //replace variables into sphinx.conf
-        try {
-            file_put_contents($FinalFile, $ReWritedContent);
-        } catch (Exception $e) {
-            //get just the exception error
-            $ErrorLen = strpos($e, 'Stack trace:', 0);
-            $Error = substr($e, 0, $ErrorLen);
-            parent::Update(SS_FATAL_ERROR, FALSE, FALSE, $Error);
-        }
+        parent::Update(SS_SUCCESS, 'ConfText', $ReWritedContent); // Save this text
+
+//        try {
+//            file_put_contents($FinalFile, $ReWritedContent);
+//        } catch (Exception $e) {
+//            //get just the exception error
+//            $ErrorLen = strpos($e, 'Stack trace:', 0);
+//            $Error = substr($e, 0, $ErrorLen);
+//            parent::Update(SS_FATAL_ERROR, FALSE, FALSE, $Error);
+//        }
     }
 
     public function SetupCron() {
@@ -161,20 +163,20 @@ class SphinxSearchInstall extends SphinxObservable {
         $SphinxConfOrgPath = PATH_PLUGINS . DS . 'SphinxSearchLite' . DS . 'assests' . DS . 'sphinx.conf.tpl'; //local copy that ships with plugin
         $SphinxConfInstallPath = $this->Settings['Install']->ConfPath; //where sphinx is installed
 
-        try {
-            $CopySuccess = copy($SphinxConfOrgPath, $SphinxConfInstallPath);
-        } catch (Exception $e) {
-            //get just the exception error
-            $ErrorLen = strpos($e, 'Stack trace:', 0);
-            $Error = substr($e, 0, $ErrorLen);
-            parent::Update(SS_FATAL_ERROR, FALSE, FALSE, $Error);
-        }
-        if (!$CopySuccess) {
-            parent::Update(SS_FATAL_ERROR, FALSE, FALSE, '(Permissions) Failed to copy: ' . $SphinxConfOrgPath . ' to: ' . $SphinxConfInstallPath);
-        }
+//        try {
+//            $CopySuccess = copy($SphinxConfOrgPath, $SphinxConfInstallPath);
+//        } catch (Exception $e) {
+//            //get just the exception error
+//            $ErrorLen = strpos($e, 'Stack trace:', 0);
+//            $Error = substr($e, 0, $ErrorLen);
+//            parent::Update(SS_FATAL_ERROR, FALSE, FALSE, $Error);
+//        }
+//        if (!$CopySuccess) {
+//            parent::Update(SS_FATAL_ERROR, FALSE, FALSE, '(Permissions) Failed to copy: ' . $SphinxConfOrgPath . ' to: ' . $SphinxConfInstallPath);
+//        }
         //rewrite pre defined variables in config file to their values
         $SphinxConfOrgPath = PATH_PLUGINS . DS . 'SphinxSearchLite' . DS . 'assests' . DS . 'sphinx.conf.tpl'; //local copy that ships with plugin
-        $this->_ReWriteSphinxConf($SphinxConfOrgPath, $SphinxConfInstallPath);
+        $this->_ReWriteSphinxConf($SphinxConfOrgPath);
     }
 
     /**

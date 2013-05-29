@@ -341,7 +341,8 @@ class SphinxSearchLitePlugin extends Gdn_Plugin implements SplSubject {
             switch ($_POST[$this->PostPrefix . 'NextAction']) {
                 case 'Detection':
                     $Sender->SetData('NextAction', 'Detection'); //in case it fails
-                    $SphinxAdmin->Detect();
+                    // Don't detect anymore
+                   // $SphinxAdmin->Detect();
                     $this->ConfigurationModel->Validation->ApplyRule('Plugin.SphinxSearchLite.Prefix', 'Required');
                     $this->ConfigurationModel->Validation->ApplyRule('Plugin.SphinxSearchLite.Port', 'Required');
                     $this->ConfigurationModel->Validation->ApplyRule('Plugin.SphinxSearchLite.Host', 'Required');
@@ -361,6 +362,7 @@ class SphinxSearchLitePlugin extends Gdn_Plugin implements SplSubject {
                     $this->ConfigurationModel->Validation->ApplyRule('Plugin.SphinxSearchLite.SearchdPath', 'Required');
                     $this->ConfigurationModel->Validation->ApplyRule('Plugin.SphinxSearchLite.IndexerPath', 'Required');
                     $this->ConfigurationModel->Validation->ApplyRule('Plugin.SphinxSearchLite.ConfPath', 'Required');
+                    $this->ConfigurationModel->Validation->ApplyRule('Plugin.SphinxSearchLite.ConfText', 'Required');
                     if ($Sender->Form->Save()) {
                         //refresh settings after save by getting new instance @todo pretty janky
                         $SphinxAdmin = SphinxFactory::BuildSphinx($Sender, $this->getview('wizard.php'));

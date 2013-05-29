@@ -21,12 +21,12 @@ class SphinxSearchService extends SphinxObservable {
      * @return string
      */
     public function GetPIDFileName() {
-        $Content = file_get_contents($this->Settings['Install']->ConfPath);
+        $Content = $this->Settings['Install']->ConfText;
         if (preg_match("#\bpid_file\s+=\s+(.*)\b#", $Content, $Matches)) {
             return $Matches[1];
         }
         else
-            parent::Update(SS_FATAL_ERROR, '', FALSE, 'Cannot find PID file location defined inside of configuration: ' . $this->Settings['Install']->ConfPath);
+            parent::Update(SS_FATAL_ERROR, '', FALSE, 'Cannot find PID file location defined inside of configuration text');
         return FALSE;
     }
 
@@ -35,33 +35,33 @@ class SphinxSearchService extends SphinxObservable {
      * @return boolean
      */
     public function GetSearchLog() {
-        $Content = file_get_contents($this->Settings['Install']->ConfPath);
+        $Content = $this->Settings['Install']->ConfText;
         if (preg_match("#\blog\s+=\s+(.*)\b#", $Content, $Matches)) {
             return $Matches[1];
         }
         else
-            parent::Update(SS_FATAL_ERROR, '', FALSE, 'Cannot find Search log location defined inside of configuration: ' . $this->Settings['Install']->ConfPath);
+            parent::Update(SS_FATAL_ERROR, '', FALSE, 'Cannot find Search log location defined inside of configuration text');
         return FALSE;
     }
 
     public function GetQueryLog() {
-        $Content = file_get_contents($this->Settings['Install']->ConfPath);
+        $Content = $this->Settings['Install']->ConfText;
         if (preg_match("#\bquery_log\s+=\s+(.*)\b#", $Content, $Matches)) {
             return $Matches[1];
         }
         else
-            parent::Update(SS_FATAL_ERROR, '', FALSE, 'Cannot find query log location defined inside of configuration found: ' . $this->Settings['Install']->ConfPath);
+            parent::Update(SS_FATAL_ERROR, '', FALSE, 'Cannot find query log location defined inside of configuration text');
         return FALSE;
     }
 
     public function GetDataPath() {
-        $Content = file_get_contents($this->Settings['Install']->ConfPath);
+        $Content = $this->Settings['Install']->ConfText;
         if (preg_match("#\bpath\s+=\s+(.*\bdata\b)\b#", $Content, $Matches)) {
             return $Matches[1] . DS; //IMPORTANT!! return with the slash
         }
         else
             echo 'no'; die;
-        parent::Update(SS_FATAL_ERROR, '', FALSE, 'Cannot find data path location defined inside of configuration found: ' . $this->Settings['Install']->ConfPath);
+        parent::Update(SS_FATAL_ERROR, '', FALSE, 'Cannot find data path location defined inside of configuration text');
         return FALSE;
     }
 
@@ -75,21 +75,21 @@ class SphinxSearchService extends SphinxObservable {
     }
 
     /**
-     * Simply checks the existense of searchd/indexer/sphinx.conf
+     * No more validation
      */
     public function ValidateInstall() {
-        if (!file_exists($this->Settings['Install']->IndexerPath))
-            parent::Update(SS_FATAL_ERROR, 'IndexerFound', FALSE, "Can't find indexer at path: " . $this->Settings['Install']->IndexerPath);
-        else
-            parent::Update(SS_SUCCESS, 'IndexerFound', TRUE);
-        if (!file_exists($this->Settings['Install']->SearchdPath))
-            parent::Update(SS_FATAL_ERROR, 'SearchdFound', FALSE, "Can't find searchd at path: " . $this->Settings['Install']->SearchdPath);
-        else
-            parent::Update(SS_SUCCESS, 'SearchdFound', TRUE);
-        if (!file_exists($this->Settings['Install']->ConfPath))
-            parent::Update(SS_FATAL_ERROR, 'ConfFound', FALSE, "Can't find configuration file at path: " . $this->Settings['Install']->ConfPath);
-        else
-            parent::Update(SS_SUCCESS, 'ConfFound', TRUE);
+//        if (!file_exists($this->Settings['Install']->IndexerPath))
+//            parent::Update(SS_FATAL_ERROR, 'IndexerFound', FALSE, "Can't find indexer at path: " . $this->Settings['Install']->IndexerPath);
+//        else
+//            parent::Update(SS_SUCCESS, 'IndexerFound', TRUE);
+//        if (!file_exists($this->Settings['Install']->SearchdPath))
+//            parent::Update(SS_FATAL_ERROR, 'SearchdFound', FALSE, "Can't find searchd at path: " . $this->Settings['Install']->SearchdPath);
+//        else
+//            parent::Update(SS_SUCCESS, 'SearchdFound', TRUE);
+//        if (!file_exists($this->Settings['Install']->ConfPath))
+//            parent::Update(SS_FATAL_ERROR, 'ConfFound', FALSE, "Can't find configuration file at path: " . $this->Settings['Install']->ConfPath);
+//        else
+//            parent::Update(SS_SUCCESS, 'ConfFound', TRUE);
     }
 
     public function CheckPort() {
@@ -136,8 +136,8 @@ class SphinxSearchService extends SphinxObservable {
      */
     public function GetMainIndexFileName($Extension = '.spi') {
         $Return = array();
-        $SphinxConf = $this->Settings['Install']->ConfPath;
-        $Content = file_get_contents($SphinxConf);
+        $SphinxConf = $this->Settings['Install']->ConfText;
+        $Content = $SphinxConf;
         if (preg_match_all("#\bpath\s+=\s+(.*)\b#", $Content, $Matches)) {
             $SphinxMainIndexPath = $Matches[1][0] . $Extension;
             $SphinxDeltaIndexPath = $Matches[1][1] . $Extension;

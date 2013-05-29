@@ -43,12 +43,12 @@ class SphinxSearchInstallWizard extends SphinxObservable {
         //$DetectSystemIndexer = FALSE;
 
         if ($DetectSystemSearchd == FALSE) {
-            parent::Update(SS_SUCCESS, 'SearchdPath', 'Not Detected'); //did not find an instance of searchd
+            parent::Update(SS_SUCCESS, 'SearchdPath', 'Enter Path'); //did not find an instance of searchd
         } else {
             parent::Update(SS_SUCCESS, 'SearchdPath', $DetectSystemSearchd); //DID find searchd
         }
         if ($DetectSystemIndexer == FALSE) {
-            parent::Update(SS_SUCCESS, 'IndexerPath', 'Not Detected'); //did not find an instance of indexer
+            parent::Update(SS_SUCCESS, 'IndexerPath', 'Enter Path'); //did not find an instance of indexer
         } else {
             parent::Update(SS_SUCCESS, 'IndexerPath', $DetectSystemIndexer); //DID find searchd
         }
@@ -70,16 +70,22 @@ class SphinxSearchInstallWizard extends SphinxObservable {
      * @param type $Install
      */
     public function InstallAction($InstallAction, $Background, $Service, $Install) {
-            //check if file exist at the said locations
-            $Detect = $this->DetectProgram($ShowError = TRUE, array(
-                'IndexerPath' => $this->Settings['Install']->IndexerPath,
-                'SearchdPath' => $this->Settings['Install']->SearchdPath,
-                'ConfPath' => $this->Settings['Install']->ConfPath,
-                    ));
+        /**
+         * Lets not detect the location of the indexer/searchd/sphinx.conf file. The webserver
+         * must be given proper read/write permissions outside of the web root in order to detect
+         * the prescense of sphinx (assuming installation is outside of the web root).
+         */
+//            $Detect = $this->DetectProgram($ShowError = TRUE, array(
+//                'IndexerPath' => $this->Settings['Install']->IndexerPath,
+//                'SearchdPath' => $this->Settings['Install']->SearchdPath,
+//                'ConfPath' => $this->Settings['Install']->ConfPath,
+//                    ));
+            $Detect = true;
             if ($Detect) {//if they do, then save them at the REAL paths that are used by plugin (i.e strip off the 'Manual' prefix)
                 parent::Update(SS_SUCCESS, 'IndexerPath', $this->Settings['Install']->IndexerPath);
                 parent::Update(SS_SUCCESS, 'SearchdPath', $this->Settings['Install']->SearchdPath);
                 parent::Update(SS_SUCCESS, 'ConfPath', $this->Settings['Install']->ConfPath);
+                parent::Update(SS_SUCCESS, 'ConfText', $this->Settings['Install']->ConfText);
 
                 //get new settings here since confpath has suddnely changed above
                 $Settings = SphinxFactory::BuildSettings();

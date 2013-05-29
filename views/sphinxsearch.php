@@ -104,27 +104,6 @@ if (!defined('APPLICATION'))
 </div>
 <h3>Control Panel</h3>
 <br/>
-<table class="CPanel Overall">
-    <tbody>
-        <tr>
-            <th class="Desc">General: </th>
-            <th>Indexer</th>
-            <th>Searchd</th>
-            <th>Config</th>
-
-
-        </tr>
-        <tr>
-            <td class="Desc">Status: </td>
-            <td><?php if ($Settings['Status']->IndexerFound) Success('Found'); else Fail('Not Installed'); ?></td>
-            <td><?php if ($Settings['Status']->SearchdFound) Success('Found'); else Fail('Not Installed'); ?></td>
-            <td><?php if ($Settings['Status']->ConfFound) Success('Found'); else Fail('Not Found'); ?></td>
-        </tr>
-
-    </tbody>
-</table>
-<br/>
-
 <div id="ControlPanel">
     <table class="CPanel Index">
         <tbody>
@@ -189,6 +168,15 @@ if (!defined('APPLICATION'))
 <br/>
 
 <h3>Changelog</h3>
+20130529
+<ol>
+    <li>Install wizard requires you to paste your stock sphinx.conf into a text box along with the paths of indexer and searchd (but not validate their existence).<br/>
+        An automatically generated sphinx.conf will then be printed out for you to copy over the original (be sure to backup). <br/>
+        This should fix any read/write permission problems that would typically produce errors like "Not Detected" for files that actually did exist.
+    </li>
+
+</ol>
+<br/>
 20130523
 <ol>
     <li>Added member search box to advanced drop-down menu. Be sure to enable star syntax in your sphinx.conf to search<br/>
