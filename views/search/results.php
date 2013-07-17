@@ -54,10 +54,10 @@
             </div>
             <div id="NavBar">
                 <span id="Time"><?php echo sprintf(T('%s %s'), $Total, Plural($Results['total'], T('result'), T('results')), $Results['time'] . 's') ?></span>
-                <?php echo str_replace('=p', '=', $this->Pager->ToString('more')); //get rid of the character 'p' in p1,p2,p3 etc ?>
+                <?php echo $this->Pager->ToString('more');?>
             </div>
             <?php echo WriteResults($Format, $Results['matches'], TRUE); ?>
-            <?php echo str_replace('=p', '=', $this->Pager->ToString('more')); //get rid of the character 'p' in p1,p2,p3 etc ?>
+            <?php echo $this->Pager->ToString('more');?>
 
         <?php else: ?>
             <?php echo $this->Form->Button('Options', array('value' => 'More Options', 'id' => 'Options')); ?>
