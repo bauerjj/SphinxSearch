@@ -1,4 +1,4 @@
-SphinxSearchLite
+SphinxSearch - Lite
 ============
 
 ####A light-weight plugin for the Sphinx Search engine derived from the full-featured SphinxSearch plugin
@@ -11,7 +11,9 @@ This is "Lite" version of the full-featured plugin found here: https://github.co
 
 The development was sponsored by [50sQuiff](http://vanillaforums.org/profile/40383/50sQuiff)
 
-This is drop-in replacement of the typical MYSQL search which is the default Vanilla one.
+This is drop-in replacement of the typical MYSQL search which is the default Vanilla one, however the Sphinx engine must still be installed!
+This is not a trivial task and it is recommended that you utilize your distro package manager for this. The plugin will simply attempt to connect
+to the search daemon running on your server. Errors and warning are printed to the user on top of the search page (if any).
 
 The primary differences from the regular plugin are as follows:
 
