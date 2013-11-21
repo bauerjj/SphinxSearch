@@ -1,11 +1,11 @@
-SphinxSearch
+SphinxSearch 
 ============
 
 ####An advanced search plugin for Vanilla Forums based on the Sphinx Search engine v2.0.6
 
-[Live Demo #1](http://homebrewforums.net/search?Search=beer)
+[Live Demo #1](https://forums.robertsspaceindustries.com/search?Search=search)
 
-[Live Demo #2](http://mcuhq.com/mcuhq/vanilla/search?tar=srch)
+[Live Demo #2](http://homebrewforums.net/search?Search=beer)
 
 [Photo Album](http://imgur.com/a/jQ5WE#1)
 
@@ -29,11 +29,11 @@ Table of contents
 ##How it Works
 For nitty gritty details behind sphinx, you should look at their main documentation: http://sphinxsearch.com/docs/current.html
 
-Basically, it indexes (optinally can store) the certain fields and then stores some attributes that are used to filter the results down such as comment count, category name, etc. Sphinx then returns a document ID which is then used in a typicall MYSQL query to retrieve the meat and potatoes of it such as last comment ID, category URL code, etc. Almost all searches are returned instantly (<12ms).
+Basically, it indexes (optionally can store) the certain fields and then stores some attributes that are used to filter the results down such as comment count, category name, etc. Sphinx then returns a document ID which is then used in a typicall MYSQL query to retrieve the meat and potatoes of it such as last comment ID, category URL code, etc. Almost all searches are returned instantly (<12ms).
 
 Sphinx requires indexing, which is why cron tasks should be used on your server to run periodically. You can always manually index in the control panel for testing purposes. The 'Main' index will read the discussions and comments table in your database. The 'Delta' will do the same thing, except it will only pickup the ones since the last index was performed. Sphinx will search through both indexes, so you should index 'Delta' frequently and 'Main' during non-peak hours.
 
-The plugin connects to searchd and queries it using the shpinx API. You should notice a significant speed increase and search relevance.
+The plugin connects to 'searchd' and queries it using the Sphinx API. You should notice a significant speed increase and search relevance.
 
 ##Requirements
 
