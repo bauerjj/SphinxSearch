@@ -32,13 +32,19 @@ class WidgetRelatedDiscussion extends Widgets implements SplObserver {
 
             if (!isset($Results[$this->Name])) { // the '!' is important here
                 if ($this->Settings['Admin']->LimitRelatedThreadsBottomDiscussion > 0) { //put it on the bottom
-                    $Matches = $this->GetSQLData($this->Settings['Admin']->RelatedThreadsBottomDiscussionFormat, GetValue('matches', $Results));
+                    // Since Bottom threads and sidebar thread widgets both execute the same query, they share the same query LIMIT.
+                    // The query limit will use the largest of the two LIMIT settings and then adjust accordingly here. If one is larger
+                    // than the other, the smaller request will simply "slice" the array into a smaller chunk.
+                    $AllMatches = $this->GetSQLData($this->Settings['Admin']->RelatedThreadsBottomDiscussionFormat, GetValue('matches', $Results));
+                    $Matches = array_slice($AllMatches, 0, $this->Settings['Admin']->LimitRelatedThreadsBottomDiscussion, $preserve_keys = true);
                     $String = $this->ToString($Matches);
                     echo $String;
                 }
             } else {
                 if ($this->Settings['Admin']->LimitRelatedThreadsSidebarDiscussion > 0) { //put it on the sidebar
-                    $Matches = $this->GetSQLData('simple', GetValue('matches', $Results[$this->Name]));
+                    // See above for explanation on the array_slice reasoning
+                    $AllMatches = $this->GetSQLData('simple', GetValue('matches', $Results[$this->Name]));
+                    $Matches = array_slice($AllMatches, 0, $this->Settings['Admin']->LimitRelatedThreadsSidebarDiscussion, $preserve_keys = true);
                     $Module = new RelatedDiscussionModule($this->ToString($Matches, TRUE));
                     $Sender->AddModule($Module);
                 }
@@ -55,7 +61,11 @@ class WidgetRelatedDiscussion extends Widgets implements SplObserver {
             $this->SphinxClient->ResetGroupBy();
             $this->SphinxClient->SetSortMode(SPH_SORT_RELEVANCE);
             $this->SphinxClient->SetRankingMode(SPH_RANK_WORDCOUNT);
-            $this->SphinxClient->SetLimits(1, $this->Settings['Admin']->LimitRelatedThreadsSidebarDiscussion); //notice the offset of '1'. This is so don't select current viewed discussion as related
+
+            // Compare which is larger and strip results in the smaller results above in 'Update'
+            $limit = $this->Settings['Admin']->LimitRelatedThreadsSidebarDiscussion > $this->Settings['Admin']->LimitRelatedThreadsBottomDiscussion ?
+                    $this->Settings['Admin']->LimitRelatedThreadsSidebarDiscussion : $this->Settings['Admin']->LimitRelatedThreadsBottomDiscussion;
+            $this->SphinxClient->SetLimits(1, $limit); //notice the offset of '1'. This is so don't select current viewed discussion as related
             $Thread = $this->SphinxClient->EscapeString($Sender->Discussion->Name); //get the discussion name (thread topic) to search against
             $Query = $this->FieldSearch($this->OperatorOrSearch($Thread), array(SS_FIELD_TITLE));
 
