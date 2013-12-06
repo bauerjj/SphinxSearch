@@ -10,7 +10,7 @@ if (!defined('APPLICATION'))
 
 $PluginInfo['SphinxSearch'] = array(
     'Description' => 'A much improved search experience with widgets based on the Sphinx Search Engine',
-    'Version' => '20130330',
+    'Version' => '20131205',
     'RequiredApplications' => array('Vanilla' => '2.0.18.4'),
     'RequiredTheme' => FALSE,
     'RequiredPlugins' => FALSE,
@@ -273,135 +273,6 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
     }
 
     /**
-     * enter here when viewing indexing status
-     */
-    public function Controller_ServicePoll() {
-        $Return = array();
-        $Output = file_get_contents(PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'install' . DS . 'output.txt');
-        $Return['Terminal'] = nl2br($Output);
-        $Error = file_get_contents(PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'install' . DS . 'error.txt');
-        $Return['Terminal'] .= nl2br('<span class="TermWarning">' . $Error) . '</span>';
-        $PID = explode("\n", trim(file_get_contents(PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'install' . DS . 'pid.txt')));
-        $PID = $PID[0]; //get only the first PID
-
-        $Task = C('Plugin.SphinxSearch.ServicePollTask');
-        switch ($Task) {
-            default:
-            case 'Idle':
-                $Return['Status'] = 'Idle';
-                break;
-            case 'IndexMain':
-                $Return['Status'] = 'Index Main';
-                break;
-            case 'IndexDelta':
-                $Return['Status'] = 'Index Delta';
-                break;
-            case 'IndexStats':
-                $Return['Status'] = 'Index Stats';
-                break;
-        }
-
-        if (!SphinxSearchGeneral::isRunning($PID)) { //check if finished
-            //yes it is finished
-            if ($Return['Status'] != 'Idle')
-                $Return['Status'] .= ' - Finished!';
-            else {
-                //SphinxSearchGeneral::ClearLogFiles();
-                //$Return['Terminal'] = 'Ready';
-            }
-            SaveToConfig('Plugin.SphinxSearch.ServicePollTask', 'Idle');
-        }
-
-        echo json_encode($Return);
-    }
-
-    /**
-     * Entry point to request status on any commands running in the background
-     *
-     * This is used in the wizard installer
-     */
-    public function Controller_InstallPoll() {
-        $Return = array();
-        $Output = file_get_contents(PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'install' . DS . 'output.txt');
-        $Return['Terminal'] = nl2br($Output);
-        $Error = file_get_contents(PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'install' . DS . 'error.txt');
-        $Return['Terminal'] .= nl2br('<span class="TermWarning">' . $Error) . '</span>';
-        $PID = explode("\n", trim(file_get_contents(PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'install' . DS . 'pid.txt')));
-        $PID = $PID[0]; //get only the first PID
-        if (!SphinxSearchGeneral::isRunning($PID)) { //check if finished
-            //yes it is finished
-            $Task = C('Plugin.SphinxSearch.Task');
-            $InstallPath = C('Plugin.SphinxSearch.InstallPath');
-            $Dir = C('Plugin.SphinxSearch.InsideDir');
-            if ($Task == 'FinishLibraries' && ($Task == FALSE || !file_exists($InstallPath) || !is_dir($Dir))) //check if paths are OK
-                $Return['Terminal'] .= '<span class="TermWarning">Error locating install folders </span>';
-            else {
-                $Settings = SphinxFactory::BuildSettings();
-                $Wizard = new SphinxSearchInstall($Settings->GetAllSettings());
-                switch ($Task) {
-                    case 'Idle':
-                        $Return['Status'] = 'Idling';
-                        $Return['Terminal'] = 'Ready';
-                        SphinxSearchGeneral::ClearLogFiles();
-
-                        break;
-                    case 'Start':
-                        if ($Error != '') {
-                            $Return['Terminal'] .= '<span class="TermWarning">Unable to Proceed due to the following errors:</span> <br/>';
-                            break;
-                        }
-                        $Wizard->InstallConfigure($InstallPath . DS . 'sphinx', $Dir, TRUE);
-                        SaveToConfig('Plugin.SphinxSearch.Task', 'Configure');
-                        break;
-                    case 'Configure':
-                        if ($Error != '') {
-                            $Return['Terminal'] .= '<span class="TermWarning">Unable to Proceed due to the above errors</span> <br/>';
-                            break;
-                        }
-                        $Wizard->InstallMake($Dir, TRUE);
-                        SaveToConfig('Plugin.SphinxSearch.Task', 'Make');
-                        break;
-                    case 'Make':
-                        $Wizard->InstallMakeInstall($Dir, TRUE);
-                        SaveToConfig('Plugin.SphinxSearch.Task', 'Make Install');
-                        break;
-                    case 'Make Install':
-                        if (!is_file($InstallPath . DS . 'sphinx' . DS . 'bin' . DS . 'indexer')) {
-                            $Return['Terminal'] .= '<span class="TermWarning">Unable to Find instance of Indexer</span> <br/>';
-                            break;
-                        }
-                        if (!is_file($InstallPath . DS . 'sphinx' . DS . 'bin' . DS . 'searchd')) {
-                            $Return['Terminal'] .= '<span class="TermWarning">Unable to Find instance of Searchd</span> <br/>';
-                            break;
-                        }
-                        $Wizard->SaveLocations(); //save indexer/searchd/conf locations
-
-                        SaveToConfig('Plugin.SphinxSearch.Task', 'FinishLibraries');
-                        break;
-                    case 'FinishLibraries':
-                        if (C('Plugin.SphinxSearch.Config') == FALSE)
-                            $Return['Terminal'] = 'reload'; //tell Jquery to reload the page
-                        else
-                            SaveToConfig('Plugin.SphinxSearch.Task', 'InstallConfig');
-                        break;
-                    case 'InstallConfig':
-                        if (C('Plugin.SphinxSearch.Installed'))
-                            $Return['Status'] = '<span style="color: green"> Finished Installing libraries/config/cron for Sphinx!</span>';
-                        else
-                            $Return['Status'] = 'Waiting to install configuration - Proceed to step 3';
-                        break;
-                }
-                if (C('Plugin.SphinxSearch.Task') == 'FinishLibraries')
-                    $Return['Status'] = '<span style="color: green"> Finished Installing libraries for Sphinx!</span>';
-            }
-        } else {
-            $Return['Status'] = 'Please Wait For: ' . '<b>' . C('Plugin.SphinxSearch.Task') . '</b><br/>' . C('Plugin.SphinxSearch.PIDBackgroundWorker');
-        }
-
-        echo json_encode($Return);
-    }
-
-    /**
      * main entry point for control panel as well as to poll the status of sphinx such
      * as reindexing/start/stop/rotate/etc
      *
@@ -419,76 +290,6 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
         $Sender->SetData('PluginVersion', $this->GetPluginKey('Version'));
         $SphinxAdmin = SphinxFactory::BuildSphinx($Sender, $this->getview('sphinxsearch.php'));
 
-        if ($Sender->Form->AuthenticatedPostBack() === TRUE) {
-            if (Gdn::Session()->ValidateTransientKey(GetIncomingValue('Form/TransientKey'))) {
-                $Background = GetIncomingValue('Form/Background');
-                $Action = str_replace(' ', '', GetIncomingValue('Form/Action'));
-                switch ($Action) {
-                    case 'IndexMain':
-                        $SphinxAdmin->ValidateInstall();
-                        $SphinxAdmin->ReIndexMain($Background);
-                        break;
-                    case 'IndexDelta':
-                        $SphinxAdmin->ValidateInstall();
-                        $SphinxAdmin->ReIndexDelta($Background);
-                        break;
-                    case 'IndexStats':
-                        $SphinxAdmin->ValidateInstall();
-                        $SphinxAdmin->ReIndexStats($Background);
-                        break;
-                    case 'StartSearchd':
-                        $SphinxAdmin->ValidateInstall();
-                        $SphinxAdmin->Start();
-                        $SphinxAdmin->CheckPort(); //see if searchd can be connected to
-                        break;
-                    case 'StopSearchd':
-                        $SphinxAdmin->ValidateInstall();
-                        $SphinxAdmin->Stop();
-                    case 'WriteConfig':
-                        //don't validate install here since not using sphinx...just writing new configuration
-                        $SphinxAdmin->WriteConfigFile();
-                        break;
-                    case 'WriteDeltaCron':
-                    case 'WriteMainCron':
-                    case 'WriteStatsCron':
-                        //don't need to validate install
-                        $SphinxAdmin->SetupCron();
-                        break;
-                    case 'ReloadMain':
-                    case 'ReloadDelta':
-                    case 'ReloadStats':
-                        if ($Action == 'ReloadMain')
-                            $Index = SS_MAIN_INDEX;
-                        else if ($Action == 'ReloadDelta')
-                            $Index = SS_DELTA_INDEX;
-                        else
-                            $Index = SS_STATS_INDEX;
-                        $Stats = new WidgetStats($this->SphinxClient, $this->Settings);
-                        $ReloadTotalDocFound = $Stats->AddQuery($Sender, array('Index' => $Index));
-                        $this->Queries = $ReloadTotalDocFound;
-                        $Results = $this->RunSearch();
-                        $this->Update($Results, $Sender);
-                    case 'CheckPort':
-                        $SphinxAdmin->CheckPort();
-                        break;
-                    case 'KillSearchd(s)':
-                        $SphinxAdmin->KillSearchd();
-                        break;
-                    case 'ToggleSphinxSearch':
-                        //enter here to toggle whether or not to interrupt the main search from launching
-                        //useful for when searchd is running, but problems happenend and now your search is stuck
-                        //being not functional.
-                        if ($this->Settings['Status']->EnableSphinxSearch == TRUE)
-                            SaveToConfig('Plugin.SphinxSearch.EnableSphinxSearch', FALSE);
-                        else
-                            SaveToConfig('Plugin.SphinxSearch.EnableSphinxSearch', TRUE);
-                        break;
-                    default:
-                        break;
-                }
-                $Sender->StatusMessage = T("Your action: " . $Action . ' has been executed succesfully');
-            }
-        }
         $SphinxAdmin->Status();
         $Sender->SetData('Settings', $SphinxAdmin->GetSettings());
         $Sender->Render($this->getview('sphinxsearch.php'));
@@ -562,33 +363,19 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
                 case 'Install':              //Install Sphinx
                     $Sender->SetData('NextAction', 'Install'); //in case it fails
                     $InstallAction = GetValue($this->PostPrefix . 'Plugin-dot-SphinxSearch-dot-Detected', $_POST);
-                    if ($InstallAction == 'Manual') { //use manual
-                        $this->ConfigurationModel->Validation->ApplyRule('Plugin.SphinxSearch.ManualSearchdPath', 'Required');
-                        $this->ConfigurationModel->Validation->ApplyRule('Plugin.SphinxSearch.ManualIndexerPath', 'Required');
-                        $this->ConfigurationModel->Validation->ApplyRule('Plugin.SphinxSearch.ManualConfPath', 'Required');
-                    } else if ($InstallAction == 'NotDetected') //use prepackaged
-                        $this->ConfigurationModel->Validation->ApplyRule('Plugin.SphinxSearch.InstallPath', 'Required');
+                    $this->ConfigurationModel->Validation->ApplyRule('Plugin.SphinxSearch.SearchdPath', 'Required');
+                    $this->ConfigurationModel->Validation->ApplyRule('Plugin.SphinxSearch.IndexerPath', 'Required');
+                    $this->ConfigurationModel->Validation->ApplyRule('Plugin.SphinxSearch.ConfPath', 'Required');
+                    $this->ConfigurationModel->Validation->ApplyRule('Plugin.SphinxSearch.ConfText', 'Required');
                     if ($Sender->Form->Save()) {
                         //refresh settings after save by getting new instance @todo pretty janky
                         $SphinxAdmin = SphinxFactory::BuildSphinx($Sender, $this->getview('wizard.php'));
                         //check if running in background - if so, requrie that these files are writable for poller
-                        $SphinxAdmin->CheckDebugFiles();
-                        $PID = explode("\n", trim(file_get_contents(PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'install' . DS . 'pid.txt'))); //Get the PID
-                        $PID = $PID[0]; //get only the first PID
-                        if (!SphinxSearchGeneral::isRunning($PID)) { //First check to make sure an existing installation is not running the background
-                            $SphinxAdmin->InstallAction($InstallAction, $Background); //install if using package sphinx, if using manual, verify that paths exist and read info from sphinx.conf
-                            if (!$Background && $InstallAction == 'NotDetected') {
-                                //If not running in background, proceed to next step immidatly after a succesfull install
-                                //If running background, must wait until the poll routine tells us when to proceeed
-                                SaveToConfig('Plugin.SphinxSearch.Config', TRUE); //next step
-                                $Sender->SetData('NextAction', 'Config'); //next step
-                            } else if ($InstallAction == 'Manual') {//manual install requires no polling...simply check if files exist and if sphinx.conf has info we need and move one
-                                SaveToConfig('Plugin.SphinxSearch.Config', TRUE); //next step
-                                $Sender->SetData('NextAction', 'Config'); //next step
-                            }
-
-                            $Sender->StatusMessage = T("Your changes have been saved.");
-                        }
+                        $SphinxAdmin->InstallAction($InstallAction, $Background); //install if using package sphinx, if using manual, verify that paths exist and read info from sphinx.conf
+                        //manual install requires no polling...simply check if files exist and if sphinx.conf has info we need and move one
+                        SaveToConfig('Plugin.SphinxSearch.Config', TRUE); //next step
+                        $Sender->SetData('NextAction', 'Config'); //next step
+                        $Sender->StatusMessage = T("Your changes have been saved.");
                     } else {
                         //return FALSE;
                     }

@@ -72,8 +72,7 @@ class SphinxSearchAdmin {
     }
 
     public function InstallAction($InstallAction, $Background ){
-        if($this->CheckSphinxRunning())
-            $this->Stop(); //stop if it is running before a new install is made
+        // NO checks are made to see if already running
         return $this->Wizard->InstallAction($InstallAction, $Background , $this->Service, $this->Install);
     }
 
