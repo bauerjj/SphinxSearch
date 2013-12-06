@@ -17,9 +17,6 @@ to the search daemon running on your server. Errors and warning are printed to t
 
 The primary differences from the regular plugin are as follows:
 
- - No built-in installer
-    - Should now work for both windows/linux...simply install from source or distro on linux or binary if using windows
-    - Must input locations of existing searchd/indexer and sphinx.conf file paths
  - All previous widgets are stripped
     - Added a simple member widget which displays usernames similar to the input query
  - Removed the advanced search landing page
