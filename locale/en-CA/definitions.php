@@ -27,7 +27,7 @@ $Definition['Most Views'] = 'Most Views';
 $Definition['Most Replies'] = 'Most Replies';
 $Definition['Classic'] = 'Classic';
 $Definition['Table'] = 'Table';
-$Definition['Sleek'] = 'Sleek';
+$Definition['Sleek'] = 'Sleak';
 $Definition['Simple'] = 'Simple';
 
 
