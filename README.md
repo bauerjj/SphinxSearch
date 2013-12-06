@@ -13,6 +13,7 @@ SphinxSearch
 
 Branches
 [Lite Version](https://github.com/mcuhq/SphinxSearchPlugin/tree/SphinxSearchLite)
+
 [Integrated Installer Version] (https://github.com/mcuhq/SphinxSearchPlugin/tree/WithInstaller)
 
 Table of contents
@@ -62,7 +63,6 @@ Shared hosting will probably restrict sphinx from running properly on your host'
  10. Perform a search on your website using the regular means
  11. Setup a cron job to run the three auto-generated cron files so that new comments/discussions/searches are indexed
 
-After installation, do the following in the control panel:
 
 ##Features
 ####Search
