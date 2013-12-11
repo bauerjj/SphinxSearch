@@ -11,7 +11,8 @@ SphinxSearch
 
 [Offical Plugin Page](http://vanillaforums.org/addon/sphinxsearch-plugin)
 
-Branches
+Branches:
+
 [Lite Version](https://github.com/mcuhq/SphinxSearchPlugin/tree/SphinxSearchLite)
 
 [Integrated Installer Version] (https://github.com/mcuhq/SphinxSearchPlugin/tree/WithInstaller)

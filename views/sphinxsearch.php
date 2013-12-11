@@ -174,7 +174,12 @@ if (!defined('APPLICATION'))
 <br/>
 
 <h3>Changelog</h3>
-20131124
+20131210
+<ol>
+    <li> The indexer/searchd/conf paths are now optional during the install since only the auto generated cron files used those inputs</li>
+</ol>
+<br>
+20131205
 <ol>
     <li> Removed the complicated installer. Now all installs must be done before running the plugin</li>
     <li> Removed all non-plugin related configurations from the settings menu. User must edit the generated sphinx.conf file directly</li>
