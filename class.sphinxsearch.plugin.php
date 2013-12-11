@@ -363,10 +363,19 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
                 case 'Install':              //Install Sphinx
                     $Sender->SetData('NextAction', 'Install'); //in case it fails
                     $InstallAction = GetValue($this->PostPrefix . 'Plugin-dot-SphinxSearch-dot-Detected', $_POST);
-                    $this->ConfigurationModel->Validation->ApplyRule('Plugin.SphinxSearch.SearchdPath', 'Required');
-                    $this->ConfigurationModel->Validation->ApplyRule('Plugin.SphinxSearch.IndexerPath', 'Required');
-                    $this->ConfigurationModel->Validation->ApplyRule('Plugin.SphinxSearch.ConfPath', 'Required');
-                    $this->ConfigurationModel->Validation->ApplyRule('Plugin.SphinxSearch.ConfText', 'Required');
+
+                   /*
+                    *  The paths are no longer required inputs since only the creation of the cron files require it!
+                    */
+
+                   // $this->ConfigurationModel->Validation->ApplyRule('Plugin.SphinxSearch.SearchdPath', 'Required');
+                   // $this->ConfigurationModel->Validation->ApplyRule('Plugin.SphinxSearch.IndexerPath', 'Required');
+                   // $this->ConfigurationModel->Validation->ApplyRule('Plugin.SphinxSearch.ConfPath', 'Required');
+                    $this->ConfigurationModel->Validation->AddValidationField('Plugin.SphinxSearch.SearchdPath',$_POST);
+                    $this->ConfigurationModel->Validation->AddValidationField('Plugin.SphinxSearch.IndexerPath',$_POST);
+                    $this->ConfigurationModel->Validation->AddValidationField('Plugin.SphinxSearch.ConfPath',$_POST);
+
+                    $this->ConfigurationModel->Validation->ApplyRule('Plugin.SphinxSearch.ConfText', 'Required'); // This is the only input required!
                     if ($Sender->Form->Save()) {
                         //refresh settings after save by getting new instance @todo pretty janky
                         $SphinxAdmin = SphinxFactory::BuildSphinx($Sender, $this->getview('wizard.php'));
