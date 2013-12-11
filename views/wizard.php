@@ -37,6 +37,11 @@ if (!defined('APPLICATION'))
         color: red;
     }
 
+    /*Override for the little astrix to line up properly*/
+    form ul li span {
+        display: inline !important;
+    }
+
 </style>
 <div class="Help Aside">
     <?php
@@ -78,20 +83,25 @@ $Settings = $this->Data('Settings');
     <h1>Step 1: </h1>
     <ul>
         <li><?php
-            echo $this->Form->Label('Configuration Prefix:', 'Plugin.SphinxSearch.Prefix');
+            echo $this->Form->Label('Configuration Prefix:' . "<span class='required' style='font-weight: bold; color: #B94A48'>*</span>", 'Plugin.SphinxSearch.Prefix'); ?> <?php
             echo $this->Form->Textbox('Plugin.SphinxSearch.Prefix', array_merge($Disabled, array('value' => $Settings['Install']->Prefix)));
             ?></li>
+        <li><span style="font-style:italic">This is used in the sphinx config file to identify between this install and other configurations already present. You can
+            typically just leave this as the default setting</span>
+        </li>
         <li><?php
-            echo $this->Form->Label('Port', 'Plugin.SphinxSearch.Port');
+            echo $this->Form->Label('Port:' . "<span class='required' style='font-weight: bold; color: #B94A48'>*</span>", 'Plugin.SphinxSearch.Port');
             echo $this->Form->Textbox('Plugin.SphinxSearch.Port', array_merge($Disabled, array($Disabled, 'value' => $Settings['Install']->Port)));
             ?></li>
+        <li><span style="font-style:italic">This is the port that sphinx (searchd daemon) listens on for active connections. 9312 is the default</span>
+        </li>
         <li><?php
-            echo $this->Form->Label('* Host', 'Plugin.SphinxSearch.Host');
+            echo $this->Form->Label('Host:' . "<span class='required' style='font-weight: bold; color: #B94A48'>*</span>", 'Plugin.SphinxSearch.Host');
             echo $this->Form->Textbox('Plugin.SphinxSearch.Host', array_merge($Disabled, array($Disabled, 'value' => $Settings['Install']->Host)));
             ?></li>
-        <li><span style="font-style:italic">* Use "127.0.0.1" (without quotes) to force TCP/IP usage. Recommended to first try "localhost" (without quotes)</span>
+        <li><span style="font-style:italic">This is where sphinx (searchd daemon) is running from, NOT where your database necessarily is located</li>
+        <li><span style="font-style:italic">Use "127.0.0.1" (without quotes) to force TCP/IP usage. Recommended to first try "localhost" (without quotes)</span>
         </li>
-        <li><span style="font-style:italic">* This is where searchd is running from, NOT where your database necessarily is located</li>
     </ul>
     <br/>
 <?php endif ?>
@@ -100,37 +110,36 @@ $Settings = $this->Data('Settings');
     <?php $DisabledExisting = $Settings['Wizard']->AutoDetected == FALSE ? array('Disabled' => 'Disabled', 'Default' => 'NotDetected') : array(); ?>
     <?php $InstallColor = $DisabledExisting == array() ? 'green' : 'red'; ?>
     <h1>Step 2: </h1>
-    <div id="MainWrapper">
-        <div id="RightWrapper">
-            <div id="Right">
-                <div id="Status">
-                </div>
-                <div id="messages">
-                </div>
-            </div>
-        </div>
-
-        <div id="Left">
             <div class="Inner">
                 <ul>
+                    <li>
+                    <?php
+                        echo $this->Form->Label('Full Text of existing contents of sphinx.conf '. "<span class='required' style='font-weight: bold; color: #B94A48'>*</span>", 'Plugin.SphinxSearch.ConfText');
+                        echo $this->Form->Textbox('Plugin.SphinxSearch.ConfText', array_merge($Disabled, array(), array('value' => $Settings['Install']->ConfText, 'Multiline' => true)));
+                        ?></li>
+                    <li><span style="font-style:italic">Required! Paste your default sphinx configuration file contents here</li>
+
                     <li>
                         <?php
                         //never disable this option
                         echo $this->Form->Label('Indexer Path:', 'Plugin.SphinxSearch.IndexerPath');
                         echo $this->Form->Textbox('Plugin.SphinxSearch.IndexerPath', array_merge($Disabled, array(), array('value' => $Settings['Install']->IndexerPath)));
                         ?></li>
+                    <li><span style="font-style:italic">The location of sphinx's indexer (ex: /usr/bin/indexer). Network installations should ignore this</li>
+                    <li><span style="font-style:italic">Optional - may leave blank! It is used in the creation of the cron files</li>
                     <li><?php
                         echo $this->Form->Label('Searchd Path:', 'Plugin.SphinxSearch.SearchdPath');
                         echo $this->Form->Textbox('Plugin.SphinxSearch.SearchdPath', array_merge($Disabled, array(), array('value' => $Settings['Install']->SearchdPath)));
                         ?></li>
+                    <li><span style="font-style:italic">The location of sphinx's searchd (ex: /usr/bin/searchd). Network installations should ignore this</li>
+                    <li><span style="font-style:italic">Optional - may leave blank! It is used in the creation of the cron files</li>
                     <li><?php
                         echo $this->Form->Label('Conf Path:', 'Plugin.SphinxSearch.ConfPath');
                         echo $this->Form->Textbox('Plugin.SphinxSearch.ConfPath', array_merge($Disabled, array(), array('value' => $Settings['Install']->ConfPath)));
                         ?></li>
-                    <li><?php
-                        echo $this->Form->Label('Full Text of existing contents of sphinx.conf', 'Plugin.SphinxSearch.ConfText');
-                        echo $this->Form->Textbox('Plugin.SphinxSearch.ConfText', array_merge($Disabled, array(), array('value' => $Settings['Install']->ConfText, 'Multiline' => true)));
-                        ?></li>
+                    <li><span style="font-style:italic">The location of sphinx's config file (ex: /etc/sphinx/sphinx.conf). Network installations should ignore this</li>
+                    <li><span style="font-style:italic">Optional - may leave blank! It is used in the creation of the cron files</li>
+                    <li>
 
                     <li>
                         <br/>
@@ -147,7 +156,6 @@ $Settings = $this->Data('Settings');
                 ?>
             <?php endif ?>
         </div>
-    </div>
     <?php if ($Settings['Wizard']->Config) : ?>
         <div style="clear: both"></div>
         <h1>Step 3: </h1>
@@ -172,7 +180,7 @@ $Settings = $this->Data('Settings');
                 <li><?php echo Anchor('View my custom main cron file', 'plugin/sphinxsearch/viewfile/' . Gdn::Session()->TransientKey() . '?action=viewfile&file=maincron', array('target'=>'_blank')); ?></li>
                 <li><?php echo Anchor('View my custom delta cron file', 'plugin/sphinxsearch/viewfile/' . Gdn::Session()->TransientKey() . '?action=viewfile&file=deltacron', array('target'=>'_blank')); ?></li>
                 <li><?php echo Anchor('View my custom stats cron file', 'plugin/sphinxsearch/viewfile/' . Gdn::Session()->TransientKey() . '?action=viewfile&file=statscron', array('target'=>'_blank')); ?></li>
-
+                <li><span style="font-style:italic">Note, the cron files may be invalid depending on your inputs to step 2. Redefine them inside the file itself</li>
             </ul>
         </div>
     <?php endif ?>
