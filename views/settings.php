@@ -63,7 +63,15 @@ echo $this->Form->Errors();
                     <?php echo $this->Form->Textbox('Plugin.SphinxSearch.MaxMatches'); ?>
                 </td>
                 <td>
-                    <?php echo $this->Form->Label('Number of max matches before Sphinx quits! MUST ALSO CONFIGURE THIS IN SPHINX.CONF MANUALLY!', 'Plugin.SphinxSearchLite.MaxMatches'); ?>
+                    <?php echo $this->Form->Label('Number of max matches before Sphinx quits! MUST ALSO CONFIGURE THIS IN SPHINX.CONF MANUALLY!', 'Plugin.SphinxSearch.MaxMatches'); ?>
+                </td>
+            </tr>
+            <tr>
+                <td class="Input">
+                    <?php echo $this->Form->Textbox('Plugin.SphinxSearch.MaxQueryTime'); ?>
+                </td>
+                <td>
+                    <?php echo $this->Form->Label('Maximum time alloted for each search query (in milliseconds). 0 means forever', 'Plugin.SphinxSearch.MaxQueryTime'); ?>
                 </td>
             </tr>
             <tr>
