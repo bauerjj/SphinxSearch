@@ -149,6 +149,17 @@ src; http://stackoverflow.com/questions/5683364/how-to-make-pure-css-floating-to
     padding-left: 0px;
 }
 
+.SphinxSearch .Examples{
+    color: #333333;
+    background: none repeat scroll 0 0 #E3F4FF;
+    padding: 2px;
+    font-size: 11px;
+}
+
+.SphinxSearch .Desc{
+    font-size: 11px;
+}
+
 
 #ReleatedSearches{
     margin-top: 10px;
@@ -164,7 +175,7 @@ src; http://stackoverflow.com/questions/5683364/how-to-make-pure-css-floating-to
     margin-top: 5px;
 }
 #MoreOptions{
-    height: 115px;
+    /*height: 115px;*/
     position: relative;
     width: 100%;
     padding: 0px 2px;
