@@ -59,7 +59,6 @@ class SphinxSearchSettings {
             'Plugin.SphinxSearch.AutoDetected' => FALSE,
             'Plugin.SphinxSearch.ManualDetected' => FALSE,
             'Plugin.SphinxSearch.Task' => 'Idle',
-            'Plugin.SphinxSearch.ServicePollTask' => FALSE,
         );
         foreach ($Wizard as $Name => $Default) {
             $Val = explode('.', $Name);
@@ -86,13 +85,10 @@ class SphinxSearchSettings {
 
     public function GetInstall() {
         $Install = array(
-            'Plugin.SphinxSearch.ServicePollTask' => FALSE,
             'Plugin.SphinxSearch.Host' => 'localhost',
             'Plugin.SphinxSearch.Port' => 9312,
             'Plugin.SphinxSearch.Prefix' => 'vss_',
-            'Plugin.SphinxSearch.InstallPath' => SS_INSTALL_DIR,
             'Plugin.SphinxSearch.IndexerPath' => 'Enter Path',
-            'Plugin.SphinxSearch.SearchdPath' => 'Enter Path',
             'Plugin.SphinxSearch.ConfPath' => 'Enter Path',
             'Plugin.SphinxSearch.ConfText' => 'Past your text here',
             'Plugin.SphinxSearch.LogPath' => '',
@@ -116,6 +112,7 @@ class SphinxSearchSettings {
         $AdminSettings = array(
             'Plugin.SphinxSearch.LimitResultsPage' => 30,
             'Plugin.SphinxSearch.MaxMatches' => 1000,
+            'Plugin.SphinxSearch.MaxQueryTime' => 0,
             'Plugin.SphinxSearch.MainHitBoxEnable' => TRUE,
             'Plugin.SphinxSearch.LimitRelatedSearches' => 20,
             'Plugin.SphinxSearch.LimitTopKeywords' => 20,
