@@ -70,15 +70,15 @@
 
         if (!($Results['total_found'] == 0)): //make sure there is something here
             ?>
-            <div id="TitleBar">
-                <?php echo T('Search Results for Query') ?>: <span id="SearchQuery"><?php echo $Results['query'] ?></span>
+            <div id="NavBar">
+                <span id="TitleBar">
                 <!--                Change button text based on GET string if the div is expanded on default-->
                 <?php echo $this->Form->Button('Options', array('value' => GetValue('expand', $_GET) == 'yes' ? T('Less Options') : T('More Options'), 'id' => 'Options')); ?>
-            </div>
-            <div id="NavBar">
+            </span>
                 <span id="SearchAgain"><?php echo Anchor(T('Search Again :: Adv Search'), $GETString, FALSE, FALSE, TRUE) ?></span>
                 <span id="Time"><?php echo sprintf(T('%s %s in %s'), $Total, Plural($Results['total'], T('result'), T('results')), $Results['time'] . 's') ?></span>
                 <?php echo $this->Pager->ToString('more'); ?>
+
             </div>
             <?php echo WriteResults($Format, $Results['matches'], TRUE); ?>
             <?php echo $this->Pager->ToString('more');?>
