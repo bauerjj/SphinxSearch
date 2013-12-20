@@ -334,6 +334,8 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
                         //refresh settings after save by getting new instance @todo pretty janky
                         $SphinxAdmin = SphinxFactory::BuildSphinx($Sender, $this->getview('wizard.php'));
                         $SphinxAdmin->InstallAction($InstallAction, $Background); //Read info from the pasted sphinx.conf
+                        //refresh settings (PID/log/query/ path) after save by getting new instance @todo pretty janky
+                        $SphinxAdmin = SphinxFactory::BuildSphinx($Sender, $this->getview('wizard.php'));
                         $SphinxAdmin->InstallConfig(); // Write the new sphinx.conf file
                         SaveToConfig('Plugin.SphinxSearch.Config', TRUE); //next step
                         $Sender->SetData('NextAction', 'Config'); //next step is Cron Config
