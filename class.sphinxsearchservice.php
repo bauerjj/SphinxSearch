@@ -60,8 +60,7 @@ class SphinxSearchService extends SphinxObservable {
             return $Matches[1] . DS; //IMPORTANT!! return with the slash
         }
         else
-            echo 'no'; die;
-        parent::Update(SS_FATAL_ERROR, '', FALSE, 'Cannot find data path location defined inside of configuration text');
+            parent::Update(SS_FATAL_ERROR, '', FALSE, 'Cannot find data path location defined inside of configuration text');
         return FALSE;
     }
 
