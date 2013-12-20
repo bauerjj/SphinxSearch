@@ -18,7 +18,10 @@ abstract class Widgets {
      */
     private function Connect() {
         $this->SphinxClient->SetServer($this->Settings['Install']->Host, (int) $this->Settings['Install']->Port); //must start searchd in order to connect...or else conection will be refused
-        $this->SphinxClient->SetMaxQueryTime((int) $this->Settings['Admin']->MaxQueryTime); // Sets maximum search query time, in milliseconds. Default valus is 0 which means "do not limit".
+        if (!isset($this->Settings['Admin']->MaxQueryTime))
+            $this->Settings['Admin']->MaxQueryTime = 0;
+        else
+            $this->SphinxClient->SetMaxQueryTime((int) $this->Settings['Admin']->MaxQueryTime); // Sets maximum search query time, in milliseconds. Default valus is 0 which means "do not limit".
         //$this->SphinxClient->SetRetries((int) $this->Settings['Admin']->RetriesCount, (int)$this->Settings['Admin']->RetriesDelay );
         $this->SphinxClient->SetMatchMode(SPH_MATCH_EXTENDED2); //use this since using boolean operators
         $this->SphinxClient->SetRankingMode(SPH_RANK_PROXIMITY_BM25);
