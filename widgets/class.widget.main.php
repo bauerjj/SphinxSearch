@@ -52,7 +52,9 @@ class WidgetMain extends Widgets implements SplObserver {
         $Limit = $this->Settings['Admin']->LimitResultsPage;
         $Offset = (($Sanitized['Offset'] - 1) * $Limit); //limit per page
 
-        $Pos = strpos($GETString, '&pg=' . $_GET['pg']);
+       // $Pos = strpos($GETString, '&pg=' . $_GET['pg']);
+        // Thanks to @hbf - Fixes null reference error
+        $Pos = FALSE; if(isset($_GET['pg'])) $Pos = strpos($GETString, '&pg='.$_GET['pg']);
         if (!$Pos == FALSE) {
             //$Url = substr($GETString, 0, $Pos); //strip the page number if it exists
             $Url = str_replace('&pg=' . GetIncomingValue('pg'), '', $GETString); //strip the page number if it exists
