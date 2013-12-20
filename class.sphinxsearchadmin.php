@@ -67,7 +67,11 @@ class SphinxSearchAdmin {
     public function InstallConfig(){
         //Get here when indexer and searchd have been installed...don't check if sphinx.conf exists just yet!
         $this->Install->InstallWriteConfig();
-        $this->Service->ValidateInstall();  //now check if sphinx is installed
+       // $this->Service->ValidateInstall();  //now check if sphinx is installed
+       // $this->SetupCron();
+    }
+
+    public function InstallCron(){
         $this->SetupCron();
     }
 
