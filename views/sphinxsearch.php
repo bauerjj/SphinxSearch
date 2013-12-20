@@ -174,6 +174,14 @@ if (!defined('APPLICATION'))
 <br/>
 
 <h3>Changelog</h3>
+20131220
+<ol>
+    <li> Support for v2.1b</li>
+    <li> Changed the default search to "Extended" mode</li>
+    <li> The quick search options now show syntax help</li>
+    <li> Slightly changed the installer to be more user friendly. Cron tasks installs are optional</li>
+</ol>
+<br>
 20131210
 <ol>
     <li> The indexer/searchd/conf paths are now optional during the install since only the auto generated cron files used those inputs</li>
