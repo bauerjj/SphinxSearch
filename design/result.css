@@ -171,7 +171,6 @@ src; http://stackoverflow.com/questions/5683364/how-to-make-pure-css-floating-to
 
 /* General Search Result Info stuff */
 .SphinxSearch{ /* for all function */
-    clear: both;
     margin-top: 5px;
 }
 #MoreOptions{
@@ -190,7 +189,6 @@ src; http://stackoverflow.com/questions/5683364/how-to-make-pure-css-floating-to
     font: bold 15px/18px Arial;
 }
 #SphinxResults #NavBar{
-    clear: both;
 }
 #SphinxResults #SearchQuery{
     font-size: 22px;
