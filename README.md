@@ -59,7 +59,7 @@ Shared hosting will probably restrict sphinx from running properly on your host'
  5. Launch the install wizard from within the plugin's settings view
  6. Follow the install steps
  7. Paste your new configuration file into your original `sphinx.conf` file
- 8. Index all of the indexes (example: `/usr/bin/indexer --all`)
+ 8. Index all of the indexes (example: `/usr/bin/indexer --all --config /etc/sphinx/sphinx.conf`)
  9. Start the searchd daemon (example: `/usr/bin/searchd --config /etc/sphinx/sphinx.conf`)
  10. Perform a search on your website using the regular means
  11. Setup a cron job to run the three auto-generated cron files so that new comments/discussions/searches are indexed
