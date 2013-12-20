@@ -117,33 +117,7 @@ $Settings = $this->Data('Settings');
                         echo $this->Form->Label('Full Text of existing contents of sphinx.conf '. "<span class='required' style='font-weight: bold; color: #B94A48'>*</span>", 'Plugin.SphinxSearch.ConfText');
                         echo $this->Form->Textbox('Plugin.SphinxSearch.ConfText', array_merge($Disabled, array(), array('value' => $Settings['Install']->ConfText, 'Multiline' => true)));
                         ?></li>
-                    <li><span style="font-style:italic">Required! Paste your default sphinx configuration file contents here</li>
-
-                    <li>
-                        <?php
-                        //never disable this option
-                        echo $this->Form->Label('Indexer Path:', 'Plugin.SphinxSearch.IndexerPath');
-                        echo $this->Form->Textbox('Plugin.SphinxSearch.IndexerPath', array_merge($Disabled, array(), array('value' => $Settings['Install']->IndexerPath)));
-                        ?></li>
-                    <li><span style="font-style:italic">The location of sphinx's indexer (ex: /usr/bin/indexer). Network installations should ignore this</li>
-                    <li><span style="font-style:italic">Optional - may leave blank! It is used in the creation of the cron files</li>
-                    <li><?php
-                        echo $this->Form->Label('Searchd Path:', 'Plugin.SphinxSearch.SearchdPath');
-                        echo $this->Form->Textbox('Plugin.SphinxSearch.SearchdPath', array_merge($Disabled, array(), array('value' => $Settings['Install']->SearchdPath)));
-                        ?></li>
-                    <li><span style="font-style:italic">The location of sphinx's searchd (ex: /usr/bin/searchd). Network installations should ignore this</li>
-                    <li><span style="font-style:italic">Optional - may leave blank! It is used in the creation of the cron files</li>
-                    <li><?php
-                        echo $this->Form->Label('Conf Path:', 'Plugin.SphinxSearch.ConfPath');
-                        echo $this->Form->Textbox('Plugin.SphinxSearch.ConfPath', array_merge($Disabled, array(), array('value' => $Settings['Install']->ConfPath)));
-                        ?></li>
-                    <li><span style="font-style:italic">The location of sphinx's config file (ex: /etc/sphinx/sphinx.conf). Network installations should ignore this</li>
-                    <li><span style="font-style:italic">Optional - may leave blank! It is used in the creation of the cron files</li>
-                    <li>
-
-                    <li>
-                        <br/>
-                    </li>
+                    <li><span style="font-style:italic">Paste your default sphinx configuration file contents here</li>
 
                 </ul>
 
@@ -157,30 +131,56 @@ $Settings = $this->Data('Settings');
             <?php endif ?>
         </div>
     <?php if ($Settings['Wizard']->Config) : ?>
+    <?php $Disabled = $this->Data['NextAction'] != 'Config' ? array('Disabled' => 'Disabled') : array(); ?>
         <div style="clear: both"></div>
-        <h1>Step 3: </h1>
+        <h1>Sphinx Config Generation Finish</h1>
+
         <br/>
-        <ul>
+            <span class="Finish"><?php echo T('Congratulations! The Sphinx configuration file has been generated successfully!') ?></span>
+            <br/>
+            <ul><li>
+                <?php
+                    echo $this->Form->Label('Full Text of NEW sphinx.conf - Copy this into your existing sphinx.conf after making a local copy of original', 'OutputText');
+                    echo $this->Form->Textbox('OutputText', array('value' => $Settings['Install']->ConfText, 'Multiline' => true));
+                        ?>
+                </li>
+                <li>Sphinx is now ready to be run. Save your new sphinx.conf and then start the indexer. When indexing is finished, start searchd. Now search!  </li>
+                <li>Example linux commands to index and start sphinx daemon (your indexer/searchd paths may differ): </li>
+                <li>Start indexing: /user/bin/indexer --all --config /etc/sphinx/sphinx.conf</li>
+                <li>Start searchd: /usr/bin/searchd --config /etc/sphinx/sphinx.conf</li>
+            </ul>
+            <br/>
+            <div style="clear: both"></div>
+        <h1>Step 3 (Optional)</h1>
+        This step writes 3 cron files that will automatically invoke the sphinx indexer at a specific time. This step requires knowledge of your indexer and config path.
+            <ul>
+             <li>
+                        <?php
+                        //never disable this option
+                        echo $this->Form->Label('Indexer Path:', 'Plugin.SphinxSearch.IndexerPath');
+                        echo $this->Form->Textbox('Plugin.SphinxSearch.IndexerPath', array_merge($Disabled, array(), array('value' => $Settings['Install']->IndexerPath)));
+                        ?></li>
+            <li><span style="font-style:italic">The location of sphinx's indexer (ex: /usr/bin/indexer).</li>
+                    <li><?php
+                        echo $this->Form->Label('Conf Path:', 'Plugin.SphinxSearch.ConfPath');
+                        echo $this->Form->Textbox('Plugin.SphinxSearch.ConfPath', array_merge($Disabled, array(), array('value' => $Settings['Install']->ConfPath)));
+                        ?></li>
+                    <li><span style="font-style:italic">The location of sphinx's config file (ex: /etc/sphinx/sphinx.conf).</li>
+
             <li><span>Click the button below to write the config file and CRON tasks</span></li>
         </ul>
         <br/>
     <?php endif ?>
 
     <?php if ($Settings['Wizard']->Installed) : ?>
-        <h3>FINISH</h3>
+        <h3>Cron File Generation Finish</h3>
         <div class="Data">
             <br/>
-            <span class="Finish"><?php echo T('Congratulations! The Sphinx configuration file has been generated successfully!') ?></span>
+            <span class="Finish"><?php echo T('Congratulations! The Cron configuration files have been generated successfully!') ?></span>
             <br/>
             <ul>
-                <li><?php
-                    echo $this->Form->Label('Full Text of NEW sphinx.conf - Copy this into your existing sphinx.conf after making a local copy of original', 'OutputText');
-                    echo $this->Form->Textbox('OutputText', array('value' => $Settings['Install']->ConfText, 'Multiline' => true));
-                        ?></li>
-                <li><?php echo Anchor('View my custom main cron file', 'plugin/sphinxsearch/viewfile/' . Gdn::Session()->TransientKey() . '?action=viewfile&file=maincron', array('target'=>'_blank')); ?></li>
-                <li><?php echo Anchor('View my custom delta cron file', 'plugin/sphinxsearch/viewfile/' . Gdn::Session()->TransientKey() . '?action=viewfile&file=deltacron', array('target'=>'_blank')); ?></li>
-                <li><?php echo Anchor('View my custom stats cron file', 'plugin/sphinxsearch/viewfile/' . Gdn::Session()->TransientKey() . '?action=viewfile&file=statscron', array('target'=>'_blank')); ?></li>
-                <li><span style="font-style:italic">Note, the cron files may be invalid depending on your inputs to step 2. Redefine them inside the file itself</li>
+                <li>The cron files can be viewed here: <b><?php echo PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'cron'?></b></li>
+                <li><span style="font-style:italic">Note, the cron files may be invalid depending on your inputs to step 3. Redefine them inside the file itself</li>
             </ul>
         </div>
     <?php endif ?>
