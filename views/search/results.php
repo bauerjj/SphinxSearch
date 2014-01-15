@@ -77,9 +77,8 @@
             </span>
                 <span id="SearchAgain"><?php echo Anchor(T('Search Again :: Adv Search'), $GETString, FALSE, FALSE, TRUE) ?></span>
                 <span id="Time"><?php echo sprintf(T('%s %s in %s'), $Total, Plural($Results['total'], T('result'), T('results')), $Results['time'] . 's') ?></span>
-                <?php echo $this->Pager->ToString('more'); ?>
-
             </div>
+    <?php echo $this->Pager->ToString('more'); ?>
             <?php echo WriteResults($Format, $Results['matches'], TRUE); ?>
             <?php echo $this->Pager->ToString('more');?>
 
