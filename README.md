@@ -54,15 +54,18 @@ Shared hosting will probably restrict sphinx from running properly on your host'
 ##Install
  1. Download the latest Sphinx Search build and install it from binary on windows or distro on linux
  2. Download the [SphinxSearchPlugin](http://vanillaforums.org/addon/sphinxsearch-plugin) from Vanilla Forums's Plugin portal
- 3. Extract the zip file to your webserver's plugin folder and then enable it from the dashboard.
- 4. Click "settings" after enabling the SphinxSearch plugin
- 5. Launch the install wizard from within the plugin's settings view
- 6. Follow the install steps
- 7. Paste your new configuration file into your original `sphinx.conf` file
- 8. Index all of the indexes (example: `/usr/bin/indexer --all --config /etc/sphinx/sphinx.conf`)
- 9. Start the searchd daemon (example: `/usr/bin/searchd --config /etc/sphinx/sphinx.conf`)
- 10. Perform a search on your website using the regular means
- 11. Setup a cron job to run the three auto-generated cron files so that new comments/discussions/searches are indexed
+ 3. Extract the zip file to your webserver's plugin folder
+ 4. **Replace the default `sphinxapi.php` file** in the `SphinxSearch` plugin folder with the one from the downloaded archive in step 1
+ 5. Click "settings" after enabling the SphinxSearch plugin
+ 6. Launch the install wizard from within the plugin's settings view
+ 7. Follow the install steps
+ 8. Paste your new configuration file into your original `sphinx.conf` file
+ 9. Index all of the indexes (example: `/usr/bin/indexer --all --config /etc/sphinx/sphinx.conf`)
+ 10. Start the searchd daemon (example: `/usr/bin/searchd --config /etc/sphinx/sphinx.conf`)
+ 11. Perform a search on your website using the regular means
+ 12. Setup a cron job to run the three auto-generated cron files so that new comments/discussions/searches are indexed
+    - Check the log file (`sphinx_cron.log`) inside of the plugin's `cron` folder to find any problems during the cron task
+    - You may need to run the cron jobs as `sudo` if you see permissions errors in the sphinx log file
 
 
 ##Features

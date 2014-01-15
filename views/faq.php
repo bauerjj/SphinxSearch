@@ -99,9 +99,12 @@ if (!defined('APPLICATION'))
         <li class="Q">fsockopen(): unable to connect to localhost::xxxx ....</li>
         <li>First try to start searchd and then check the port again</li>
         <br/>
-        <li class="Q">"Failed to open log/pid file". </li>
-        <li>You should kill all instances of searchd by using 'ps' in the command line.
+        <li class="Q">"Failed to open log/pid file" when trying to reindex </li>
+        <li>You may need to stop searchd using: `/location/to/searchd/searchd --stop`. You can do it manually by killing all instances of searchd by using 'ps' in the command line.
             If that does not work, delete all files in your ../sphinx/var/log folder and reboot</li>
+        <br/>
+        <li class="Q">"Failed to open log/pid file" in the `sphinx_cron.log` </li>
+        <li>The cron tasks are not running with the correct permissions. Either set the cron jobs to run as `sudo` or the same user as the one who initially started searchd </li>
         <br/>
         <li class="Q">"WARNING: no process found by PID xxxx. WARNING: indices NOT rotated". </li>
         <li>This is most likely caused by multiple instances of searchd running. This can happen if you start searchd and then either install a new instance of sphinx or disable the plugin.

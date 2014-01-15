@@ -174,12 +174,13 @@ if (!defined('APPLICATION'))
 <br/>
 
 <h3>Changelog</h3>
-20131220
+20140114
 <ol>
     <li> Support for v2.1b</li>
     <li> Changed the default search to "Extended" mode</li>
     <li> The quick search options now show syntax help</li>
     <li> Slightly changed the installer to be more user friendly. Cron tasks installs are optional</li>
+    <li> Updated the installer instructions</li>
 </ol>
 <br>
 20131210
