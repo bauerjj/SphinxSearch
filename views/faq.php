@@ -108,6 +108,6 @@ if (!defined('APPLICATION'))
         <br/>
         <li class="Q">"WARNING: no process found by PID xxxx. WARNING: indices NOT rotated". </li>
         <li>This is most likely caused by multiple instances of searchd running. This can happen if you start searchd and then either install a new instance of sphinx or disable the plugin.
-        Solution is to click the button 'Kill Searchd(d)' in the control panel and then start searchd and reindex</li>
+        Solution is to kill al instances of searchd</li>
     </ol>
 </div>

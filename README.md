@@ -1,7 +1,7 @@
 SphinxSearch
 ============
 
-####An advanced search plugin for Vanilla Forums based on the Sphinx Search engine v2.0.6
+####An advanced search plugin for Vanilla Forums based on the Sphinx Search engine v2.0.6 and above
 
 [Live Demo #1](https://forums.robertsspaceindustries.com/search?Search=search)
 
@@ -47,12 +47,15 @@ Any sphinx errors will be printed directly to the user
 
  1. PHP >= 5.3.0
  2. Sphinx Installed >= v2.0.6, either via distro or binary
- 3. Vanilla Version >= v2.0.18.4
+ 3. Vanilla Version
+    - 20140114 and above: all v2.1x versions
+    - 20131210 and below: v2.0.18.x
+ 4. Enable URL Rewriting ($Configuration['Garden']['RewriteUrls'] = TRUE)
 
 Shared hosting will probably restrict sphinx from running properly on your host's servers, but you can try.
 
 ##Install
- 1. Download the latest Sphinx Search build and install it from binary on windows or distro on linux
+ 1. Download the latest [Sphinx Search](http://sphinxsearch.com/downloads/) build and install it from binary on windows or distro on linux
  2. Download the [SphinxSearchPlugin](http://vanillaforums.org/addon/sphinxsearch-plugin) from Vanilla Forums's Plugin portal
  3. Extract the zip file to your webserver's plugin folder
  4. **Replace the default `sphinxapi.php` file** in the `SphinxSearch` plugin folder with the one from the downloaded archive in step 1

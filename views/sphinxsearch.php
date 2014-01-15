@@ -96,37 +96,9 @@ if (!defined('APPLICATION'))
         <li><?php echo Anchor('FAQ', 'plugin/sphinxsearch/faq'); ?></li>
     </ol>
 </div>
-<h3>Requirements</h3>
-<div class="Info">
-    <ol>
-        <li>Manual install via distro, yourself, or installer (windows)</li>
-        <li>PHP >= 5.3.0</li>
-    </ol>
-</div>
 <h3>Control Panel</h3>
 <br/>
 <div id="ControlPanel">
-    <table class="CPanel Index">
-        <tbody>
-            <tr>
-                <th class="Desc">Indexer:</th>
-                <th>Main</th>
-                <th>Delta</th>
-                <th>Stats</th>
-            </tr>
-        <td class="Desc">cron Files: </td>
-        <td><?php echo Anchor(T('cron file'), 'plugin/sphinxsearch/viewfile/' . Gdn::Session()->TransientKey() . '?action=viewfile&file=maincron', array('target' => '_blank')) ?>
-
-        </td>
-        <td><?php echo Anchor(T('cron file'), 'plugin/sphinxsearch/viewfile/' . Gdn::Session()->TransientKey() . '?action=viewfile&file=deltacron', array('target' => '_blank')) ?>
-
-        </td>
-        <td><?php echo Anchor(T('cron file'), 'plugin/sphinxsearch/viewfile/' . Gdn::Session()->TransientKey() . '?action=viewfile&file=statscron', array('target' => '_blank')) ?>
-
-        </td>
-        </tr>
-        </tbody>
-    </table>
     <br/>
     <table class="CPanel Searchd">
         <tbody>
@@ -142,38 +114,16 @@ if (!defined('APPLICATION'))
         </tbody>
     </table>
     <br/>
-    <table class="CPanel Searchd">
-        <tbody>
-            <tr>
-                <th class="Desc">Config: </th>
-                <th>Configuration </th>
-                <th>Search Log</th>
-                <th>Query Log</th>
-                <th>Cron Log</th>
-            </tr>
-            <tr>
-                <td>Status:</td>
-                <td> <?php echo Anchor('config file', 'plugin/sphinxsearch/viewfile/' . Gdn::Session()->TransientKey() . '?action=viewfile&file=conf', array('target' => '_blank')); ?>
-                </td>
-                <td>
-<?php echo Anchor(T('search log'), 'plugin/sphinxsearch/viewfile/' . Gdn::Session()->TransientKey() . '?action=viewfile&file=searchlog', array('target' => '_blank')) ?>
-                </td>
-                <td>
-<?php echo Anchor(T('query log'), 'plugin/sphinxsearch/viewfile/' . Gdn::Session()->TransientKey() . '?action=viewfile&file=querylog', array('target' => '_blank')) ?>
-                </td>
-                <td>
-<?php echo Anchor(T('cron log'), 'plugin/sphinxsearch/viewfile/' . Gdn::Session()->TransientKey() . '?action=viewfile&file=cronlog', array('target' => '_blank')) ?>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-    <br/>
-    <br/>
 
 </div>
 <br/>
 
 <h3>Changelog</h3>
+20140115
+<ol>
+    <li>Deleted non-working links in the control panel</li>
+</ol>
+<br>
 20140114
 <ol>
     <li> Support for v2.1b</li>
