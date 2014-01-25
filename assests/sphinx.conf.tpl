@@ -158,12 +158,49 @@ index {ss_prefix}main
     path            = {data_path}{ss_prefix}main
     docinfo         = extern
     charset_type    = {charset_type} #For more charsets, for Arabic, Persian, Italian, etc forums, please see: http://sphinxsearch.com/wiki/doku.php?id=charset_tables
+
+    #index settings
+    morphology      = none
+    dict            = crc
+    min_stemming_len = 1
+    min_word_len    = 2
+    min_prefix_len  = 0
+    min_infix_len   = 0
+    enable_star     = 0
+    ngram_len       = 0
+    html_strip      = 0
+    ondisk_dict     = 0
+    inplace_enable  = 0
+    expand_keywords = 0
+    # 'utf-8' defaults for English and Russian
+    charset_table = 0..9, A..Z->a..z, _, a..z, \
+                    U+410..U+42F->U+430..U+44F, U+430..U+44F
+
 }
 index {ss_prefix}delta : {ss_prefix}main
 {
     source          = {ss_prefix}delta_comment
     source          = {ss_prefix}delta_discussion
     path            = {data_path}{ss_prefix}delta
+    docinfo         = extern
+    charset_type    = {charset_type}
+
+    #index settings
+    morphology      = none
+    dict            = crc
+    min_stemming_len = 1
+    min_word_len    = 2
+    min_prefix_len  = 0
+    min_infix_len   = 0
+    enable_star     = 0
+    ngram_len       = 0
+    html_strip      = 0
+    ondisk_dict     = 0
+    inplace_enable  = 0
+    expand_keywords = 0
+    # 'utf-8' defaults for English and Russian
+    charset_table = 0..9, A..Z->a..z, _, a..z, \
+                    U+410..U+42F->U+430..U+44F, U+430..U+44F
 }
 
 source {ss_prefix}stats
@@ -200,26 +237,6 @@ index vanilla
     type            =  distributed
     local           =  {ss_prefix}main
     local           =  {ss_prefix}delta
-
-
-    #index settings
-    morphology      = none
-    dict            = crc
-    min_stemming_len = 1
-    min_word_len    = 2
-    min_prefix_len  = 0
-    min_infix_len   = 0
-    enable_star     = 0
-    ngram_len       = 0
-    html_strip      = 0
-    ondisk_dict     = 0
-    inplace_enable  = 0
-    expand_keywords = 0
-    # 'utf-8' defaults for English and Russian
-    charset_table = 0..9, A..Z->a..z, _, a..z, \
-                    U+410..U+42F->U+430..U+44F, U+430..U+44F
-
-
 }
 
 indexer
