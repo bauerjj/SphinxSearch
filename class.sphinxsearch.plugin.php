@@ -468,7 +468,9 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
      * @param type $Args
      */
     public function PostController_BeforeFormInputs_Handler($Sender, $Args) {
+      if(C('Plugin.SphinxSearch.LimitRelatedThreadsPost', 0) != 0) {
         include_once(PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'widgets' . DS . 'views' . DS . 'relatedpost.php');
+      }
     }
 
     /**
