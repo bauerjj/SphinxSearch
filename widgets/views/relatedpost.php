@@ -14,7 +14,6 @@ if (!defined('APPLICATION'))
 
 <script>
     $(document).ready(function(){
-        var WebRoot = $("#WebRoot").val();
         var current = $("#Form_Name").val();
         var past = $("#Form_Name").val();
 
@@ -44,7 +43,7 @@ if (!defined('APPLICATION'))
                     dataType: "json",
                     type: "POST",
                     data: "Query="+Query,
-                    url: WebRoot+"/plugin/sphinxsearch/newdiscussion",
+                    url: gdn.url("/plugin/sphinxsearch/newdiscussion"),
 
                     success: function(data){ /* called when request to barge.php completes */
                         addmsg("new", data.Text); /* Add response to a .msg div (with the "new" class)*/
