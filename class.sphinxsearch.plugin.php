@@ -347,8 +347,13 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
                     break;
                 case 'Config': // AKA cron setup
                     $Sender->SetData('NextAction', 'Config'); //in case it fails
-                    $this->ConfigurationModel->Validation->AddValidationField('Plugin.SphinxSearch.IndexerPath',$_POST);
-                    $this->ConfigurationModel->Validation->AddValidationField('Plugin.SphinxSearch.ConfPath',$_POST);
+                    
+                    // In vanilla 2.2.1+ , it seems that these are no longer exposed methods. Simply ignore the validation
+                    // for now as a quick work-around. 
+                    //$this->ConfigurationModel->Validation->AddValidationField('Plugin.SphinxSearch.IndexerPath',$_POST);
+                    //$this->ConfigurationModel->Validation->AddValidationField('Plugin.SphinxSearch.ConfPath',$_POST);
+                    
+                    
                     $Sender->Form->Save();
                     if (!$Sender->Form->Errors()) {
                         $SphinxAdmin->InstallCron();
