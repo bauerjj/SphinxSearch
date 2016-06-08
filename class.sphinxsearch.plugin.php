@@ -337,12 +337,14 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
                         //refresh settings (PID/log/query/ path) after save by getting new instance @todo pretty janky
                         $SphinxAdmin = SphinxFactory::BuildSphinx($Sender, $this->getview('wizard.php'));
                         $SphinxAdmin->InstallConfig(); // Write the new sphinx.conf file
+                        SaveToConfig('Plugin.SphinxSearch.ConfText','Paste Your Text Here'); // Overwrite back to default - Don't leave db info exposed in config file!
                         SaveToConfig('Plugin.SphinxSearch.Config', TRUE); //next step
                         $Sender->SetData('NextAction', 'Config'); //next step is Cron Config
                         // Sphinx is technically all set. Cron file generation is optional
                         $Sender->StatusMessage = T("Your changes have been saved.");
                     } else {
                         //return FALSE;
+                        SaveToConfig('Plugin.SphinxSearch.ConfText','Paste Your Text Here'); // Overwrite back to default - Don't leave db info exposed in config file!
                     }
                     break;
                 case 'Config': // AKA cron setup
