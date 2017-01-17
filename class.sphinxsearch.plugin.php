@@ -10,7 +10,7 @@ if (!defined('APPLICATION'))
 
 $PluginInfo['SphinxSearch'] = array(
     'Description' => 'A much improved search experience with widgets based on the Sphinx Search Engine',
-    'Version' => '20140114',
+    'Version' => '20170116',
     'RequiredApplications' => array('Vanilla' => '2.0.18.4'),
     'RequiredTheme' => FALSE,
     'RequiredPlugins' => FALSE,
@@ -18,8 +18,8 @@ $PluginInfo['SphinxSearch'] = array(
     'SettingsUrl' => '/plugin/sphinxsearch',
     'SettingsPermission' => 'Garden.AdminUser.Only',
     'Author' => "mcuhq",
-    'AuthorEmail' => 'kapotchy@gmail.com',
-    'AuthorUrl' => 'http://mcuhq.com/forums'
+    'AuthorEmail' => 'contact@mcuhq.com',
+    'AuthorUrl' => 'http://mcuhq.com'
 );
 
 class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
