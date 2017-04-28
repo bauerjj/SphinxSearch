@@ -1,7 +1,7 @@
 SphinxSearch - Lite
 ============
 
-####A light-weight plugin for the Sphinx Search engine derived from the full-featured SphinxSearch plugin
+#### A light-weight plugin for the Sphinx Search engine derived from the full-featured SphinxSearch plugin
 
 
 [Offical Plugin Page](http://vanillaforums.org/addon/sphinxsearchlite-plugin)
@@ -23,6 +23,6 @@ The primary differences from the regular plugin are as follows:
  - Search method defaults to [extended syntax](http://sphinxsearch.com/docs/current.html#extended-syntax)
  - Simplified the results page and advanced options drop down
 
-##Donate
+## Donate
 If you have found this plugin extremely useful, feel free to [donate here](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=kapotchy%40gmail%2ecom&lc=US&item_name=Sphinx%20Search&no_note=0&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHostedGuest)
 
