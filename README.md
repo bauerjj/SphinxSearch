@@ -1,7 +1,7 @@
 SphinxSearch
 ============
 
-####An advanced search plugin for Vanilla Forums based on the Sphinx Search engine v2.0.6 and above
+#### An advanced search plugin for Vanilla Forums based on the Sphinx Search engine v2.0.6 and above
 
 [Live Demo #1](https://forums.robertsspaceindustries.com/search?Search=search)
 
@@ -32,7 +32,7 @@ Table of contents
 7. [FAQ](#faq)
 8. [Donate](#donate)
 
-##How it Works
+## How it Works
 For nitty gritty details behind sphinx, you should look at their main documentation: http://sphinxsearch.com/docs/current.html
 
 It indexes (optionally can store) the certain fields and then stores some attributes that are used to filter the results down such as comment count, category name, etc. Sphinx then returns a document ID which is then used in a typical MYSQL query to retrieve the meat and potatoes of it such as last comment ID, category URL code, etc. Almost all searches are returned instantly (<12ms).
@@ -43,7 +43,7 @@ The plugin connects to 'searchd' and queries it using the Sphinx API. You should
 
 Any sphinx errors will be printed directly to the user
 
-##Requirements
+## Requirements
 
  1. PHP >= 5.3.0
  2. Sphinx Installed >= v2.0.6, either via distro or binary
@@ -54,7 +54,7 @@ Any sphinx errors will be printed directly to the user
 
 Shared hosting will probably restrict sphinx from running properly on your host's servers, but you can try.
 
-##Install
+## Install
  1. Download the latest [Sphinx Search](http://sphinxsearch.com/downloads/) build and install it from binary on windows or distro on linux
  2. Download the [SphinxSearchPlugin](http://vanillaforums.org/addon/sphinxsearch-plugin) from Vanilla Forums's Plugin portal
  3. Extract the zip file to your webserver's plugin folder
@@ -71,8 +71,8 @@ Shared hosting will probably restrict sphinx from running properly on your host'
     - You may need to run the cron jobs as `sudo` if you see permissions errors in the sphinx log file
 
 
-##Features
-####Search
+## Features
+#### Search
 The following fields are indexed and thus searchable:
    * Thread title
    * Body text
@@ -89,49 +89,49 @@ The following is a list of search filters:
 
 There are multiple viewing formats avaliable such as table or vertical layout. The tags and usernames are autocomplete fields. It also supports the sphinx extended syntax such as: *@title hello @body world*
 
-####Admin
+#### Admin
 Provides simple backend for changing some settings.
   * Automatically generated configuration and cron files
   * Enable/Disable widgets and their parameters (max matches, view format)
   * Install FAQ
 
-####Widgets
+#### Widgets
 All of the widgets that display a discussion/thread title will have a tooltip that will display the first xxx amount of words from the original text. To show this text, simply hover over the title for a second to see the discussion body text.
 
 As of v20120805, the following are a list of widgets
-#####Advanced Search & result Page
+##### Advanced Search & result Page
 This overrides the current search algorithm and substitutes a more advanced search option.
 
-#####Post Searches
+##### Post Searches
 Much like on stackoverflow.com, any new discussion that is being typed into the title box will start sphinx looking for related threads in reference to the new potential thread. A box will appear the input box showing some relevant threads.
 
-#####Related Main Threads
+##### Related Main Threads
 For each main search, the side panel will include a list of related threads based on the query.
 
-#####Related Main Searches
+##### Related Main Searches
 For each main search, the side panel will include a list of full search phrases that match the current one.
 
-#####Top Keywords
+##### Top Keywords
 The plugin will keep a list of all search queries and display the top xx amount of keywords in the panel on the advanced search landing page.
 
-#####Top Searches
+##### Top Searches
 Sidepanel displays the top searches in the panel on the advanced search landing page
 
-#####Search Help
+##### Search Help
 Simply shows how to use the extended search syntax in the left side panel on the advanced search landing page
 
-#####Related Discussion Threads
+##### Related Discussion Threads
 For each discussion, a list of related threads in reference to the currently viewed one can be either shown in the sidepanel or below/above each discussion.
 
-#####HitBox
+##### HitBox
 For each search, there is a hitbox that will detail the number of documents that matched each word and number of hits total. A caveat of this is that the analysis of each word comes **BEFORE** any filtering, so the results may differ than what the hitbox says. For instance, 26 documents in the document for the word, *vanilla*, may only result in 8 threads/comments with that same word due to filtering or post processing.
 
-##Developers
+## Developers
 This plugin was built to encourage others to add to its functionality. The widgets are implemented in such a way to make a new addition relativly easy.
 
 To learn how to do so, look at an existing widget. All of them extend the abstract class, *widgets*, which provides common generic routines used by all of the widgets. All of the settings related to sphinx and the sphinx client are passed as construct parameters. This is important!! Only one instance of the sphinx API should be used since only **1** query is made. The widgets add a query to main batch which is then run before each rendered view. An exception to this rule are things that need to be executed from a handler inside of Vanilla such as the PostSearch
 
-##Improvements
+## Improvements
 There are multiple improvements that can be made. Here are a list of widgets that can be done, but I have lost track of time:
 
    *  'Did you Mean' feature on the main search
@@ -140,32 +140,32 @@ There are multiple improvements that can be made. Here are a list of widgets tha
    *  Improve the autocompete fields and speed of the jquery UI POST. For some reason, it is very slow and I would like to incorporate the stock Vanilla Forum's autocomplete magic, but I had problems doing so....
 
 
-##FAQ
+## FAQ
 
-#####How does Sphinx work?
+##### How does Sphinx work?
 Sphinx indexes your discussion titles, body, and author names, making them easily searchable
 It does not store your text, but rather uses a special data structure to optimize searching
 Sphinx is as dedicated indexing/query engine, and therefore can do it a lot better, rather than MYSQL/MyISAM
 
-#####Will this work for me?
+##### Will this work for me?
 Depends...are you on a shared host? If so, this is probably not for you, but talk to your hosting provider about having a daemon run on your server.
 If sphinx runs for a just a few seconds/minutes and is then shutdown mysteriously, chances are that your host is killing it. Talk to your hosting provider.
 
-#####What if sphinx is indexing and it shuts down searchd...now what?
+##### What if sphinx is indexing and it shuts down searchd...now what?
 Anytime sphinx is indexing, it will shut down all searches temporary (unless you have another instance of searchd setup).
 
-#####What is the indexer and searchd?
+##### What is the indexer and searchd?
 These are two separate entities that work together. Indexer indexes your database fields and searchd listens on your server for search requests to query the indexer
 
-#####What's the deal with the cron files?
+##### What's the deal with the cron files?
 Sphinx needs to reindex your database here and there to stay current. The 'Main' and 'Delta' index work together to achieve optimal results
 You should index 'Main' once in a while, depending on the activity of your forum. Delta should be updated more frequent since it should only update much less than the Main index
 Use the cron files to update sphinx during low peak times. Remember, reindex delta often, and main seldom. More info, see section 3.12 of the main sphinx documentation
 
-#####How do I get rid of some of the top searches/tags?
+##### How do I get rid of some of the top searches/tags?
 Add the words to your stoplist.txt found in the assests folder of this plugin and then reindex. Over time, you should see these dissappear
 Future versions may let you censor this easier, but for now be sure to enable the stopwords feature
 
-##Donate
+## Donate
 If you have found this plugin extremely useful, feel free to [donate here](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=kapotchy%40gmail%2ecom&lc=US&item_name=Sphinx%20Search&no_note=0&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHostedGuest)
 
