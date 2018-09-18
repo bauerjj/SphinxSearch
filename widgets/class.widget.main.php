@@ -91,7 +91,7 @@ class WidgetMain extends Widgets implements SplObserver {
             $Offset = 0;
 
         //Make sure results respect category permissions depending on user performing search
-        $Permissions = Gdn::Session()->GetPermissions(); // Get user permissions
+        $Permissions = Gdn::Session()->getPermissionsArray(); // Get user permissions
         $Permissions = $Permissions['Vanilla.Discussions.View']; // Only care about 'viewing' permissions
         $this->SphinxClient->SetFilter(SS_ATTR_CATPERMID, $Permissions);
 
