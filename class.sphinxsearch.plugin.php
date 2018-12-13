@@ -102,7 +102,7 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
 
     public function RegisterWidgets() {
         $Path = PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'widgets' . DS;
-        include($Path . 'class.widgets.php'); //must include this abstract class first!
+        include_once($Path . 'class.widgets.php'); //must include this abstract class first!
         foreach (glob($Path . '*.php') as $filename) {
             $File = str_replace($Path, '', $filename);
             $Class = explode('.', $File);
@@ -113,7 +113,7 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
                 $ClassName = 'widget' . $Class;
 
             if ($ClassName != 'widgets') { //can't instantiate abstract class
-                include $filename; //inclue all of the widget classes
+                include_once($filename); //inclue all of the widget classes
                 $Obj = new $ClassName($this->SphinxClient, $this->Settings);
                 $this->Widgets[$ClassName] = $Obj; //keep track of registered widgets
                 $this->Attach($Obj);
@@ -124,7 +124,7 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
     public function RegisterModules() {
         $Path = PATH_PLUGINS . DS . 'SphinxSearch' . DS . 'modules' . DS;
         foreach (glob($Path . '*.php') as $filename) {
-            include $filename; //inclue all of the modules
+            include_once($filename); //inclue all of the modules
         }
     }
 
