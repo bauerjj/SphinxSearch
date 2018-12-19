@@ -13,9 +13,9 @@ SphinxSearch
 
 Branches:
 
-[Lite Version](https://github.com/mcuhq/SphinxSearchPlugin/tree/SphinxSearchLite)
+[Lite Version](https://github.com/bauerjj/SphinxSearchPlugin/tree/SphinxSearchLite)(DEPRECATED)
 
-[Integrated Installer Version] (https://github.com/mcuhq/SphinxSearchPlugin/tree/WithInstaller)
+[Integrated Installer Version](https://github.com/bauerjj/SphinxSearchPlugin/tree/WithInstaller)(DEPRECATED)
 
 Table of contents
 -----------------
@@ -33,9 +33,9 @@ Table of contents
 8. [Donate](#donate)
 
 ## How it Works
-For nitty gritty details behind sphinx, you should look at their main documentation: http://sphinxsearch.com/docs/current.html
+For nitty gritty details behind sphinx, you should look at their main documentation: http://sphinxsearch.com/docs/manual-2.3.2.html
 
-It indexes (optionally can store) the certain fields and then stores some attributes that are used to filter the results down such as comment count, category name, etc. Sphinx then returns a document ID which is then used in a typical MYSQL query to retrieve the meat and potatoes of it such as last comment ID, category URL code, etc. Almost all searches are returned instantly (<12ms).
+Sphinx indexes Vanilla's database and stores attributes that are used to filter the results such as author, title, comment count, category name, etc. Sphinx then returns a document ID which is then used in a typical MYSQL query to retrieve the meat and potatoes of it such as last comment ID, category URL code, etc. Almost all searches are returned instantly (<12ms).
 
 Sphinx requires indexing, which is why cron tasks should be used on your server to run periodically. You can always manually index in the control panel for testing purposes. The 'Main' index will read the discussions and comments table in your database. The 'Delta' will do the same thing, except it will only pickup the ones since the last index was performed. Sphinx will search through both indexes, so you should index 'Delta' frequently and 'Main' during non-peak hours.
 
@@ -46,8 +46,9 @@ Any sphinx errors will be printed directly to the user
 ## Requirements
 
  1. PHP >= 5.3.0
- 2. Sphinx Installed >= v2.0.6, either via distro or binary
+ 2. Sphinx Installed = v2.x either via distro or binary. Version 3.x is NOT currently supported
  3. Vanilla Version
+    - 20190101 and above: all v2.5 versions
     - 20140114 and above: all v2.1x versions
     - 20131210 and below: v2.0.18.x
  4. Enable URL Rewriting ($Configuration['Garden']['RewriteUrls'] = TRUE)
@@ -55,9 +56,15 @@ Any sphinx errors will be printed directly to the user
 Shared hosting will probably restrict sphinx from running properly on your host's servers, but you can try.
 
 ## Install
- 1. Download the latest [Sphinx Search](http://sphinxsearch.com/downloads/) build and install it from binary on windows or distro on linux
- 2. Download the [SphinxSearchPlugin](http://vanillaforums.org/addon/sphinxsearch-plugin) from Vanilla Forums's Plugin portal
- 3. Extract the zip file to your webserver's plugin folder
+First try get it working on your local host before deploying. It is easiest to use your Linux distribution or Windows.
+
+[Ubuntu Instructions](https://open.vanillaforums.com/discussion/30699/howto-install-sphinx-search-on-ubuntu-14-04#latest)
+
+`sudo systemctl start sphinxsearch`
+
+ 1. Download [v2.x Sphinx Search](http://sphinxsearch.com/downloads/archive/) binaries and install it.
+ 2. Download the latest [SphinxSearchPlugin](http://vanillaforums.org/addon/sphinxsearch-plugin) from Vanilla Forums's Plugin portal
+ 3. Extract the zip file to your webserver's plugin folder. For example, `htdocs/plugins/SphinxSearch`. Th folder name is case sensitive.
  4. **Replace the default `sphinxapi.php` file** in the `SphinxSearch` plugin folder with the one from the downloaded archive in step 1
  5. Click "settings" after enabling the SphinxSearch plugin
  6. Launch the install wizard from within the plugin's settings view
@@ -69,6 +76,15 @@ Shared hosting will probably restrict sphinx from running properly on your host'
  12. Setup a cron job to run the three auto-generated cron files so that new comments/discussions/searches are indexed
     - Check the log file (`sphinx_cron.log`) inside of the plugin's `cron` folder to find any problems during the cron task
     - You may need to run the cron jobs as `sudo` if you see permissions errors in the sphinx log file
+
+Using LAMPP or XAMPP? You must add `sql_sock` to all 3 of the indexes inside the conf file. For example, installing lampp into /opt/lampp requires this in your sphinx.conf: `sql_sock = /opt/lampp/var/mysql/mysql.sock`
+
+### Problems Installing
+
+```
+WARNING: index 'vss_main': prealloc: failed to open file '/var/lib/sphinxsearch/data/vss_main.spa': 'Permission denied'; NOT SERVING
+WARNING: index 'vss_main': prealloc: failed to open file '/var/lib/sphinxsearch/data/vss_main.sps': 'Permission denied'; NOT SERVING
+```
 
 
 ## Features
