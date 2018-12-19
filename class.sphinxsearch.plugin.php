@@ -10,16 +10,16 @@ if (!defined('APPLICATION'))
 
 $PluginInfo['SphinxSearch'] = array(
     'Description' => 'A much improved search experience with widgets based on the Sphinx Search Engine',
-    'Version' => '20170116',
-    'RequiredApplications' => array('Vanilla' => '2.0.18.4'),
+    'Version' => '20190101',
+    'RequiredApplications' => array('Vanilla' => '2.5'),
     'RequiredTheme' => FALSE,
     'RequiredPlugins' => FALSE,
     'HasLocale' => TRUE,
     'SettingsUrl' => '/plugin/sphinxsearch',
     'SettingsPermission' => 'Garden.AdminUser.Only',
-    'Author' => "mcuhq",
-    'AuthorEmail' => 'contact@mcuhq.com',
-    'AuthorUrl' => 'http://mcuhq.com'
+    'Author' => "Justin Bauer",
+    'AuthorEmail' => 'bauerjj@pm.me',
+    'AuthorUrl' => 'http://bauerjj.com'
 );
 
 class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
@@ -228,7 +228,7 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
     public function PluginController_SphinxSearch_Create($Sender) {
         $Sender->Title('Sphinx Search');
 
-        $Sender->AddSideMenu('plugin/sphinxsearch'); //add the left side menu
+        $Sender->setHighlightRoute('plugin/sphinxsearch'); //add the left side menu
         $Sender->Form = new Gdn_Form();
 
         $this->Dispatch($Sender, $Sender->RequestArgs);
@@ -247,7 +247,7 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
 
         // Currently, only pretty URLs will work with Sphinx. This is due to how the GET query string is constructed
         if (C('Garden.RewriteUrls') != TRUE)
-            $Sender->Form->AddError("Must enable Pretty URLs for Sphinx to work properly! <br> Do so in your config.php file; Configuration['Garden']['RewriteUrls'] = TRUE;");
+            $Sender->Form->AddError("Must enable Pretty URLs for Sphinx to work properly! <br> Do so in your config.php file; Configuration['Garden']['RewriteUrls'] = TRUE; <br> See https://docs.vanillaforums.com/developer/framework/controllers/#pretty-urls and for .htaccess example: https://open.vanillaforums.com/discussion/10767/htaccess-problem");
 
         $Sender->SetData('PluginDescription', $this->GetPluginKey('Description'));
         $Sender->SetData('PluginVersion', $this->GetPluginKey('Version'));
@@ -337,7 +337,7 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
                         //refresh settings (PID/log/query/ path) after save by getting new instance @todo pretty janky
                         $SphinxAdmin = SphinxFactory::BuildSphinx($Sender, $this->getview('wizard.php'));
                         $SphinxAdmin->InstallConfig(); // Write the new sphinx.conf file
-                        SaveToConfig('Plugin.SphinxSearch.ConfText','Paste Your Text Here'); // Overwrite back to default - Don't leave db info exposed in config file!
+                        //SaveToConfig('Plugin.SphinxSearch.ConfText','Paste Your Text Here'); // Overwrite back to default - Don't leave db info exposed in config file!
                         SaveToConfig('Plugin.SphinxSearch.Config', TRUE); //next step
                         $Sender->SetData('NextAction', 'Config'); //next step is Cron Config
                         // Sphinx is technically all set. Cron file generation is optional
@@ -350,14 +350,13 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
                 case 'Config': // AKA cron setup
                     $Sender->SetData('NextAction', 'Config'); //in case it fails
                     
-                    // In vanilla 2.2.1+ , it seems that these are no longer exposed methods. Simply ignore the validation
-                    // for now as a quick work-around. 
-                    //$this->ConfigurationModel->Validation->AddValidationField('Plugin.SphinxSearch.IndexerPath',$_POST);
-                    //$this->ConfigurationModel->Validation->AddValidationField('Plugin.SphinxSearch.ConfPath',$_POST);
-                    
+                    $this->ConfigurationModel->Validation->ApplyRule('Plugin.SphinxSearch.IndexerPath','Required');
+                    $this->ConfigurationModel->Validation->ApplyRule('Plugin.SphinxSearch.ConfPath','Required');
                     
                     $Sender->Form->Save();
                     if (!$Sender->Form->Errors()) {
+                        //refresh settings (indexer/conf paths) after save by getting new instance @todo pretty janky
+                        $SphinxAdmin = SphinxFactory::BuildSphinx($Sender, $this->getview('wizard.php'));
                         $SphinxAdmin->InstallCron();
                         SaveToConfig('Plugin.SphinxSearch.Installed', TRUE); // Sphinx is technically all set. Cron file generation is optional
                         $Sender->SetData('NextAction', 'Finish'); //complete this step
@@ -370,6 +369,8 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
         //get new settings that may have changed
         $Settings = SphinxFactory::BuildSettings();
         $Sender->SetData('Settings', $Settings->GetAllSettings());
+        $Sender->SetData('ConfText', C('Plugin.SphinxSearch.ConfText', 'Paste Your Text Here')); // Don't save the sensitve sphinx config info to vanilla's config.php
+        SaveToConfig('Plugin.SphinxSearch.ConfText','Paste Your Text Here'); // Overwrite back to default - Don't leave db info exposed in config file!
         $Sender->Render($this->GetView('wizard.php')); //render wizard view
     }
 

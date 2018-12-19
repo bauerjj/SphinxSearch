@@ -4,7 +4,7 @@ if (!defined('APPLICATION'))
 ?>
 
 <style type="text/css" media="screen">
-    body{ background:#000;color:#fff;font-size:.9em; }
+    body{ font-size:.9em; }
     .old{ background-color:#246499;}
     .new{ }
     .error{ background-color:#992E36;}
@@ -119,6 +119,18 @@ if (!defined('APPLICATION'))
 <br/>
 
 <h3>Changelog</h3>
+20190101
+<ol>
+    <li>Update for Vanilla 2.5/6 and Sphinx 2.3.2-beta. Note, Sphinx 3 will NOT work with this version. Sphinx 3 is still a WIP as of begining of 2019. Until Ubuntu and other major distros ship Sphinx3, I won't be supporting it. Please make a github issue if you want Sphinx 3 support since major API changes were made. </li>
+    <li>TODO: Use SphinxQL instead of the API -> http://sphinxsearch.com/blog/2013/07/23/from-api-to-sphinxql-and-back-again/
+</ol>
+<br>
+20170116
+<ol>
+    <li>Fixes security issue of exposing sphinx configuration into the analytics tool</li>
+    <li>Fixes cron job generation</li>
+</ol>
+<br>
 20140115
 <ol>
     <li>Deleted non-working links in the control panel</li>

@@ -28,7 +28,7 @@ if (!defined('APPLICATION'))
 
         function addmsg(type, msg){
             $("#Search").html(
-            "<div class='msg Inner "+ type +"'><h4>Questions that may already have your answer: </h4>"+ msg +"</div>"
+            "<div class='msg Inner "+ type +"'><h4><?php echo T('Related Threads') ?>: </h4>"+ msg +"</div>"
         );
         }
 

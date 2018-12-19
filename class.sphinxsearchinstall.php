@@ -66,7 +66,6 @@ class SphinxSearchInstall extends SphinxObservable {
             $Tags = TRUE;
         else
             $Tags = FALSE;
-
         $DBPrefix = C('Database.Name') . '.' . C('Database.DatabasePrefix', 'GDN_'); //join these 2
         $Search = array(
             '{sql_sock}' => $SQLSock,
@@ -100,6 +99,7 @@ class SphinxSearchInstall extends SphinxObservable {
     }
 
     private function _ReWriteSphinxConf($OrgFile) {
+        $this->_CheckPath($OrgFile, false, false);
         $Template = file_get_contents($OrgFile);       //get text from file
         $ReWritedContent = $this->_GenerateConfContent($Template);  //replace variables into sphinx.conf
         parent::Update(SS_SUCCESS, 'ConfText', $ReWritedContent); // Save this text

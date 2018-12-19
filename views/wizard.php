@@ -69,6 +69,7 @@ if (!defined('APPLICATION'))
 echo $this->Form->Open(array('id' => 'Form'));
 echo $this->Form->Errors();
 $Settings = $this->Data('Settings');
+$ConfText = $this->Data('ConfText'); 
 ?>
 <br/>
 <div class="FilterMenu">
@@ -140,8 +141,8 @@ $Settings = $this->Data('Settings');
             <br/>
             <ul><li>
                 <?php
-                    echo $this->Form->Label('Full Text of NEW sphinx.conf - Copy this into your existing sphinx.conf after making a local copy of original', 'OutputText');
-                    echo $this->Form->Textbox('OutputText', array('value' => $Settings['Install']->ConfText, 'Multiline' => true));
+                    echo $this->Form->Label('Full Text of NEW sphinx.conf - Copy this into your existing sphinx.conf after making a local copy of original. This is only presented once. Restart the wizard to see the text again since it is NOT saved in your config.php file', 'OutputText');
+                    echo $this->Form->Textbox('OutputText', array('value' => $ConfText, 'Multiline' => true));
                         ?>
                 </li>
                 <li>Sphinx is now ready to be run. Save your new sphinx.conf and then start the indexer. When indexing is finished, start searchd. Now search!  </li>
