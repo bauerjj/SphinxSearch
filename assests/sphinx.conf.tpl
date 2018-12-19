@@ -3,7 +3,6 @@
 #
 #  WARNING: YOUR DATABASE PASSWORD/USERNAME ARE CONTAINED IN THIS FILE!!!!
 #
-# -@author mcuhq
 ####################################################################
 
 
@@ -157,19 +156,16 @@ index {ss_prefix}main
     source          = {ss_prefix}main_discussion
     path            = {data_path}{ss_prefix}main
     docinfo         = extern
-    charset_type    = {charset_type} #For more charsets, for Arabic, Persian, Italian, etc forums, please see: http://sphinxsearch.com/wiki/doku.php?id=charset_tables
 
     #index settings
-    morphology      = none
-    dict            = crc
-    min_stemming_len = 1
+    morphology      = stem_en
+    dict            = keywords
+    min_stemming_len = 4
     min_word_len    = 2
     min_prefix_len  = 0
     min_infix_len   = 0
-    enable_star     = 0
     ngram_len       = 0
     html_strip      = 0
-    ondisk_dict     = 0
     inplace_enable  = 0
     expand_keywords = 0
     # 'utf-8' defaults for English and Russian
@@ -183,19 +179,16 @@ index {ss_prefix}delta : {ss_prefix}main
     source          = {ss_prefix}delta_discussion
     path            = {data_path}{ss_prefix}delta
     docinfo         = extern
-    charset_type    = {charset_type}
 
     #index settings
     morphology      = none
-    dict            = crc
+    dict            = keywords
     min_stemming_len = 1
     min_word_len    = 2
     min_prefix_len  = 0
     min_infix_len   = 0
-    enable_star     = 0
     ngram_len       = 0
     html_strip      = 0
-    ondisk_dict     = 0
     inplace_enable  = 0
     expand_keywords = 0
     # 'utf-8' defaults for English and Russian
@@ -251,7 +244,7 @@ indexer
 
 searchd
 {
-    port            = {searchd_port}
+    listen          = {searchd_port}
     log             = {log_path}
     query_log       = {query_path}
     pid_file        = {PID_path}
@@ -261,15 +254,11 @@ searchd
     read_timeout    = 5
     client_timeout  = 360
     max_children    = 0
-    max_matches     = 1000
     read_buffer     = 1M
     workers         = fork
 
     thread_stack    = 64K
     expansion_limit = 0
-    prefork_rotation_throttle = 0
-
-    compat_sphinxql_magics = 0 # the future is now
 }
 
 # --eof--
