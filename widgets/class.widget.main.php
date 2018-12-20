@@ -111,8 +111,8 @@ class WidgetMain extends Widgets implements SplObserver {
             }
         }
         if (!empty($Sanitized['MemberList'])) {      //filter by member
-            // $String = $this->OperatorOrSearch($Sanitized['MemberList']);
-            // $SubQuery .= $this->FieldSearch($String, array(SS_FIELD_USERNAME));
+             $String = $this->OperatorOrSearch($Sanitized['MemberList']);
+             $SubQuery .= $this->FieldSearch($String, array(SS_FIELD_USERNAME));
         }
         if (!empty($Sanitized['WithReplies'])) {      //only return threads that have comments
             $this->SphinxClient->SetFilterRange(SS_ATTR_COUNTCOMENTS, 1, 1, TRUE); //exclude documents with exactly 0 comments (the first topic post counts as 1)
