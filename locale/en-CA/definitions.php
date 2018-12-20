@@ -35,7 +35,7 @@ $Definition['Simple'] = 'Simple';
 $Definition['Search Results for Query'] = 'Search Results for Query';
 $Definition['Results'] = 'Results';
 $Definition['Result'] = 'Result';
-$Definition['Search Again :: Adv Search'] = 'Search Again :: Adv Search';
+$Definition['Search Again :: Adv Search'] = 'Advanced Search';
 $Definition['More Options'] = 'Syntax Help';
 $Definition['Less Options'] = 'Hide';
 
