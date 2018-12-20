@@ -162,7 +162,7 @@ index {ss_prefix}main
     dict            = keywords
     min_stemming_len = 4
     min_word_len    = 2
-    min_prefix_len  = 0
+    min_prefix_len  = 3
     min_infix_len   = 0
     ngram_len       = 0
     html_strip      = 0
@@ -181,11 +181,11 @@ index {ss_prefix}delta : {ss_prefix}main
     docinfo         = extern
 
     #index settings
-    morphology      = none
+    morphology      = stem_en
     dict            = keywords
-    min_stemming_len = 1
+    min_stemming_len = 4
     min_word_len    = 2
-    min_prefix_len  = 0
+    min_prefix_len  = 3
     min_infix_len   = 0
     ngram_len       = 0
     html_strip      = 0

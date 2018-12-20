@@ -16,14 +16,14 @@
 
 
 </style>
-<h1><?php echo T($this->Data['Title']) . ' - ' . $this->Data['PluginVersion']; ?></h1>
+<h1><?php echo T($this->Data['Title']) ?></h1>
 <div class="Info">
     <?php echo T($this->Data['PluginDescription']); ?>
 </div>
 <h3><?php echo 'Quick Links'; ?></h3>
 <div class="Info">
     <ul>
-        <li><?php echo Anchor('Back To Control Panel', 'plugin/sphinxsearch'); ?></li>
+        <li><?php echo Anchor('Back To Sphinx Search', 'plugin/sphinxsearch'); ?></li>
     </ul>
 </div>
 <h3>Settings</h3>

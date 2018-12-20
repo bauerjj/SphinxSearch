@@ -258,16 +258,6 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
         $Sender->Render($this->getview('sphinxsearch.php'));
     }
 
-    public function Controller_FAQ($Sender) {
-        // Prevent non-admins from accessing this page
-        $Sender->Permission('Vanilla.Settings.Manage');
-
-        $Sender->SetData('PluginDescription', $this->GetPluginKey('Description'));
-        $Sender->SetData('PluginVersion', $this->GetPluginKey('Version'));
-
-        $Sender->Render($this->GetView('faq.php'));
-    }
-
     /**
      * main entry point for the install wizard
      * input parameters for wizard are in the $_GET buffer
@@ -421,7 +411,9 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
                 if (empty($_GET) || isset($_GET['tar'])) {
                     //Load main search page
                     $SearchHelpModule = new SearchHelpModule();
-                    $Sender->AddAsset('LeftPanel', $SearchHelpModule, 'LeftPanel');
+
+                    // This loads a panel that shows how to search
+                    //$Sender->AddAsset('LeftPanel', $SearchHelpModule, 'LeftPanel');
 
                     $Sender->AddAsset('BottomPanel', '', 'BottomPanel');
                     $Sender->AddCssFile('/plugins/SphinxSearch/design/mainsearch.css');

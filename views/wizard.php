@@ -43,28 +43,17 @@ if (!defined('APPLICATION'))
     }
 
 </style>
-<div class="Help Aside">
-    <?php
-    echo '<h2>', T('Need More Help?'), '</h2>';
-    echo '<ul>';
-    echo '<li>', Anchor(T('Install FAQ'), 'plugin/sphinxsearch/sphinxsearch/faq'), '</li>';
-    echo '<li>', Anchor(T('Offical Sphinx Documentation'), 'http://sphinxsearch.com/docs/current.html'), '</li>';
-    echo '</ul>';
-    ?>
-</div>
-<h1><?php echo T($this->Data['Title']) . ' - ' . $this->Data['PluginVersion']; ?></h1>
+<h1><?php echo T($this->Data['Title'])?></h1>
 <div class="Info">
     <?php echo T($this->Data['PluginDescription']); ?>
 </div>
 <h3><?php echo 'Quick Links'; ?></h3>
 <div class="Info">
     <ul>
-        <li><?php echo Anchor('Back To Control Panel', 'plugin/sphinxsearch'); ?></li>
+        <li><?php echo Anchor('Back To Sphinx Search', 'plugin/sphinxsearch'); ?></li>
     </ul>
 </div>
 <h3>Install Wizard</h3>
-<br/>
-<br/>
 <?php
 echo $this->Form->Open(array('id' => 'Form'));
 echo $this->Form->Errors();
