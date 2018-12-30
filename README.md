@@ -15,7 +15,7 @@ Donations:
 
 XMR: xxx BTC: xxx
 
-Table of contents
+Table Of Contents
 -----------------
 
  - [How it Works](#how-it-works)
@@ -60,91 +60,128 @@ The plugin contains a series of widgets in addition to the main search page. The
 #### Advanced Search & result Page
 This adds a more advanced search option.
 
-![adv-search](https://user-images.githubusercontent.com/1715776/50308335-2a034000-0458-11e9-97ba-c9d26e690e76.png)
+<!-- adv-search -->
+<p align="center"> 
+<img width="600" height="289" src="https://user-images.githubusercontent.com/1715776/50308335-2a034000-0458-11e9-97ba-c9d26e690e76.png" />
+</p>
 
 #### Post Searches
 Much like on stackoverflow.com, any new discussion that is being typed into the title box will start sphinx looking for related threads in reference to the new potential thread. A box will appear the input box showing some relevant threads.
 
-![post-searches](https://user-images.githubusercontent.com/1715776/50308352-338ca800-0458-11e9-8561-1a47764cec4d.png)
+<!-- post-searches  -->
+<p align="center"> 
+<img width="500" height="249" src="https://user-images.githubusercontent.com/1715776/50308352-338ca800-0458-11e9-8561-1a47764cec4d.png" />
+</p>
 
 #### Related Threads and Searches
 For each search or discussion thread, the side and/or bottom panel will include a list of related threads based on the query or currently viewed thread.
 
 Main search page:
-![main-search-all](https://user-images.githubusercontent.com/1715776/50310322-e5c76e00-045e-11e9-842c-7f0bfd3dffb7.png)
+<!-- main-search-all  -->
+<p align="center"> 
+<img width="600" height="292" src="https://user-images.githubusercontent.com/1715776/50310322-e5c76e00-045e-11e9-842c-7f0bfd3dffb7.png" />
+</p>
 
 Discussions page:
 
-![related-discussion](https://user-images.githubusercontent.com/1715776/50310331-ebbd4f00-045e-11e9-88cf-a560d5f89cc5.png)
+<!-- related-discussion  -->
+<p align="center"> 
+<img width="600" height="260" src="https://user-images.githubusercontent.com/1715776/50310331-ebbd4f00-045e-11e9-88cf-a560d5f89cc5.png" />
+</p>
 
 #### Top Keywords and Searches
 The plugin will keep a list of all search queries and display the top configurable amount of keywords in the panel on the advanced search landing page.
-
-![top-keywords](https://user-images.githubusercontent.com/1715776/50310335-f1b33000-045e-11e9-9c6d-03af7c77f6b9.png)
+<!-- top-keywords  -->
+<p align="center"> 
+<img width="600" height="382" src="https://user-images.githubusercontent.com/1715776/50315984-182e9680-0472-11e9-8cdb-7e5cb4f4f9aa.png" />
+</p>
 
 #### HitBox
 For each search, there is a hitbox that will detail the number of documents that matched each word and number of hits total. A caveat of this is that the analysis of each word comes **BEFORE** any filtering, so the results may differ than what the hitbox says. For instance, 26 documents in the document for the word, *vanilla*, may only result in 8 threads/comments with that same word due to filtering or post processing.
-
-![hit-box](https://user-images.githubusercontent.com/1715776/50310346-f7107a80-045e-11e9-82ce-65215beb4b11.png)
+<!-- hitbox  -->
+<p align="center"> 
+<img src="https://user-images.githubusercontent.com/1715776/50310346-f7107a80-045e-11e9-82ce-65215beb4b11.png" />
+</p>
 
 ### Settings
 
 The widgets are configurable via the settings page. 
 
-![settings](https://user-images.githubusercontent.com/1715776/50310356-fd065b80-045e-11e9-8267-69ae034b57ab.png)
+<!-- settings  -->
+<p align="center"> 
+<img src="https://user-images.githubusercontent.com/1715776/50316160-c5a1aa00-0472-11e9-89a9-d86077670c8b.png" />
+</p>
 
 The layout of the results page and the discussions page that appear in the bottom panel can have their layouts changed. Here are a few examples:
 
 **Discussions**
 
 Classic layout
-![discussion-classic](https://user-images.githubusercontent.com/1715776/50310366-042d6980-045f-11e9-9ab6-20ad620c65d3.png)
+
+<!-- discussion classic  -->
+<p align="center"> 
+<img width="400" height="83" src="https://user-images.githubusercontent.com/1715776/50310366-042d6980-045f-11e9-9ab6-20ad620c65d3.png" />
+</p>
 
 Simple layout
-![discussion-simple](https://user-images.githubusercontent.com/1715776/50310368-08f21d80-045f-11e9-8045-1253fb053308.png)
+
+<!-- discussion simple  -->
+<p align="center"> 
+<img width="400" height="50" src="https://user-images.githubusercontent.com/1715776/50310368-08f21d80-045f-11e9-8045-1253fb053308.png" />
+</p>
 
 **Search**
 
 Classic layout
-![main-classic](https://user-images.githubusercontent.com/1715776/50310376-0e4f6800-045f-11e9-913d-c22cdfa35f61.png)
+
+<!-- main classic  -->
+<p align="center"> 
+<img width="500" height="181" src="https://user-images.githubusercontent.com/1715776/50310376-0e4f6800-045f-11e9-913d-c22cdfa35f61.png" />
+</p>
 
 Simple layout
-![main-table](https://user-images.githubusercontent.com/1715776/50310401-1ad3c080-045f-11e9-9646-eebc3b554bd7.png)
+<!-- main table  -->
+<p align="center"> 
+<img width="500" height="109" src="https://user-images.githubusercontent.com/1715776/50310401-1ad3c080-045f-11e9-9646-eebc3b554bd7.png" />
+</p>
 
 ## Requirements
 
  1. PHP >= 5.3.0
  2. Sphinx Installed = v2.x either via distro or binary. Version 3.x is NOT currently supported
  3. Vanilla Version
-    - 20181222 and above: all v2.5 versions
-    - 20140114 and above: all v2.1x versions
-    - 20131210 and below: v2.0.18.x
+    - 20190101 and above: all v2.4+ versions
+    - 20140114 and above: all v2.1x+ versions
+    - 20131210 and below: v2.0.18.x+
  4. Enable URL Rewriting inside your `config.php`: `$Configuration['Garden']['RewriteUrls'] = TRUE`
 
 ## Install
-First try get it working on your local host before deploying. It is easiest to use your Linux distribution or Windows. Shared hosting will probably restrict sphinx from running properly on your host's servers, but you can try.
+This plugin works on both Windows and Unix environments. 
 
-Using LAMPP or XAMPP? You must add `sql_sock` to all 3 of the indexes inside the conf file. For example, installing lampp into /opt/lampp requires this in your sphinx.conf: `sql_sock = /opt/lampp/var/mysql/mysql.sock`
+First try get it working on your local host before deploying. It is easiest to use your Linux distribution to install. Shared hosting will probably restrict sphinx from running properly on your host's servers, but you can try.
 
-### Ubuntu 16/18 
+Using LAMPP or XAMPP? You must add `sql_sock` to all 3 of the indexes inside the conf file. For example, installing lampp into /opt/lampp requires this in your sphinx.conf: `sql_sock = /opt/lampp/var/mysql/mysql.sock`. See [here](https://vitux.com/how-to-install-xampp-on-your-ubuntu-18-04-lts-system/) for instructions on how to install LAMPP on your ubuntu machine. 
 
-1. `sudo systemctl start sphinxsearch`
+### Ubuntu 14/16/18 
+
+1. `sudo apt-get install mysql-client unixodbc libpq5` then `sudo apt-get install sphinxsearch`
 2. `git clone git@github.com:bauerjj/SphinxSearch.git`
 3. See [Linux Desktop for Lampp](https://docs.joomla.org/Configuring_a_LAMPP_server_for_PHP_development/Linux_desktop) to solve file permissions. `sudo adduser youruser www-data` 
 4. `mv ./SphinxSearch <your_webserver/htdocs/plugins/>`
+5. Find what version of sphinx you have installed by visiting [the Ubuntu packages page](https://packages.ubuntu.com/search?keywords=sphinxsearch&searchon=names) or run `/usr/bin/searchd --version`. Then download the **source package** from that same Ubuntu release page and copy the `sphinxapi.php` over the default one shipped with this plugin located at `htdocs/plugins/SphinxSearch`. 
 5. Navigate to your Vanilla Forums admin panel and enable the plugin. If it doesn't show up, try deleting the cache at: `htdocs/cache/addon.php`
 6. Launch the install wizard from within the plugin's settings view
 7. Follow the install steps. You will need to copy and paste your default installed sphinx.conf into the installer. 
 8. Paste your new configuration file into your original `sphinx.conf` file
 9. Give the `cron` folder write permissions: `chmod a+x htdocs/plugins/SphinxSearch/cron` so you can generate the cron files
 10. Index: `sudo /usr/bin/indexer --all --config /etc/sphinxsearch/sphinx.conf`
-11. Start the searchd daemon (example: `sudo /usr/bin/searchd --config /etc/sphinx/sphinx.conf`)
+11. Start the searchd daemon (example: `sudo systemctl start sphinxsearch` or `sudo /usr/bin/searchd --config /etc/sphinxsearch/sphinx.conf`). I also had to make a directory (`sudo mkdir /var/run/sphinxsearch`)
 12. Perform a search on your website 
 13. Any warnings/errors can be seen in the logs: 
    - `sudo tail -f /var/log/sphinxsearch/searchd.log` 
    - `sudo tail -f /var/log/sphinxsearch/query.log`
 
-See also: Here is a [Ubuntu 14 step-by-step](https://open.vanillaforums.com/discussion/30699/howto-install-sphinx-search-on-ubuntu-14-04#latest) from a Vanilla Forums user.
+See also: Here is a user contributed guide for [Ubuntu 14 step-by-step](https://open.vanillaforums.com/discussion/30699/howto-install-sphinx-search-on-ubuntu-14-04#latest).
 
 
 ### General Linux 
@@ -155,9 +192,36 @@ See also: Here is a [Ubuntu 14 step-by-step](https://open.vanillaforums.com/disc
  4. **Replace the default `sphinxapi.php` file** in the `SphinxSearch` plugin folder with the one from the downloaded archive in step 1. You don't need to do this if you are using v2.3-2
  5. Follow the rest of the Ubuntu guide above, substituting your own paths in
 
+See the [official sphinx docs](http://sphinxsearch.com/docs/manual-2.3.2.html#supported-system) on how to install on other distros
+
+General format to start searchd: `sudo /usr/bin/searchd --config /etc/sphinx/sphinx.conf` and `sudo /usr/bin/searchd --stop`
 
 ### Windows
-TODO
+
+See the [official docs](http://sphinxsearch.com/docs/manual-2.3.2.html#installing-windows) as a reference. I used [XAMPP](https://www.apachefriends.org/download.html) on my local machine to test this with a fresh install of Vanilla Forums. You can also use an existing installation of Vanilla Forums just fine. 
+
+1. Download the v2.3.2 Win32 or Win64 binaries wi/MySQL support from the [download archive](http://sphinxsearch.com/downloads/archive/)
+2. Extract the entire contents into `C:\Sphinx` such that `searchd.exe` can be found in `C:\Sphinx\bin\searchd.exe`
+3. Copy `C:\Sphinx\sphinx.conf.in` into `C:\Sphinx\sphinx.conf`
+4. Replace all occurrences of `@CONFDIR@` with `c:\sphinx` inside of `sphinx.conf`
+5. Download and extract [Vanilla Forums](https://open.vanillaforums.com/download) zip into xammps webserver root. Example, `c:/xampp/htdocs`
+6. Start xampp and start apache and mysql. Go to `127.0.0.1` and create your forum following Vanilla's installer. 
+7. Download [SphinxSearchPlugin](https://github.com/bauerjj/SphinxSearch) and extract the zip into `c:/xampp/htdocs/plugins/SphinxSearch`. The name of the folder is critical. 
+8. Open the plugin and launch the install wizard. You will need to paste your edited `sphinx.conf` contents into the install wizard on step 2. 
+9. Paste the newly generated configuration file from the install wizard into your `sphinx.conf`, overwriting it. 
+10. Right-Click on the command prompt and "Run as Administrator"
+11. Paste this into it and run it: ` C:\Sphinx\bin\searchd --install --config C:\Sphinx\sphinx.conf --servicename SphinxSearch`
+   You should see
+``` 
+Installing service...
+Service 'SphinxSearch' installed successfully.
+```
+12. Launch the Services tool by `Windows->Administrative Tools->Services` and you should see SphinxSearch listed
+13. Run the service by clicking the arrow button. Any errors can be seen seen in the logs at `C:/Sphinx/log`
+14. Index your Vanilla Forum. Paste this into the command prompt: `C:\Sphinx\bin\indexer.exe --rotate --all --config C:\Sphinx\sphinx.conf`. 
+	- Note: There is a [known issue](http://sphinxsearch.com/forum/view.html?id=15815) where the `searchd` service must first be running before the documents are indexed. 
+15. Now run a search using the regular means on your website to see the plugin working. 
+
 
 ### Common Install Errors
 
@@ -165,6 +229,9 @@ Please first see the [numerous questions](https://open.vanillaforums.com/addon/9
 
 `fsockopen(): unable to connect to localhost::xxxx ....`
 First try to start searchd and then check the port again
+
+`Query failed: searchd error: client version is higher than daemon version (client is v.xxxx, daemon is v.yyy). `
+You have a mismatched API. You m ust copy the `sphinxapi.php` from the version you have downloaded into the `SphinxSearch` root directory. Restart `searchd` and disable/re-enable the plugin.
 
 `"Failed to open log/pid file" when trying to re-index`
 You may need to stop searchd using: `/location/to/searchd/searchd --stop`. You can do it manually by killing all instances of searchd by using 'ps' in the command line. If that does not work, delete all files in your ../sphinx/var/log folder and restart
@@ -240,6 +307,7 @@ Future versions may let you censor this easier, but for now be sure to enable th
 
 - Update for Vanilla 2.5/6 and Sphinx 2.3.2-beta. Note, Sphinx 3 will NOT work with this version. Sphinx 3 is still a WIP as of beginning of 2019. Until Ubuntu and other major distros ship Sphinx3, I won't be supporting it. Please make a github issue if you want Sphinx 3 support since major API changes were made. 
 - Move the documentation all into the github README
+- Added Windows install instructions
 - General cleanup of non-working code
 
 ### 20170116
