@@ -115,6 +115,7 @@ The widgets are configurable via the settings page.
 The layout of the results page and the discussions page that appear in the bottom panel can have their layouts changed. Here are a few examples:
 
 **Discussions**
+Related discussions, or threads, can be displayed in different layouts such as a table beneath each page. 
 
 Classic layout
 
@@ -131,6 +132,7 @@ Simple layout
 </p>
 
 **Search**
+The layout of the main results page can be configured.
 
 Classic layout
 
@@ -189,7 +191,7 @@ See also: Here is a user contributed guide for [Ubuntu 14 step-by-step](https://
  1. Download [Sphinx 2.3.2-beta](http://sphinxsearch.com/downloads/archive/) binaries and install it.
  2. Download the latest [SphinxSearchPlugin](https://github.com/bauerjj/SphinxSearch) from github. Older versions can also be found on [Vanilla Plugin Page](https://open.vanillaforums.com/addon/959/sphinxsearch)
  3. Extract the zip file to your webserver's plugin folder. For example, `htdocs/plugins/SphinxSearch`. The folder name is case sensitive.
- 4. **Replace the default `sphinxapi.php` file** in the `SphinxSearch` plugin folder with the one from the downloaded archive in step 1. You don't need to do this if you are using v2.3-2
+ 4. **Replace the default `sphinxapi.php` file** in the `SphinxSearch` plugin folder with the one from the downloaded archive in step 1. You don't need to do this if you are using v2.2.9
  5. Follow the rest of the Ubuntu guide above, substituting your own paths in
 
 See the [official sphinx docs](http://sphinxsearch.com/docs/manual-2.3.2.html#supported-system) on how to install on other distros
@@ -271,8 +273,7 @@ The UI can be changed inside the `views` folder.
 ## TODO
 There are multiple improvements that can be made. Here are a list of widgets that can be done, but I have lost track of time:
 
-   *  Improve the ugliness of the search UI. 
-   *  Add a nice javascript dropdown menu to the search box just like how the official vanilla forums has.
+   *  Improve the ugliness of the search UI. Add a nice javascript dropdown menu to the search box just like how the official vanilla forums has.
    *  'Did you Mean...' feature on the main search. Sphinx v3 has this feature.
 
 ## FAQ
@@ -303,9 +304,9 @@ Future versions may let you censor this easier, but for now be sure to enable th
 
 ## Changelog
 
-### 20181222
+### 20190101
 
-- Update for Vanilla 2.5/6 and Sphinx 2.3.2-beta. Note, Sphinx 3 will NOT work with this version. Sphinx 3 is still a WIP as of beginning of 2019. Until Ubuntu and other major distros ship Sphinx3, I won't be supporting it. Please make a github issue if you want Sphinx 3 support since major API changes were made. 
+- Update for Vanilla 2.4/5/6 and Sphinx 2.3.2-beta. Note, Sphinx 3 will NOT work with this version. Sphinx 3 is still a WIP as of beginning of 2019. Until Ubuntu and other major distros ship Sphinx3, I won't be supporting it. Please make a github issue if you want Sphinx 3 support since major API changes were made. 
 - Move the documentation all into the github README
 - Added Windows install instructions
 - General cleanup of non-working code
