@@ -11,6 +11,7 @@ if (!defined('APPLICATION'))
 $PluginInfo['SphinxSearch'] = array(
     'Description' => 'A much improved search experience with widgets based on the Sphinx Search Engine',
     'Version' => '20190101',
+    'License' => 'GNU GPL2',
     'RequiredApplications' => array('Vanilla' => '2.4'),
     'RequiredTheme' => FALSE,
     'RequiredPlugins' => FALSE,
