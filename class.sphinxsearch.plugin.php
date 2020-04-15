@@ -706,7 +706,7 @@ class SphinxSearchPlugin extends Gdn_Plugin implements SplSubject {
                 ->Column('id', 'int(11)', FALSE) //order matters here!
                 ->Column('mode', 'int(11)', FALSE)
                 ->Column('keywords', 'varchar(255)', FALSE, 'index')
-                ->Column('keywords_full', 'varchar(255)', FALSE)
+                ->Column('keywords_full', 'varchar(255)', TRUE)
                 ->Column('date_added', 'datetime', FALSE)
                 ->PrimaryKey('id', 'int')
                 ->Set();
